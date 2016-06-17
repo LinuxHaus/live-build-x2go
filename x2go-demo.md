@@ -1,0 +1,10 @@
+Load ipxe from http://boot.ipxe.org/
+ipxe.efi, ipxe.iso, ipxe.usb is good candidate for you.
+
+boot your ipxe image and type quickly [Control] + b
+type:
+
+dhcp
+chain http://demo.x2go.org/myhw
+
+enjoy it
