@@ -1,6 +1,7 @@
 Only usable on Systems with minimum 2Gb RAM
 Install debian jessie on your Server
 make you to root on the Server
+apt update
 apt install ipxe atftpd atftp xinetd apache2 live-build live-config-doc live-manual-html live-boot-doc
 cat <<EOF>/etc/default/atftpd 
 USE_INETD=false
