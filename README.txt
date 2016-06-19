@@ -1,4 +1,4 @@
-Only usable on Systems with minimum 1Gb RAM
+Only usable on Systems with minimum 1GB RAM
 Install debian jessie on your Server
 make you to root on the Server
 apt update
