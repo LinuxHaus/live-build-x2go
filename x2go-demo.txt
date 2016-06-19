@@ -7,4 +7,4 @@ type:
 dhcp
 chain http://demo.x2go.org/myhw
 
-enjoy it
+Enjoy it
