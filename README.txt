@@ -1,8 +1,10 @@
 Only usable on Systems with minimum 1GB RAM
 Install debian jessie on your Server
-make you to root on the Server
+become root on the Server
 apt update
 apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
+
+# tftp/pxe config
 cat <<EOF>/etc/default/atftpd 
 USE_INETD=false
 OPTIONS="--daemon --port 69 --retry-timeout 5 --no-multicast --maxthread 100 --verbose=5 /srv/tftp"
@@ -13,7 +15,7 @@ ln -s /boot/ipxe.efi /srv/tftp/uefi/
 FQDN=demo.x2go.org
 IP_OF_FQDN=`dig $FQDN +short`
 
-just a part of dhcpd.conf from isc-dhcp-server package:
+# just a part of dhcpd.conf from isc-dhcp-server package:
    if substring ( option vendor-class-identifier , 19,1 ) = "0" {
            filename "bios/undionly.kpxe";
    }
@@ -35,6 +37,8 @@ just a part of dhcpd.conf from isc-dhcp-server package:
 
       filename = concat( "http://$FQDN/", hwmac );
    }
+
+# Actual build starts here
 
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
