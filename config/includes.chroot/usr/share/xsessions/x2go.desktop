@@ -1,0 +1,11 @@
+[Desktop Entry]
+Name=x2go
+Comment=x2go
+Exec='x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --session-conf=/etc/x2go/x2gothinclient_sessions'
+Keywords=wm;
+Terminal=False
+TryExec='x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --session-conf=/etc/x2go/x2gothinclient_sessions'
+Type=Application
+
+[Window Manager]
+SessionManaged=true
