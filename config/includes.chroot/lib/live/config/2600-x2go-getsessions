@@ -1,0 +1,47 @@
+#!/bin/sh
+
+X2GoGetSessions ()
+{
+# Output startup message
+#
+echo -n " x2go-getsessions"
+
+
+        SESSIONSURL=$(cat /proc/cmdline | \
+                       tr ' ' '\n' | \
+                       awk -F'=' ' /^sessionsurl=/ { print $2 }')
+        if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
+        cat >/etc/network/if-up.d/getsessions <<GETSESS
+#!/bin/bash
+export TERM=linux;
+SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
+
+while ! ip a | grep -v "inet 127.0.0.1" | grep -v "inet6 ::1/128" | grep -q inet ; do
+        sleep 2
+done
+if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
+        SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+        SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+        if [ -n "$SESSIONSSERVER" ] && [ -n "$SESSIONSPATH" ] ; then
+                while ! atftp $SESSIONSSERVER -g -r $SESSIONSPATH -l $SESSIONSDESTINATION ; do
+                        echo "Waiting for session config data ..."
+                        sleep 5
+                done
+        fi
+else
+        while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
+                echo "Waiting for session config data ..."
+                sleep 5 
+        done
+fi
+
+if [ -s $SESSIONSDESTINATION ] ; then
+        mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
+fi
+
+GETSESS
+                chmod 755 /etc/network/if-up.d/getsessions
+        fi
+}
+
+X2GoGetSessions
