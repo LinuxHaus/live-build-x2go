@@ -4,10 +4,11 @@ AddToFunc InitFunction
 + I exec xset -b &
 + I Module FvwmCommandS
 + I Module FvwmEvent
-+ I exec x2goclient --thinclient --add-to-known-hosts --link=lan --haltbt --clipboard=both --pack=16m-png-9 --session-conf=/etc/x2go/x2gothinclient_sessions &
++ I exec x2goclient --thinclient --no-session-edit --maximize --no-menu --geometry=fullscreen --add-to-known-hosts --link=lan --haltbt --clipboard=both --pack=16m-png-9 --session-conf=/etc/x2go/x2gothinclient_sessions &
 + I exec FvwmCommand Restart &
 
 Style "*" SkipMapping
+Style "X2goclient" NoTitle, NoHandles, Sticky, WindowListSkip, BorderWidth 0
 Style "*" !UsePPosition, !UseUSPosition
 Style "*" BorderWidth 1, HandleWidth 1
 
