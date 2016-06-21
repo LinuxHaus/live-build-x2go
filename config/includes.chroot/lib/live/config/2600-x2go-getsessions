@@ -6,7 +6,6 @@ X2GoGetSessions ()
 #
 echo -n " x2go-getsessions"
 
-
         SESSIONSURL=$(cat /proc/cmdline | \
                        tr ' ' '\n' | \
                        awk -F'=' ' /^sessionsurl=/ { print $2 }')
