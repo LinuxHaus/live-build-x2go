@@ -1,0 +1,21 @@
+#!/bin/sh
+
+X2GoPowerbuttonMonitor ()
+{
+# Output startup message
+#
+echo -n " x2go-powerbuttonmonitor"
+
+# Spawn Powerbutton-Monitor
+(
+        rm -f /home/user/.halt
+        inotifywait -mrq -e create /home/user/ | grep -q  "CREATE .halt" && (
+                killall X ;
+                poweroff ;
+                chvt 7
+        )
+) &
+
+}
+
+X2GoPowerbuttonMonitor
