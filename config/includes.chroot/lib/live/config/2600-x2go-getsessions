@@ -11,10 +11,10 @@ echo -n " x2go-getsessions"
                        tr ' ' '\n' | \
                        awk -F'=' ' /^sessionsurl=/ { print $2 }')
         if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
+	SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
         cat >/etc/network/if-up.d/getsessions <<GETSESS
 #!/bin/bash
 export TERM=linux;
-SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
 
 while ! ip a | grep -v "inet 127.0.0.1" | grep -v "inet6 ::1/128" | grep -q inet ; do
         sleep 2
