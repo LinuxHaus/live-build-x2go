@@ -20,16 +20,16 @@ ps -C pulseaudio --no-headers || (su - user -c "pulseaudio -D -n -L 'module-nati
 # Spawn openbox
 openbox &
 
+# Set Audio Volume
+amixer -q sset Master 100
+amixer -q sset PCM 100
+
 # Spawn X2GoClient
 x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --session-conf=/etc/x2go/x2gothinclient_sessions
 XSESSION
 
 chown user:user /home/user/.xsession
 chmod 644 /home/user/.xsession
-
-# Set Audio Volume
-amixer -q sset Master 100
-amixer -q sset PCM 100
 
 }
 
