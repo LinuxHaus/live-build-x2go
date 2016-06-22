@@ -1,1 +1,1 @@
-xserver-xorg-video-all xserver-xorg nodm openbox xterm 
+xserver-xorg-video-all xserver-xorg nodm openbox plymouth plymouth-themes plymouth-x11 xterm 
