@@ -9,10 +9,6 @@ echo -n " x2gothinclientconfig"
 
 sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e '\#<applications>#a<decor>no</decor>' -e '\#<applications>#a</application>' /etc/xdg/openbox/rc.xml
 
-# Set Audio Volume
-amixer -q sset Master 100
-amixer -q sset PCM 100
-
 cat >/home/user/.xsession <<XSESSION
 # inspired by 
 # http://code.x2go.org/gitweb?p=x2gothinclient.git;a=blob_plain;f=displaymanager/sbin/x2gothinclientd;h=6897d42d17bd6778e7de5e62ec3f51727d4e8800;hb=HEAD
