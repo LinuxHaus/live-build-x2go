@@ -1,5 +1,5 @@
-Only usable on Systems with minimum 1GB RAM
-Install debian jessie on your Server
+Only usable on systems with minimum 1G  RAM
+Install Debian jessie on your server
 become root on the Server
 apt update
 apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
