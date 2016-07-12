@@ -1,0 +1,45 @@
+#!/bin/sh
+
+X11GetXorgConf ()
+{
+# Output startup message
+#
+echo -n " x11-getxorgconf"
+
+        XORGCONFURL=$(cat /proc/cmdline | \
+                       tr ' ' '\n' | \
+                       awk -F'=' ' /^xorgconfurl=/ { print $2 }')
+        if [ -n "$XORGCONFURL" ] && [ -d /etc/X11 ] ; then 
+	XORGCONFDESTINATION=/etc/X11/xorg.conf.new
+        cat >/etc/network/if-up.d/getxorgconf <<GETXORG
+#!/bin/bash
+export TERM=linux;
+
+while ! ip a | grep -v "inet 127.0.0.1" | grep -v "inet6 ::1/128" | grep -q inet ; do
+        sleep 2
+done
+if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
+        XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+        XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+        if [ -n "$XORGCONFSERVER" ] && [ -n "$XORGCONFPATH" ] ; then
+                while ! atftp $XORGCONFSERVER -g -r $XORGCONFPATH -l $XORGCONFDESTINATION ; do
+                        echo "Waiting for xorg.conf download ..."
+                        sleep 5
+                done
+        fi
+else
+        while ! wget -q -O $XORGCONFDESTINATION $XORGCONFURL ; do
+                echo "Waiting for xorg.conf download ..."
+                sleep 5 
+        done
+fi
+
+if [ -s $XORGCONFDESTINATION ] ; then
+        mv $XORGCONFDESTINATION /etc/X11/xorg.conf
+fi
+
+GETXORG
+                chmod 755 /etc/network/if-up.d/getxorgconf
+        fi
+}
+X11GetXorgConf
