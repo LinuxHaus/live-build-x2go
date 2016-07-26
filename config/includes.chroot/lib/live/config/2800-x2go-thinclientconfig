@@ -20,8 +20,43 @@ pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detec
 # Spawn openbox
 openbox &
 
+
+# Get X2GoConfig
+BROKERURL=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    awk -F'=' ' /^broker-url=/ { print \$2 }')
+LDAP=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    sed 's/^ldap=/ldap#/' | \
+	    awk -F'#' ' /^ldap#/ { print \$2 }')
+LDAP1=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    sed 's/^ldap1=/ldap1#/' | \
+	    awk -F'#' ' /^ldap1#/ { print \$2 }')
+LDAP2=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    sed 's/^ldap2=/ldap2#/' | \
+	    awk -F'#' ' /^ldap2#/ { print \$2 }')
+
 # Spawn X2GoClient
-x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --session-conf=/etc/x2go/x2gothinclient_sessions
+if [ -n "\$BROKERURL" ]; then
+	SESSIONFROM="--broker-url=\$BROKERURL"
+else 
+	SESSIONFROM="--session-conf=/etc/x2go/x2gothinclient_sessions"
+fi
+if [ -n "\$LDAP" ] ; then
+	if [ -n "\$LDAP1" ] ; then
+		BACKUPLDAP="--ldap1=\$LDAP1"
+		if [ -n "\$LDAP2" ] ; then
+			BACKUPLDAP="\$BACKUPLDAP --ldap2=\$LDAP2"
+		fi
+	fi
+	LDAPPARAMS="--ldap=\$LDAP \$BACKUPLDAP"
+else
+	LDAPPARAMS=""
+fi
+ 
+x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt \$LDAPPARAMS \$SESSIONFROM
 XSESSION
 
 chown user:user /home/user/.xsession
