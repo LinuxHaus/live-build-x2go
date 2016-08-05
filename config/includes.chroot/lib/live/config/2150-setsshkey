@@ -1,0 +1,43 @@
+#!/bin/sh
+
+SetSSHKey ()
+{
+
+# Output startup message
+#
+echo -n " setsshkey"
+
+
+PUBKEYURL=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    awk -F'=' ' /^pubkey=/ { print \$2 }')
+
+if [ -n "$PUBKEYURL" ] ; then
+
+# Set Keyfile
+#
+mkdir -p /root/.ssh
+chmod 600 /root/.ssh
+touch /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+
+if echo "$PUBKEY" | grep -q "^tftp://" ; then
+        PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+        PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+        if [ -n "$PUBKEYSERVER" ] && [ -n "$PUBKEYPATH" ] ; then
+                while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
+                        echo "Waiting for SSH Public Key ..."
+                        sleep 5
+                done
+        fi
+else
+        while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+                echo "Waiting for SSH Public Key ..."
+                sleep 5
+        done
+fi
+
+}
+
+SetSSHKey
+
