@@ -38,6 +38,29 @@ LDAP2=\$(cat /proc/cmdline | \
 	    sed 's/^ldap2=/ldap2#/' | \
 	    awk -F'#' ' /^ldap2#/ { print \$2 }')
 
+# Spawn x11vnc
+# x11vnc -wait 50 -passwd PASSWORD -forever -loop -display :0 -o /var/log/x11vnc.log &
+# 
+# This runs as user, so cannot write to /var/log - thus you should use this instead:
+# x11vnc -wait 50 -passwd PASSWORD -forever -loop -display :0 &
+# 
+# Spawning x11vnc here is a really, really dumb idea, as VNC has no way of using
+# a public/private key pair, only passwords - and these must be stored in plain
+# text somewhere, in a place that is actually world-readable. 
+#
+# /!\ This is about as dumb as shouting your root password in a room full of strangers! /!\
+#
+# A much, much better, safer and saner way to handle this is to enable the
+# SSH daemon on the thinclient, supply it with an authorized_keys file containing
+# a public key, and spawning x11vnc on demand after logging in - binding it to
+# localhost only, and forwarding the port through your SSH connection.
+#
+# In short, run this on your local admin workstation:
+# ssh -t -L 5900:localhost:5900 name_or_ip_of_thinclient 'x11vnc -localhost -display :0'
+# and while this connection is active, run:
+# vncviewer localhost:0
+
+
 # Spawn X2GoClient
 if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
