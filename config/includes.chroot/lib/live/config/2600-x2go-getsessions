@@ -2,16 +2,16 @@
 
 X2GoGetSessions ()
 {
-# Output startup message
-#
-echo -n " x2go-getsessions"
+	# Output startup message
+	#
+	echo -n " x2go-getsessions"
 
-        SESSIONSURL=$(cat /proc/cmdline | \
-                       tr ' ' '\n' | \
-                       awk -F'=' ' /^sessionsurl=/ { print $2 }')
-        if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
-	SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
-        cat >/etc/network/if-up.d/getsessions <<GETSESS
+	SESSIONSURL=$(cat /proc/cmdline | \
+		       tr ' ' '\n' | \
+		       awk -F'=' ' /^sessionsurl=/ { print $2 }')
+	if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
+		SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
+		cat >/etc/network/if-up.d/getsessions <<GETSESS
 #!/bin/bash
 export TERM=linux;
 
@@ -39,8 +39,8 @@ if [ -s $SESSIONSDESTINATION ] ; then
 fi
 
 GETSESS
-                chmod 755 /etc/network/if-up.d/getsessions
-        fi
+		chmod 755 /etc/network/if-up.d/getsessions
+	fi
 }
 
 X2GoGetSessions
