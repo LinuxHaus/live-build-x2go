@@ -45,6 +45,7 @@ else
 fi
 GETPUBKEY
 
+		chmod 755 /etc/network/if-up.d/getpubkey
 	fi
 
 }
