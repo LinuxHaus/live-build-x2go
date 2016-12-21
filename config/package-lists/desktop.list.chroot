@@ -1,1 +1,1 @@
-xserver-xorg-video-all xserver-xorg fvwm nodm xterm synergy aptitude xdmx-tools xdmx
+xserver-xorg-video-all xserver-xorg-video-intel xserver-xorg fvwm nodm xterm synergy aptitude xdmx-tools xdmx
