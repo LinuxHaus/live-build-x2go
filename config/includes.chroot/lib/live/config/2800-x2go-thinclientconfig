@@ -17,8 +17,8 @@ cat >/home/user/.xsession <<XSESSION
 # Spawn PulseAudio
 pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
 
-# additional variable instead of "case $(...) in", as we need the value again later on
-XRANDRCMDTAINTED=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '$''1 == "xinerama" { print $''2 }')
+# additional variable instead of "case \$(...) in", as we need the value again later on
+XRANDRCMDTAINTED=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\$1 == "xinerama" { print \$2 }')
 
 # sanitize input
 case \$XRANDRCMDTAINTED in
