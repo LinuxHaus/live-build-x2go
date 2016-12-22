@@ -18,10 +18,10 @@ cat >/home/user/.xsession <<XSESSION
 pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
 
 # additional variable instead of "case $(...) in", as we need the value again later on
-XRANDRCMDTAINTED=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\\\$1 == "xinerama" { print \\\$2 }')
+XRANDRCMDTAINTED=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '$''1 == "xinerama" { print $''2 }')
 
 # sanitize input
-case $XRANDRCMDTAINTED in
+case \$XRANDRCMDTAINTED in
 "above")
 	XRANDRCMD="above"
 	;;
@@ -40,10 +40,10 @@ case $XRANDRCMDTAINTED in
 esac
 
 # find out how many touch devices we have
-TOUCHDEVICESCOUNT = \$(LANG=C xsetwacom --list devices | wc -l)
+TOUCHDEVICESCOUNT=\$(LANG=C xsetwacom --list devices | wc -l)
 
 # find out how many mouse devices we have
-MICECOUNT = \$(find /dev/input -maxdepth 1 -name "mouse*" | wc -l)
+MICECOUNT=\$(find /dev/input -maxdepth 1 -name "mouse*" | wc -l)
 
 # loop through the following code block for all connected display devices
 for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d ' ' -f1); do
@@ -63,21 +63,20 @@ for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d '
 		else
 			# else use whatever is in XRANDRCMD (which is either our default of "left-of",
 			# or a valid xinerama kernel parameter value)
-			/usr/bin/xrandr --output \$NEXT_DISPLAY --\$xrandrcmd \$THIS_DISPLAY
+			/usr/bin/xrandr --output \$NEXT_DISPLAY --\$XRANDRCMD \$THIS_DISPLAY
 		fi
 
 		# now set THIS_DISPLAY -> every subsequent iteration of the loop will now enter the code block
 		# above where [ -n \${THIS_DISPLAY+x} ] is the conditional
-		THIS_DISPLAY = \$NEXT_DISPLAY
+		THIS_DISPLAY=\$NEXT_DISPLAY
 	fi
 done
-
-# set screen background to X2Go default blue on all detected screens
-xsetroot -solid "#246ed8"
 
 # Spawn openbox
 openbox &
 
+# set screen background to X2Go default blue on all detected screens
+xsetroot -solid "#246ed8"
 
 # Get X2GoConfig
 BROKERURL=\$(cat /proc/cmdline | \
