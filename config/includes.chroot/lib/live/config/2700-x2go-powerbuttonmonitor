@@ -7,8 +7,6 @@ X2GoPowerbuttonMonitor ()
 echo -n " x2go-powerbuttonmonitor"
 
 # Spawn Powerbutton-Monitor
-# FIXME tut nur manuell gestartet, warum? dash? nohup? /home/user noch gar nicht da?
-#/bin/bash -c '( while ((! [ -d /home/user ] ) && ps -C x2goclient --no-header); do sleep 1 ; done ; rm -f /home/user/.halt ; inotifywait -qm -e create /home/user/ | while grep -q "CREATE .halt" ; do poweroff ; chvt 7 ; done ) &'
 /bin/bash -c '(while ! [ -f /home/user/.halt ] ; do sleep 1 ; done ; poweroff ; chvt 7) &'
 }
 
