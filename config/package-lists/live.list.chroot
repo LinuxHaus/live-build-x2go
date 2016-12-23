@@ -1,5 +1,10 @@
 live-boot
 live-config
 live-config-sysvinit
+live-tools
+locales
 sysvinit-core
 sysv-rc
+xserver-xorg-input-wacom
+xserver-xorg-video-geode
+xserver-xorg-video-qxl
