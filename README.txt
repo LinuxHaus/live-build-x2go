@@ -2,7 +2,7 @@ Only usable on systems with minimum 1G RAM
 Install Debian jessie on your server
 become root on the server
 apt update
-apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
+apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc 
 
 # tftp/pxe config
 cat <<EOF>/etc/default/atftpd 
@@ -43,7 +43,7 @@ IP_OF_FQDN=`dig $FQDN +short`
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/stretch --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary true --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live aufs rd.luks=0 rd.lvm=0 rd.md=0 rd.dm=0 vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled rd.driver.pre=loop rd.debug rd.udev.debug rd.noverifyssl rd.skipfsck rd.live.overlay.check rd.live.overlay.reset rd.live.ram log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin boot=live live-config.debug
+lb config --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/stretch --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary true --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin boot=live
 lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
@@ -55,7 +55,7 @@ YOURHW=myhw
 cat <<EOF>$YOURHW
 #!ipxe
 dhcp
-kernel http://$FQDN/vmlinuz boot=live components fetch=http://$IP_OF_FQDN/filesystem.squashfs noswap aufs rd.luks=0 rd.lvm=0 rd.md=0 rd.dm=0 vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 keep_bootcon sysrq_always_enabled rd.driver.pre=loop rd.noverifyssl rd.skipfsck rd.live.overlay.check rd.live.overlay.reset rd.live.ram log_buf_len=1M quickreboot silent splash toram lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled initrd=initrd.img rootwait=120 live-config live-config.debug
+kernel http://$FQDN/vmlinuz boot=live components fetch=http://$IP_OF_FQDN/filesystem.squashfs noswap vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash quiet lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled initrd=initrd.img rootwait=120 live-config
 initrd http://$FQDN/initrd.img
 boot
 EOF
