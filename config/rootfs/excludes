@@ -3,3 +3,4 @@ usr/share/doc/*
 usr/share/man/*
 usr/share/locale/*
 var/lib/apt/lists/*debian*
+usr/share/info/*
