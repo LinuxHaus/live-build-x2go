@@ -2,8 +2,13 @@ acpid
 acpi-support 
 atftp 
 kbd 
+openssh-client
+openssh-server
+openssh-sftp-server
+openssl
 psmisc 
 rsync 
 screen 
 vim 
+wget
 xinetd
