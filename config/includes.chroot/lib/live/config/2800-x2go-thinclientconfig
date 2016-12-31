@@ -119,7 +119,7 @@ else
 	LDAPPARAMS=""
 fi
 
-if grep -q '\Wnoblank\W' /proc/cmdline; then
+if grep -q '\W*noblank\W*' /proc/cmdline; then
 	# Disable screensaver and DPMS Power Saving if requested
 	xset s off
 	xset -dpms
