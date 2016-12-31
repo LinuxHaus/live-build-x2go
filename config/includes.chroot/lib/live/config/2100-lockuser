@@ -10,7 +10,7 @@ echo -n " lockuser"
 
 # Set password
 #
-if grep -q " *nouser *" /proc/cmdline ; then
+if grep -q "\W*nouser\W*" /proc/cmdline ; then
 	passwd -l user >/dev/null
 fi
 
