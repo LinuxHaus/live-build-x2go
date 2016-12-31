@@ -1,4 +1,9 @@
+x11vnc 
+x11vnc-data 
+xserver-xorg-input-wacom
 xserver-xorg-video-all
+xserver-xorg-video-geode
+xserver-xorg-video-qxl
 xserver-xorg 
 nodm 
 openbox 
