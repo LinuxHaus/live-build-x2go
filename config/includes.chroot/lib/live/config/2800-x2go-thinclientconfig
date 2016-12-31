@@ -118,7 +118,13 @@ if [ -n "\$LDAP" ] ; then
 else
 	LDAPPARAMS=""
 fi
- 
+
+if grep -q '\Wnoblank\W' /proc/cmdline; then
+	# Disable screensaver and DPMS Power Saving if requested
+	xset s off
+	xset -dpms
+fi
+
 x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt \$LDAPPARAMS \$SESSIONFROM
 XSESSION
 
