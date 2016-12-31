@@ -1,1 +1,5 @@
-xserver-xorg-video-all xserver-xorg nodm openbox xterm 
+xserver-xorg-video-all
+xserver-xorg 
+nodm 
+openbox 
+xterm 
