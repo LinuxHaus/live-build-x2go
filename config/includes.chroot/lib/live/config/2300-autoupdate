@@ -34,6 +34,10 @@ echo -n " autoupdater (backgrounding update task)"
 #
 (
 
+# wait until terminal is available
+while ! [ -c /dev/tty10 ] ; do
+	sleep 10
+done
 
 # redirect all output to console #10
 #
