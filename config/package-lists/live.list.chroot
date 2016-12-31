@@ -1,8 +1,16 @@
+console-setup
+console-setup-linux
 initramfs-tools
+kbd
+keyboard-configuration
 live-boot
 live-config
 live-config-sysvinit
 live-tools
 locales
+login
+mount
+passwd
 sysvinit-core
 sysv-rc
+user-setup
