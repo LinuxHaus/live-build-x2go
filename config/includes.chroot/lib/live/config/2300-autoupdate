@@ -57,7 +57,7 @@ DOWNLOADURL=$(cat /proc/cmdline | \
                tr ' ' '\n' | \
                awk -F'=' ' /^updateurl=/ { print $2 }')
 
-if [ -z "$\DOWNLOADURL" ]; then
+if [ -z "$DOWNLOADURL" ]; then
 	echo "No update URL. Exiting."
 	return 0
 fi
@@ -68,7 +68,7 @@ fi
 BWLIMITPERCENT=$(cat /proc/cmdline | \
                         tr ' ' '\n' | \
                         awk -F'=' ' /^bwlimit=/ { print $2 }')
-if [ -z "$\BWLIMITPERCENT" ]; then 
+if [ -z "$BWLIMITPERCENT" ]; then 
 	BWLIMITPERCENT=20
 	echo "Bandwidth limit not set. Defaulting to 20%."
 fi
