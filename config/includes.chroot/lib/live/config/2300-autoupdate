@@ -112,10 +112,10 @@ else
 	mount -t tmpfs -osize=$((IMGSIZE*15/10))k tmpfs $TEMPDIR
 
 fi
-if ! (	[ -d "$MOUNTPOINT/boot/live-download" ] && \
+if ! (	[ -d "$MOUNTPOINT/boot/X2Go-live-download" ] && \
 	( \
-		[ -d "$MOUNTPOINT/boot/live1" ] || \
-		[ -d "$MOUNTPOINT/boot/live2" ] \
+		[ -d "$MOUNTPOINT/boot/X2Go-live1" ] || \
+		[ -d "$MOUNTPOINT/boot/X2Go-live2" ] \
 	) \
      ); then
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
@@ -148,20 +148,20 @@ RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline |
 
 ALLSYSTEMSROOT=$(dirname $RUNNINGSYSTEMFULLPATH)
 RUNNINGSYSTEMNAME=$(basename $RUNNINGSYSTEMFULLPATH)
-if [ "$RUNNINGSYSTEMNAME" = "live1" ]; then
-	OTHERSYSTEMNAME="live2"
-elif [ "$RUNNINGSYSTEMNAME" = "live2" ]; then
-	OTHERSYSTEMNAME="live1"
+if [ "$RUNNINGSYSTEMNAME" = "X2Go-live1" ]; then
+	OTHERSYSTEMNAME="X2Go-live2"
+elif [ "$RUNNINGSYSTEMNAME" = "X2Go-live2" ]; then
+	OTHERSYSTEMNAME="X2Go-live1"
 else
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
 	echo "Unable to determine path/name of running system."
 	return 1
 fi
 OTHERSYSTEMFULLPATH=$(readlink -m "$ALLSYSTEMSROOT/$OTHERSYSTEMNAME")
-DOWNLOADPATH=$(readlink -m "$ALLSYSTEMSROOT/live-download/")
+DOWNLOADPATH=$(readlink -m "$ALLSYSTEMSROOT/X2Go-live-download/")
 
 
-# Now we'll copy the content of the live-download folder to our tempdir
+# Now we'll copy the content of the X2Go-live-download folder to our tempdir
 # this is so we can run wget in update mode (-N) or rsync without needing
 # write access to our boot medium (write access means increased wear and tear,
 # and we want to avoid that especially for media that has no wear-leveling
@@ -181,9 +181,9 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
    then
 	# Attempt to determine available bandwidth & to set BWLIMIT accordingly
 	wget -Nr -o /tmp/dl.log -P /tmp/ -nd \
-		--progress=bar:force $DOWNLOADURL/initrd.img 
-	cp --update "/tmp/initrd.img" "$TEMPDIR"
-	rm "/tmp/initrd.img"
+		--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 
+	cp --update "/tmp/x2gp-tce-initrd.img" "$TEMPDIR"
+	rm "/tmp/x2go-tce-initrd.img"
 	SIZEFACTORSTRING=$(	awk -F' |\(|\)' ' $9 == "saved" && \
 				$7 == "-" { print $5 }' /tmp/dl.log \
 			   )
@@ -212,9 +212,9 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 
 elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 
-	rsync -hh -aPv -W --inplace --log-file=/tmp/dl.log $DOWNLOADURL/initrd.img \
-		$TEMPDIR/initrd.img.new
-	mv $TEMPDIR/initrd.img.new $TEMPDIR/initrd.img
+	rsync -hh -aPv -W --inplace --log-file=/tmp/dl.log $DOWNLOADURL/x2go-tce-initrd.img \
+		$TEMPDIR/x2go-tce-initrd.img.new
+	mv $TEMPDIR/x2go-tce-initrd.img.new $TEMPDIR/x2go-tce-initrd.img
 	SIZEFACTORSTRING=$(	sed -e's_\(. bytes/sec\)_ \1_' /tmp/dl.log | \
 				awk '$4 == "sent" && $12 == "bytes/sec" \
 				{ print $11 }' \
@@ -346,16 +346,20 @@ fi
 # change default boot to the image we just downloaded and installed
 #
 if [ -n "$SYSLINUXPATH" ]; then
-	echo "Changing syslinux default to $OTHERSYSTEMNAME-486."
-	sed -i -e"/^default/cdefault $OTHERSYSTEMNAME-486" \
+	echo "Changing syslinux default to $OTHERSYSTEMNAME."
+	sed -i -e"/^default/cdefault $OTHERSYSTEMNAME" \
 		$SYSLINUXPATH/syslinux.cfg
 
 elif [ -n "$GRUBPATH" ]; then
 	MENULST=$GRUBPATH/menu.lst
 	CURRENTDEFAULT=$(awk '/^default/ { print $2 }' $MENULST | tr -d '\r')
-	CURRENTTITLEPOSITION=$(grep '^title' $MENULST | 		grep -n "${RUNNINGSYSTEMNAME}-486" | 		awk -F':' '$2 ~ /'"${RUNNINGSYSTEMNAME}-486"'/ { print $1 }')
+	CURRENTTITLEPOSITION=$(grep '^title' $MENULST | 
+                               grep -n "${RUNNINGSYSTEMNAME}" |
+                               awk -F':' '$2 ~ /'"${RUNNINGSYSTEMNAME}"'/ { print $1 }')
 	CURRENTTITLEPOSITION=$((CURRENTTITLEPOSITION-1))
-	OTHERTITLEPOSITION=$(grep '^title' $MENULST | 		grep -n "${OTHERSYSTEMNAME}-486" | 		awk -F':' '$2 ~ /'"${OTHERSYSTEMNAME}-486"'/ { print $1 }')
+	OTHERTITLEPOSITION=$(grep '^title' $MENULST |
+                             grep -n "${OTHERSYSTEMNAME}" |
+                             awk -F':' '$2 ~ /'"${OTHERSYSTEMNAME}"'/ { print $1 }')
 	OTHERTITLEPOSITION=$((OTHERTITLEPOSITION-1))
 	if [ "$CURRENTTITLEPOSITION" = "$CURRENTDEFAULT" ]; then
 		echo "Changing GRUB-legacy default to $OTHERTITLEPOSITION ..."
