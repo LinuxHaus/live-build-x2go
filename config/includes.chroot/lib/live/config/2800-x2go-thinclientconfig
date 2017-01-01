@@ -119,10 +119,17 @@ else
 	LDAPPARAMS=""
 fi
 
-if grep -q '\W*noblank\W*' /proc/cmdline; then
-	# Disable screensaver and DPMS Power Saving if requested
-	xset s off
-	xset -dpms
+BLANKINGTIME=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\$1 == "blank" { print \$2 }')
+if [ -n "\$BLANKINGTIME" ]; then
+	if [ \$BLANKINGTIME -eq 0 ]; then
+		# Disable screensaver and DPMS Power Saving if requested
+		xset s off
+		xset -dpms
+	else
+		xset s on
+		xset s \$BLANKINGTIME
+		xset +dpms
+	fi
 fi
 
 x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt \$LDAPPARAMS \$SESSIONFROM
