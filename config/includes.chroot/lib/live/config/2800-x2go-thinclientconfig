@@ -121,14 +121,19 @@ fi
 
 BLANKINGTIME=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\$1 == "blank" { print \$2 }')
 if [ -n "\$BLANKINGTIME" ]; then
-	if [ \$BLANKINGTIME -eq 0 ]; then
+	DPMSARR=(\$(echo \$BLANKINGTIME | awk -F ':' '\$1 ~/^[0-9]*\$/ && \$2 ~/^[0-9]*\$/ && \$3 ~/^[0-9]*\$/  { print $1 " " $2 " " $3}'))
+	if [ \${DPMSARR[0]} -eq 0 ]; then
 		# Disable screensaver and DPMS Power Saving if requested
 		xset s off
-		xset -dpms
+		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
+			xset -dpms
+		fi
 	else
 		xset s on
-		xset s \$BLANKINGTIME
-		xset +dpms
+		xset s \${DPMSARR[0]}
+		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
+			xset +dpms \${DPMSARR[0]} \${DPMSARR[1]} \${DPMSARR[2]}
+		fi
 	fi
 fi
 
