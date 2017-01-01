@@ -132,7 +132,8 @@ if [ -n "\$BLANKINGTIME" ]; then
 		xset s on
 		xset s \${DPMSARR[0]}
 		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
-			xset +dpms \${DPMSARR[0]} \${DPMSARR[1]} \${DPMSARR[2]}
+			# Yes, "+dpms dpms" is intentional. 
+			xset +dpms dpms \${DPMSARR[0]} \${DPMSARR[1]} \${DPMSARR[2]}
 		fi
 	fi
 fi
