@@ -1,10 +1,10 @@
 #!/bin/sh
 
-X11GetXorgConf ()
+XServerXorgGetXorgConf ()
 {
 # Output startup message
 #
-echo -n " x11-getxorgconf"
+echo -n " xserver-xorg-getxorgconf"
 
         XORGCONFURL=$(cat /proc/cmdline | \
                        tr ' ' '\n' | \
@@ -42,4 +42,4 @@ GETXORG
                 chmod 755 /etc/network/if-up.d/getxorgconf
         fi
 }
-X11GetXorgConf
+XServerXorgGetXorgConf
