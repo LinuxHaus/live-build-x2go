@@ -110,7 +110,12 @@ if [ -n "$NTFSROOT" ]; then
 		fi
 	fi
 
-	mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot
+	if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot ; then
+		echo "Mounted '/dev/disk/by-uuid/$NTFSROOT'."
+	else
+		echo "Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
+	fi
+	# TODO: Further error handling
 	MOUNTPOINT="/lib/live/mount/ntfsroot/"
 	# create a temporary directory
 	TEMPDIR=$(mktemp -d --tmpdir=$MOUNTPOINT)
@@ -399,9 +404,17 @@ fi
 # now, change mount back to ro and sync
 #
 if [ -n "$NTFSROOT" ]; then
-	umount $MOUNTPOINT
+	if umount $MOUNTPOINT; then
+		echo "Unmounted '$MOUNTPOINT'."
+	else
+		echo "Unable to unmount '$MOUNTPOINT'."
+	fi
 else	
-	mount -oremount,ro,sync $MOUNTPOINT
+	if mount -oremount,ro,sync $MOUNTPOINT; then
+		echo "Remounted '$MOUNTPOINT' ro and sync."
+	else
+		echo "Unable to remount '$MOUNTPOINT' ro and sync."
+	fi
 fi
 
 ) &
