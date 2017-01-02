@@ -1,11 +1,11 @@
 #!/bin/sh
 
-SetSSHKey ()
+GetSSHPubKeysFromServer ()
 {
 
 	# Output startup message
 	#
-	echo -n " setsshkey"
+	echo -n " getsshpubkeysfromserver"
 
 
 	PUBKEYURL=$(cat /proc/cmdline | \
@@ -13,7 +13,7 @@ SetSSHKey ()
 		    awk -F'=' ' /^pubkey=/ { print $2 }')
 
 	if [ -n "$PUBKEYURL" ] ; then
-		cat >/etc/network/if-up.d/getpubkey <<GETPUBKEY
+		cat >/etc/network/if-up.d/getsshpubkeysfromserver <<GETPUBKEY
 #!/bin/bash
 export TERM=linux;
 
@@ -45,10 +45,10 @@ else
 fi
 GETPUBKEY
 
-		chmod 755 /etc/network/if-up.d/getpubkey
+		chmod 755 /etc/network/if-up.d/getsshpubkeysfromserver
 	fi
 
 }
 
-SetSSHKey
+GetSSHPubKeysFromServer
 
