@@ -81,17 +81,22 @@ fi
 
 # sleeping a random amount of time to ease load on the update server
 #
+MAXSLEEPTIME=$(cat /proc/cmdline | \
+                        tr ' ' '\n' | \
+                        awk -F'=' ' /^updatesleep=/ && $2 ~ /^[0-9]*$/ { print $2 }')
+if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 120 ] ; then
+	MAXSLEEPTIME=900
+fi
 SLEEPTIME=0
-echo -n "Calculating random update delay (120-900 seconds)..."
-while [ $SLEEPTIME -lt 120 ]; do 
-	echo -n "."
-	# During startup, script is run with /bin/sh, 
-	# even when #!/bin/bash is set,
-	# so we need to improvise.
-	RND=$(/bin/bash -c 'echo $RANDOM')
-	SLEEPTIME=$((RND%900))
-done
-echo " "
+echo "Calculating random update delay (120-$MAXSLEEPTIME seconds)..."
+# During startup, script is run with /bin/sh, 
+# even when #!/bin/bash is set,
+# so we need to improvise.
+RND=$(/bin/bash -c 'echo $RANDOM')
+SLEEPTIME=$((RND%MAXSLEEPTIME))
+if [ $SLEEPTIME -lt 120 ]; then
+	SLEEPTIME=$((SLEEPTIME+120))
+fi
 echo "Sleeping for $SLEEPTIME seconds ..."
 sleep $SLEEPTIME
 
