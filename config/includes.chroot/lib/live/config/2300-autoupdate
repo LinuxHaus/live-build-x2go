@@ -100,6 +100,16 @@ sleep $SLEEPTIME
 NTFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
 if [ -n "$NTFSROOT" ]; then
 	mkdir -p /lib/live/mount/ntfsroot
+	# This is in case we've been passed an incomplete UUID and/or one with dashes
+	# For example, "vol c:" on Windows will return the last 8 digits of the UUID
+        # only, and separate them with a dash.
+	if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
+		NTFSROOT=$(echo $NTFSROOT | tr -d '-')
+		if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
+			NTFSROOT=$(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1)
+		fi
+	fi
+
 	mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot
 	MOUNTPOINT="/lib/live/mount/ntfsroot/"
 	# create a temporary directory
