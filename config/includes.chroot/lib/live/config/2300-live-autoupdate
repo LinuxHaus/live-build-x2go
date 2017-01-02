@@ -84,7 +84,7 @@ fi
 MAXSLEEPTIME=$(cat /proc/cmdline | \
                         tr ' ' '\n' | \
                         awk -F'=' ' /^updatesleep=/ && $2 ~ /^[0-9]*$/ { print $2 }')
-if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 120 ] ; then
+if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 240 ] ; then
 	MAXSLEEPTIME=900
 fi
 SLEEPTIME=0
