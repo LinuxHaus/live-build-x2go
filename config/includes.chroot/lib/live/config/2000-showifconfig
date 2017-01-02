@@ -1,11 +1,11 @@
 #!/bin/bash
 
-IFConfig ()
+ShowIFConfig ()
 {
 
 # Output startup message
 #
-echo -n " ifconfig"
+echo -n " showifconfig"
 
 #setterm -term linux -r >/dev/tty9
 # Make sure no language-specific stuff interferes with our matching
@@ -36,4 +36,4 @@ chmod 755 /etc/network/if-up.d/showips
 
 }
 
-IFConfig
+ShowIFConfig
