@@ -14,7 +14,7 @@ echo -n " x2go-getportableappsettings"
 if [ -L /dev/disk/by-label/PORTABLEAPP ]; then 
 	mkdir -p /media/PORTABLEAPP && \
 	mount -o sync /dev/disk/by-label/PORTABLEAPP /media/PORTABLEAPP && \
-	ln -sf /media/PORTABLEAPP/x2goclient/sessions /home/user/.x2goclient/sessions
+	ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
 else
 	true
 fi
