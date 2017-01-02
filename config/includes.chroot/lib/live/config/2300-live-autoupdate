@@ -111,7 +111,7 @@ if [ -n "$NTFSROOT" ]; then
 	if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
 		NTFSROOT=$(echo $NTFSROOT | tr -d '-')
 		if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
-			NTFSROOT=$(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1)
+			NTFSROOT=$(basename $(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1))
 		fi
 	fi
 
