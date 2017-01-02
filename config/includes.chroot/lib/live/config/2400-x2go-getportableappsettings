@@ -1,11 +1,11 @@
 #!/bin/sh
 
-X2GoGetPortableAppSettings ()
+X2GoGetPortableAppSessions ()
 {
 
 # Output startup message
 #
-echo -n " x2go-getportableappsettings"
+echo -n " x2go-getportableappsessions"
 
 # This script is for using the iso-hybrid image along with the "second partition" patch
 # it allows you to share a configuration between X2GoClient for Windows in portable
@@ -20,4 +20,4 @@ else
 fi
 }
 
-X2GoGetPortableAppSettings
+X2GoGetPortableAppSessions
