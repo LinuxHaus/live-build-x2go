@@ -1,11 +1,11 @@
 #!/bin/sh
 
-GetPortableAppSettings ()
+X2GoGetPortableAppSettings ()
 {
 
 # Output startup message
 #
-echo -n " getportableappsettings"
+echo -n " x2go-getportableappsettings"
 
 # This script is for using the iso-hybrid image along with the "second partition" patch
 # it allows you to share a configuration between X2GoClient for Windows in portable
@@ -14,10 +14,10 @@ echo -n " getportableappsettings"
 if [ -L /dev/disk/by-label/PORTABLEAPP ]; then 
 	mkdir -p /media/PORTABLEAPP && \
 	mount -o sync /dev/disk/by-label/PORTABLEAPP /media/PORTABLEAPP && \
-	ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+	ln -sf /media/PORTABLEAPP/x2goclient/sessions /home/user/.x2goclient/sessions
 else
 	true
 fi
 }
 
-GetPortableAppSettings
+X2GoGetPortableAppSettings
