@@ -1,4 +1,6 @@
+cryptsetup
 freerdp-x11
+libfile-path-expand-perl
 libfreerdp-cache1.1
 libfreerdp-client1.1
 libfreerdp-codec1.1
@@ -41,8 +43,11 @@ libxkbfile1
 libxrender1
 libxv1
 x2goclient
+x2gousbmount
+pinentry-x2go
 pulseaudio
 pulseaudio-module-x11
 pulseaudio-utils
 rdesktop
+udev
 zlib1g
