@@ -202,7 +202,7 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 	# Attempt to determine available bandwidth & to set BWLIMIT accordingly
 	wget -Nr -o /tmp/dl.log -P /tmp/ -nd \
 		--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 
-	cp --update "/tmp/x2gp-tce-initrd.img" "$TEMPDIR"
+	cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
 	rm "/tmp/x2go-tce-initrd.img"
 	SIZEFACTORSTRING=$(	awk -F' |\(|\)' ' $9 == "saved" && \
 				$7 == "-" { print $5 }' /tmp/dl.log \
