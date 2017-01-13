@@ -205,7 +205,8 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 	cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
 	rm "/tmp/x2go-tce-initrd.img"
 	SIZEFACTORSTRING=$(	awk -F' |\(|\)' ' $9 == "saved" && \
-				$7 == "-" { print $5 }' /tmp/dl.log \
+				$7 == "-" { print $5 }' /tmp/dl.log | \
+				tail -1 \
 			   )
 	case $SIZEFACTORSTRING in
 		"" | \
@@ -220,7 +221,8 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 		*)     	SIZEFACTOR=$((1024*1024*1024));;
 	esac
 	DLRATE=$(	awk -F' |\(|\)' ' $9 == "saved" && $7 == "-" \
-			{ print $4 }' /tmp/dl.log \
+			{ print $4 }' /tmp/dl.log | \
+			tail -1
                  )
 	BWLIMIT=$(	echo "$DLRATE $SIZEFACTOR $BWLIMITPERCENT" | \
 			awk ' { print $1*$2*$3/100 }' | \
