@@ -230,6 +230,7 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 		  ) # outputs integer kilobytes, not rounded
 	echo "Determined bandwidth limit: '$BWLIMIT KB/s'"
 	DOWNLOADCOMMAND="wget -Nr -l 1 -nd -P "$TEMPDIR" \
+			  --progress=bar:force \
 			  --limit-rate=${BWLIMIT}k $DOWNLOADURL"
 
 elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
