@@ -1,6 +1,7 @@
 acpid
 acpi-support 
 atftp 
+ca-certificates
 kbd 
 openssh-client
 openssh-server
