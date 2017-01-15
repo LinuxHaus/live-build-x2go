@@ -1,6 +1,5 @@
 console-setup
 console-setup-linux
-curlftpfs
 fuse
 httpfs2
 initramfs-tools
