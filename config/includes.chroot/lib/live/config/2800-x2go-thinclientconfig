@@ -143,8 +143,11 @@ XSESSION
 
 chown user:user /home/user/.xsession
 chmod 644 /home/user/.xsession
-mkdir -p /home/user/export
-mkdir -p /home/user/logins
+
+# This is needed for File Sharing support (USB media and the like)
+mkdir -p /home/user/{export,logins,mounts}
+chown user:user /home/user/{export,logins,mounts}
+chmod 777 /home/user/{export,logins,mounts}
 
 }
 
