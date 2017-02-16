@@ -5,6 +5,4 @@ xserver-xorg-video-all
 xserver-xorg-video-geode
 xserver-xorg-video-qxl
 xserver-xorg 
-nodm 
-openbox 
 xterm 
