@@ -16,6 +16,7 @@ libfreerdp-primitives1.1
 libfreerdp-rail1.1
 libfreerdp-utils1.1
 libjpeg62-turbo
+libssl1.0.0
 libwinpr-crt0.1
 libwinpr-crypto0.1
 libwinpr-dsparse0.1
@@ -48,6 +49,7 @@ x2gothinclient-minidesktop
 x2gothinclient-usbmount
 pinentry-x2go
 pulseaudio
+pulseaudio-module-x11
 pulseaudio-utils
 rdesktop
 udev
