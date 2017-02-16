@@ -1,4 +1,7 @@
 cryptsetup
+firefox-esr
+firefox-esr-l10n-de
+flashplugin-nonfree
 freerdp-x11
 libfile-path-expand-perl
 libfreerdp-cache1.1
@@ -42,8 +45,8 @@ libxinerama1
 libxkbfile1
 libxrender1
 libxv1
-x2goclient
-x2gousbmount
+x2gothinclient-minidesktop
+x2gothinclient-usbmount
 pinentry-x2go
 pulseaudio
 pulseaudio-module-x11
