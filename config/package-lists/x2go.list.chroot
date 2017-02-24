@@ -43,7 +43,7 @@ libxkbfile1
 libxrender1
 libxv1
 x2goclient
-x2gousbmount
+x2gothinclient-usbmount
 pinentry-x2go
 pulseaudio
 pulseaudio-module-x11
