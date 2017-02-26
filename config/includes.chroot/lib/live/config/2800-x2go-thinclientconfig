@@ -10,10 +10,9 @@ echo -n " x2go-thinclientconfig"
 # using xmlstarlet would mean wasting yet another Megabyte of space ...
 # disable virtual desktops
 sed -i -e 's#<number>4</number>#<number>1</number>#' /etc/xdg/openbox/rc.xml
-# disable OpenBox context menu (would be accessible in xinerama)
-sed -i -e '\#<action name="ShowMenu"><menu>[a-z-]*-menu</menu></action>#d' /etc/xdg/openbox/rc.xml
-# disable OpenBox Alt-F4
-sed -i -e '/<keybind key="A-F4">/,+2d' /etc/xdg/openbox/rc.xml
+# disable OpenBox keyboard bindings
+# this also disables the context menu (would be accessible in xinerama) and things like Alt-F4 for X2GoClient, Xephyr, etc.
+sed -i -e '/<keyboard>/,/<\/keyboard>/{//!d}' /etc/xdg/openbox/rc.xml
 # make sure OpenBox maximizes X2GoClient on launch and hides window decorations
 sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e '\#<applications>#a<decor>no</decor>' -e '\#<applications>#a</application>' /etc/xdg/openbox/rc.xml
 
