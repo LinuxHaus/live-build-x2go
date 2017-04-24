@@ -60,7 +60,7 @@ for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d '
 
 	# THIS_DISPLAY won't be defined until the second time the loop is executed, which is a
 	# neat way of running xrandr only if there are at least two connected display devices
-	if [ -n \${THIS_DISPLAY+x} ] ; then
+	if [ -n "\${THIS_DISPLAY+x}" ] ; then
 
 		if [ \$TOUCHDEVICESCOUNT -gt 0 ] &&  [ \$MICECOUNT -lt 1 ] && [ -z \$XRANDRCMDTAINTED ]; then
 			# we have a touch device and no mice, and no xinerama parameter was set,
