@@ -138,7 +138,20 @@ if [ -n "\$BLANKINGTIME" ]; then
 	fi
 fi
 
-x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM
+# handle additional options for x2goclient passed in as boot parameters
+ADDOPTS=""
+
+# append custom background image if one was retrieved to additional options
+if [ -e /home/user/custom/background.svg ]; then
+    ADDOPTS="\$ADDOPTS --background=/home/user/custom/background.svg"
+fi
+
+# append custom branding image if one was retrieved to additional options
+if [ -e /home/user/custom/background.svg ]; then
+    ADDOPTS="\$ADDOPTS --branding=/home/user/custom/branding.svg"
+fi
+
+x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$ADDOPTS
 XSESSION
 
 chown user:user /home/user/.xsession
@@ -148,6 +161,30 @@ chmod 644 /home/user/.xsession
 mkdir -p /home/user/{export,logins,mounts}
 chown user:user /home/user/{export,logins,mounts}
 chmod 700 /home/user/{export,logins,mounts}
+
+# handle custom images passed in on boot parameters
+mkdir /home/user/custom
+chown user:user /home/user/custom
+chmod 755 /home/user/custom
+BGURL=$(cat /proc/cmdline | \
+    tr ' ' '\n' | \
+    awk -F'=' ' /^backgroundurl=/ { print $2 }')
+if [ -n $BGURL ]; then
+    /usr/bin/wget $BGURL -q -O /home/user/custom/background.svg
+fi
+BRNDURL=$(cat /proc/cmdline | \
+    tr ' ' '\n' | \
+    awk -F'=' ' /^brandingurl=/ { print $2 }')
+if [ -n $BRNDURL ]; then
+    /usr/bin/wget $BRNDURL -q -O /home/user/custom/branding.svg
+fi
+
+#only try to set permissions if files exist
+CUSTFILES=(/home/user/custom/*)
+if [ -e ${CUSTFILES[0]} ]; then
+    chown user:user /home/user/custom/*
+    chmod 644 /home/user/custom/*
+fi
 
 }
 
