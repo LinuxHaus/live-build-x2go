@@ -1,1 +1,1 @@
-x2goclient rdesktop vncviewer libxfreerdp-client1.1
+x2goclient rdesktop xtightvncviewer freerdp-x11
