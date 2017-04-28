@@ -38,7 +38,7 @@ if echo "$PUBKEY" | grep -q "^tftp://" ; then
         done
     fi
 else
-    while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+    while ! wget -q -O - $PUBKEYURL >>/root/.ssh/authorized_keys ; do
         echo "Waiting for SSH Public Key ..."
         sleep 5
     done
