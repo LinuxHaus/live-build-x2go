@@ -7,15 +7,6 @@ X2GoThinClientConfig ()
 #
 echo -n " x2go-thinclientconfig"
 
-# using xmlstarlet would mean wasting yet another Megabyte of space ...
-# disable virtual desktops
-sed -i -e 's#<number>4</number>#<number>1</number>#' /etc/xdg/openbox/rc.xml
-# disable OpenBox keyboard bindings
-# this also disables the context menu (would be accessible in xinerama) and things like Alt-F4 for X2GoClient, Xephyr, etc.
-sed -i -e '/<keyboard>/,/<\/keyboard>/{//!d}' /etc/xdg/openbox/rc.xml
-# make sure OpenBox maximizes X2GoClient on launch and hides window decorations
-sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e '\#<applications>#a<decor>no</decor>' -e '\#<applications>#a</application>' /etc/xdg/openbox/rc.xml
-
 cat >/home/user/.xsession <<XSESSION
 # inspired by 
 # http://code.x2go.org/gitweb?p=x2gothinclient.git;a=blob_plain;f=displaymanager/sbin/x2gothinclientd;h=6897d42d17bd6778e7de5e62ec3f51727d4e8800;hb=HEAD
@@ -80,7 +71,7 @@ for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d '
 done
 
 # Spawn openbox
-openbox &
+dbus-launch fvwm &
 
 # set screen background to X2Go default blue on all detected screens
 xsetroot -solid "#246ed8"
