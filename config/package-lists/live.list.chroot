@@ -1,16 +1,10 @@
-console-setup
-console-setup-linux
 fuse
-httpfs2
 initramfs-tools
-kbd
-keyboard-configuration
 libfuse2
 live-boot
 live-config
 live-config-sysvinit
 live-tools
-locales
 login
 mount
 nfs-common

@@ -2,7 +2,6 @@ acpid
 acpi-support 
 atftp 
 ca-certificates
-kbd 
 openssh-client
 openssh-server
 openssh-sftp-server
@@ -12,4 +11,3 @@ rsync
 screen 
 vim 
 wget
-xinetd
