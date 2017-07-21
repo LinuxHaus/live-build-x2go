@@ -18,30 +18,31 @@ X2GoGetSessions ()
 #!/bin/bash
 export TERM=linux;
 
-while [ -z "$(hostname -I)" ] ; do
-	echo "'\$0' is waiting for a client IP."
-        sleep 2
-done
-if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
-        SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-        SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
-        if [ -n "$SESSIONSSERVER" ] && [ -n "$SESSIONSPATH" ] ; then
-                while ! atftp $SESSIONSSERVER -g -r $SESSIONSPATH -l $SESSIONSDESTINATION ; do
-                        echo "Waiting for session config data ..."
-                        sleep 5
-                done
-        fi
-else
-        while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
-                echo "Waiting for session config data ..."
-                sleep 5 
-        done
-fi
+(
+	while [ -z "$(hostname -I)" ] ; do
+		echo "'\$0' is waiting for a client IP."
+		sleep 2
+	done
+	if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
+		SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+		SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		if [ -n "$SESSIONSSERVER" ] && [ -n "$SESSIONSPATH" ] ; then
+			while ! atftp $SESSIONSSERVER -g -r $SESSIONSPATH -l $SESSIONSDESTINATION ; do
+				echo "Waiting for session config data ..."
+				sleep 5
+			done
+		fi
+	else
+		while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
+			echo "Waiting for session config data ..."
+			sleep 5 
+		done
+	fi
 
-if [ -s $SESSIONSDESTINATION ] ; then
-        mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
-fi
-
+	if [ -s $SESSIONSDESTINATION ] ; then
+		mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
+	fi
+) &
 GETSESS
 		chmod 755 /etc/network/if-up.d/030-getsessions
 	fi
