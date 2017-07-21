@@ -15,30 +15,31 @@ echo -n " xserver-xorg-getxorgconf"
 #!/bin/bash
 export TERM=linux;
 
-while [ -z "$(hostname -I)" ] ; do
-	echo "'\$0' is waiting for a client IP."
-        sleep 2
-done
-if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
-        XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-        XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
-        if [ -n "$XORGCONFSERVER" ] && [ -n "$XORGCONFPATH" ] ; then
-                while ! atftp $XORGCONFSERVER -g -r $XORGCONFPATH -l $XORGCONFDESTINATION ; do
-                        echo "Waiting for xorg.conf download ..."
-                        sleep 5
-                done
-        fi
-else
-        while ! wget -q -O $XORGCONFDESTINATION $XORGCONFURL ; do
-                echo "Waiting for xorg.conf download ..."
-                sleep 5 
-        done
-fi
+(
+	while [ -z "$(hostname -I)" ] ; do
+		echo "'\$0' is waiting for a client IP."
+		sleep 2
+	done
+	if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
+		XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+		XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		if [ -n "$XORGCONFSERVER" ] && [ -n "$XORGCONFPATH" ] ; then
+			while ! atftp $XORGCONFSERVER -g -r $XORGCONFPATH -l $XORGCONFDESTINATION ; do
+				echo "Waiting for xorg.conf download ..."
+				sleep 5
+			done
+		fi
+	else
+		while ! wget -q -O $XORGCONFDESTINATION $XORGCONFURL ; do
+			echo "Waiting for xorg.conf download ..."
+			sleep 5 
+		done
+	fi
 
-if [ -s $XORGCONFDESTINATION ] ; then
-        mv $XORGCONFDESTINATION /etc/X11/xorg.conf
-fi
-
+	if [ -s $XORGCONFDESTINATION ] ; then
+		mv $XORGCONFDESTINATION /etc/X11/xorg.conf
+	fi
+) &
 GETXORG
                 chmod 755 /etc/network/if-up.d/020-getxorgconf
         fi
