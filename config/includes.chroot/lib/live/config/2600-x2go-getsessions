@@ -15,7 +15,7 @@ X2GoGetSessions ()
 #!/bin/bash
 export TERM=linux;
 
-while ! ip a | grep -v "inet 127.0.0.1" | grep -v "inet6 ::1/128" | grep -q inet ; do
+while [ -z "$(hostname -I)" ] ; do
         sleep 2
 done
 if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
