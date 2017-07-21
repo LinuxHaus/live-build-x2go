@@ -14,7 +14,7 @@ X2GoGetSessions ()
                 # it might have been customized at image creation time
         	mv /etc/x2go/x2gothinclient_sessions /etc/x2go/x2gothinclient_sessions_old
 		SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
-		cat >/etc/network/if-up.d/030-getsessions <<GETSESS
+		cat >/etc/network/if-up.d/0400-getsessions <<GETSESS
 #!/bin/bash
 export TERM=linux;
 
@@ -42,7 +42,7 @@ if [ -s $SESSIONSDESTINATION ] ; then
 	mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
 fi
 GETSESS
-		chmod 755 /etc/network/if-up.d/030-getsessions
+		chmod 755 /etc/network/if-up.d/0400-getsessions
 	fi
 }
 
