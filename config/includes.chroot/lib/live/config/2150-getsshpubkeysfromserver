@@ -17,35 +17,33 @@ GetSSHPubKeysFromServer ()
 #!/bin/bash
 export TERM=linux;
 
-(
-	while [ -z "\$(hostname -I)" ] ; do
-		echo "'\$0' is waiting for a client IP." | tee -a /dev/tty9
-		sleep 2
-	done
+while [ -z "\$(hostname -I)" ] ; do
+	echo "'\$0' is waiting for a client IP." | tee -a /dev/tty9
+	sleep 2
+done
 
-	# Set Keyfile
-	#
-	mkdir -p /root/.ssh
-	chmod 600 /root/.ssh
-	touch /root/.ssh/authorized_keys
-	chmod 600 /root/.ssh/authorized_keys
+# Set Keyfile
+#
+mkdir -p /root/.ssh
+chmod 600 /root/.ssh
+touch /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
 
-	if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
-		PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-		PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
-		if [ -n "$PUBKEYSERVER" ] && [ -n "$PUBKEYPATH" ] ; then
-			while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
-				echo "Waiting for SSH Public Key ..."
-				sleep 5
-			done
-		fi
-	else
-		while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
+	PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+	PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+	if [ -n "$PUBKEYSERVER" ] && [ -n "$PUBKEYPATH" ] ; then
+		while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
 			echo "Waiting for SSH Public Key ..."
 			sleep 5
 		done
 	fi
-) &
+else
+	while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+		echo "Waiting for SSH Public Key ..."
+		sleep 5
+	done
+fi
 GETPUBKEY
 
 		chmod 755 /etc/network/if-up.d/010-getsshpubkeysfromserver
