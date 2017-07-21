@@ -19,7 +19,7 @@ X2GoGetSessions ()
 export TERM=linux;
 
 (
-	while [ -z "$(hostname -I)" ] ; do
+	while [ -z "\$(hostname -I)" ] ; do
 		echo "'\$0' is waiting for a client IP."
 		sleep 2
 	done
