@@ -10,6 +10,9 @@ X2GoGetSessions ()
 		       tr ' ' '\n' | \
 		       awk -F'=' ' /^sessionsurl=/ { print $2 }')
 	if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
+		# only mv this file if SESSIONSURL was set. If not, leave it in place - as
+                # it might have been customized at image creation time
+        	mv /etc/x2go/x2gothinclient_sessions /etc/x2go/x2gothinclient_sessions_old
 		SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
 		cat >/etc/network/if-up.d/getsessions <<GETSESS
 #!/bin/bash
