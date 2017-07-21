@@ -16,6 +16,7 @@ echo -n " xserver-xorg-getxorgconf"
 export TERM=linux;
 
 while [ -z "$(hostname -I)" ] ; do
+	echo "'$0' is waiting for a client IP."
         sleep 2
 done
 if echo "$XORGCONFURL" | grep -q "^tftp://" ; then

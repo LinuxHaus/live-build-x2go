@@ -17,6 +17,7 @@ cat >/etc/network/if-up.d/showips <<SHOWIPS
 export TERM=linux;
 
 while [ -z "$(hostname -I)" ] ; do
+	echo "'$0' is waiting for a client IP."
         sleep 2
 done
 
