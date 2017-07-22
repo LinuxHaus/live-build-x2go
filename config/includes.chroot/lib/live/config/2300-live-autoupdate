@@ -35,13 +35,13 @@ echo -n " live-autoupdater (backgrounding update task)"
 (
 
 # wait until terminal is available
-while ! [ -c /dev/tty10 ] ; do
+while ! [ -c /dev/tty$(fgconsole -n) ] ; do
 	sleep 10
 done
 
-# redirect all output to console #10
+# redirect all output to first available VT console
 #
-exec >/dev/tty10 2>&1
+exec >/dev/tty$(fgconsole -n) 2>&1
 
 
 # clear console
@@ -62,7 +62,7 @@ DOWNLOADURL=$(cat /proc/cmdline | \
                awk -F'=' ' /^updateurl=/ { print $2 }')
 
 if [ -z "$DOWNLOADURL" ]; then
-	echo "No update URL. Exiting."
+	echo -en "\n$(date +'%F | %T | ')'\$0': No update URL. Exiting."
 	return 0
 fi
 
@@ -74,7 +74,7 @@ BWLIMITPERCENT=$(cat /proc/cmdline | \
                         awk -F'=' ' /^bwlimit=/ { print $2 }')
 if [ -z "$BWLIMITPERCENT" ]; then 
 	BWLIMITPERCENT=20
-	echo "Bandwidth limit not set. Defaulting to 20%."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Bandwidth limit not set. Defaulting to 20%."
 fi
 
 
@@ -88,7 +88,7 @@ if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 240 ] ; then
 	MAXSLEEPTIME=900
 fi
 SLEEPTIME=0
-echo "Calculating random update delay (120-$MAXSLEEPTIME seconds)..."
+echo -en "\n$(date +'%F | %T | ')'\$0': Calculating random update delay (120-$MAXSLEEPTIME seconds)..."
 # During startup, script is run with /bin/sh, 
 # even when #!/bin/bash is set,
 # so we need to improvise.
@@ -97,7 +97,7 @@ SLEEPTIME=$((RND%MAXSLEEPTIME))
 if [ $SLEEPTIME -lt 120 ]; then
 	SLEEPTIME=$((SLEEPTIME+120))
 fi
-echo "Sleeping for $SLEEPTIME seconds ..."
+echo -en "\n$(date +'%F | %T | ')'\$0': Sleeping for $SLEEPTIME seconds ..."
 sleep $SLEEPTIME
 
 
@@ -116,9 +116,9 @@ if [ -n "$NTFSROOT" ]; then
 	fi
 
 	if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot ; then
-		echo "Mounted '/dev/disk/by-uuid/$NTFSROOT'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Mounted '/dev/disk/by-uuid/$NTFSROOT'."
 	else
-		echo "Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
 	fi
 	# TODO: Further error handling
 	MOUNTPOINT="/lib/live/mount/ntfsroot/"
@@ -139,7 +139,7 @@ if ! (	[ -d "$MOUNTPOINT/boot/X2Go-live-download" ] && \
 	) \
      ); then
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-	echo "No directories suitable for update."
+	echo -en "\n$(date +'%F | %T | ')'\$0': No directories suitable for update."
 	return 0 # directories missing, most likely not a writeable medium
 fi
 
@@ -158,7 +158,7 @@ elif  [ -f "$MOUNTPOINT/boot/grub/menu.lst" ]; then
 	GRUBPATH="$MOUNTPOINT/boot/grub/"
 else
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-	echo "No suitable bootloader found."
+	echo -en "\n$(date +'%F | %T | ')'\$0': No suitable bootloader found."
 	return 1
 fi
 
@@ -174,7 +174,7 @@ elif [ "$RUNNINGSYSTEMNAME" = "X2Go-live2" ]; then
 	OTHERSYSTEMNAME="X2Go-live1"
 else
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-	echo "Unable to determine path/name of running system."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Unable to determine path/name of running system."
 	return 1
 fi
 OTHERSYSTEMFULLPATH=$(readlink -m "$ALLSYSTEMSROOT/$OTHERSYSTEMNAME")
@@ -188,9 +188,9 @@ DOWNLOADPATH=$(readlink -m "$ALLSYSTEMSROOT/X2Go-live-download/")
 # like CF cards)
 #
 while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $TEMPDIR; do
-	echo "Sleeping 30 seconds ..."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Sleeping 30 seconds ..."
 	sleep 30
-	echo "Retrying ..."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Retrying ..."
 done
 
 
@@ -210,7 +210,7 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 			   )
 	case $SIZEFACTORSTRING in
 		"" | \
-		[0-9]) 	echo -n "Not enough Bandwidth for update task - "
+		[0-9]) 	echo -en "\n$(date +'%F | %T | ')'\$0': Not enough Bandwidth for update task - "
 			echo -n "aborting."
 			cleanup
 			return 0
@@ -228,7 +228,7 @@ if echo "$DOWNLOADURL" | grep -q "^http" || \
 			awk ' { print $1*$2*$3/100 }' | \
 			awk -F'.' '{ print $1 }' \
 		  ) # outputs integer kilobytes, not rounded
-	echo "Determined bandwidth limit: '$BWLIMIT KB/s'"
+	echo -en "\n$(date +'%F | %T | ')'\$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
 	DOWNLOADCOMMAND="wget -Nr -l 1 -nd -P "$TEMPDIR" \
 			  --progress=bar:force \
 			  --limit-rate=${BWLIMIT}k $DOWNLOADURL"
@@ -244,7 +244,7 @@ elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 			   )
 	case $SIZEFACTORSTRING in
 		"" | \
-		[0-9]) 	echo -n "Not enough Bandwidth for update task - "
+		[0-9]) 	echo -en "\n$(date +'%F | %T | ')'\$0': Not enough Bandwidth for update task - "
 			echo -n "aborting."
 			cleanup
 			return 0
@@ -261,12 +261,12 @@ elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 			awk ' { print $1*$2*$3/100 }' | \
 			awk -F'.' '{ print $1 }' \
 		  ) # outputs integer kilobytes, not rounded
-	echo "Determined bandwidth limit: '$BWLIMIT KB/s'"
+	echo -en "\n$(date +'%F | %T | ')'\$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
 	DOWNLOADCOMMAND="rsync -aPv --inplace --bwlimit=$BWLIMIT $DOWNLOADURL/ \
 			  $TEMPDIR"
 else 
 	[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-	echo "Unsupported download mechanism."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Unsupported download mechanism - aborting."
 	return 1
 fi
 rm /tmp/dl.log
@@ -275,25 +275,25 @@ rm /tmp/dl.log
 # Proceed to download from update location
 #
 while ! $DOWNLOADCOMMAND; do
-	echo "Sleeping 30 seconds ..."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Sleeping 30 seconds ..."
 	sleep 30
-	echo "Retrying ..."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Retrying ..."
 done
 
 # Now check if these files are different from what we already have in our
 # download directory on the boot medium
 #
-echo "Diff'ing '$DOWNLOADPATH' '$TEMPDIR' ..."
+echo -en "\n$(date +'%F | %T | ')'\$0': Diff'ing '$DOWNLOADPATH' '$TEMPDIR' ..."
 if diff -q $DOWNLOADPATH $TEMPDIR \
 	>/dev/null
 
 	then
 	cleanup
-	echo "Nothing to do. - Files on server not newer than '$DOWNLOADPATH'."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Nothing to do. - Files on server not newer than '$DOWNLOADPATH'."
 	return 0 	# current is newest, nothing to do, we want to avoid
 			# unneccessary writes to the medium
 else
-	echo "Differences detected. Continuing ..."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Differences detected. Continuing ..."
 fi
 
 
@@ -301,9 +301,9 @@ fi
 # remount it rw and async for speed
 #
 if mount -oremount,rw,async $MOUNTPOINT; then
-	echo "Remounted '$MOUNTPOINT' as rw and async."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Remounted '$MOUNTPOINT' as rw and async."
 else
-	echo "Could not remount '$MOUNTPOINT' as rw and async."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Could not remount '$MOUNTPOINT' as rw and async."
 fi
 
 
@@ -314,26 +314,26 @@ rm -f $TEMPDIR/index.ht*
 
 # move everything over to the boot medium
 #
-echo "Moving $TEMPDIR/* => $DOWNLOADPATH"
+echo -en "\n$(date +'%F | %T | ')'\$0': Moving $TEMPDIR/* => $DOWNLOADPATH"
 mv $TEMPDIR/* $DOWNLOADPATH
 cleanup # FIXME ist dieses Cleanup gerechtfertigt oder macht es dummfoog?
 if [ -n "$NTFSROOT" ]; then
-	echo "NTFSROOT detected. Attempting to mount '/dev/disk/by-uuid/$NTFSROOT'."
+	echo -en "\n$(date +'%F | %T | ')'\$0': NTFSROOT detected. Attempting to mount '/dev/disk/by-uuid/$NTFSROOT'."
 	if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot; then
-		echo "Mount successful."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Mount successful."
 	else
-		echo "Failed to mount NTFSROOT."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Failed to mount NTFSROOT."
 	fi
 fi
 
 
 # let's check if we just downloaded a copy of our running system
 #
-echo "Diff'ing '$DOWNLOADPATH' '$RUNNINGSYSTEMFULLPATH'"
+echo -en "\n$(date +'%F | %T | ')'\$0': Diff'ing '$DOWNLOADPATH' '$RUNNINGSYSTEMFULLPATH'"
 if diff -q $DOWNLOADPATH $RUNNINGSYSTEMFULLPATH >/dev/null && \
 	   [ -d "$OTHERSYSTEMFULLPATH" ] ; then
 	   [ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-	   echo "Nothing to do. Content of $DOWNLOADPATH equals" \
+	   echo -en "\n$(date +'%F | %T | ')'\$0': Nothing to do. Content of $DOWNLOADPATH equals" \
 		"$RUNNINGSYSTEMNAME."
 		return 0 # current is newest, nothing to do, 
 			 # we want to keep the old system in OTHERSYSTEMFULLPATH
@@ -348,20 +348,20 @@ mkdir -p $OTHERSYSTEMFULLPATH
 
 # let's check if our destination is already up to date or needs updating
 #
-echo "Diff'ing '$DOWNLOADPATH' '$OTHERSYSTEMFULLPATH'"
+echo -en "\n$(date +'%F | %T | ')'\$0': Diff'ing '$DOWNLOADPATH' '$OTHERSYSTEMFULLPATH'"
 if diff -q $DOWNLOADPATH $OTHERSYSTEMFULLPATH >/dev/null; then
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		echo "Nothing to do - content of '$DOWNLOADPATH' equals"\
+		echo -en "\n$(date +'%F | %T | ')'\$0': Nothing to do - content of '$DOWNLOADPATH' equals"\
 		      "'$OTHERSYSTEMNAME'."
 		return 0 # OTHERSYSTEMFULLPATH is already up to date
 else
 	# keep rsyncing until the update is complete
-	echo "Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH"
+	echo -en "\n$(date +'%F | %T | ')'\$0': Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH"
 	while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $OTHERSYSTEMFULLPATH
 		do
-		echo "Sleeping 30 seconds ..."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Sleeping 30 seconds ..."
 		sleep 30
-		echo "Retrying ..."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Retrying ..."
 	done
 fi
 
@@ -369,7 +369,7 @@ fi
 # change default boot to the image we just downloaded and installed
 #
 if [ -n "$SYSLINUXPATH" ]; then
-	echo "Changing syslinux default to $OTHERSYSTEMNAME."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Changing syslinux default to $OTHERSYSTEMNAME."
 	sed -i -e"/^default/cdefault $OTHERSYSTEMNAME" \
 		$SYSLINUXPATH/syslinux.cfg
 
@@ -385,16 +385,16 @@ elif [ -n "$GRUBPATH" ]; then
                              awk -F':' '$2 ~ /'"${OTHERSYSTEMNAME}"'/ { print $1 }')
 	OTHERTITLEPOSITION=$((OTHERTITLEPOSITION-1))
 	if [ "$CURRENTTITLEPOSITION" = "$CURRENTDEFAULT" ]; then
-		echo "Changing GRUB-legacy default to $OTHERTITLEPOSITION ..."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Changing GRUB-legacy default to $OTHERTITLEPOSITION ..."
 		sed -i -e"/^default/cdefault $OTHERTITLEPOSITION" \
 			$MENULST
 	else
-		echo "Not changing GRUB-legacy default."
-		echo "Reason: We're at boot position '$CURRENTTITLEPOSITION',"
-		echo "while default is set to position '$CURRENTDEFAULT'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Not changing GRUB-legacy default."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Reason: We're at boot position '$CURRENTTITLEPOSITION',"
+		echo -en "\n$(date +'%F | %T | ')'\$0': while default is set to position '$CURRENTDEFAULT'."
 	fi
 else
-	echo "Unsupported bootloader."
+	echo -en "\n$(date +'%F | %T | ')'\$0': Unsupported bootloader."
 fi
 
 # we're on an async mount point, so let's sync to be safe
@@ -413,15 +413,15 @@ fi
 #
 if [ -n "$NTFSROOT" ]; then
 	if umount $MOUNTPOINT; then
-		echo "Unmounted '$MOUNTPOINT'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Unmounted '$MOUNTPOINT'."
 	else
-		echo "Unable to unmount '$MOUNTPOINT'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Unable to unmount '$MOUNTPOINT'."
 	fi
 else	
 	if mount -oremount,ro,sync $MOUNTPOINT; then
-		echo "Remounted '$MOUNTPOINT' ro and sync."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Remounted '$MOUNTPOINT' ro and sync."
 	else
-		echo "Unable to remount '$MOUNTPOINT' ro and sync."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Unable to remount '$MOUNTPOINT' ro and sync."
 	fi
 fi
 
