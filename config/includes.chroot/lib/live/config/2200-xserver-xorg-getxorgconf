@@ -22,8 +22,8 @@ done
 if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
 	XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
 	XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
-	if [ -n "$XORGCONFSERVER" ] && [ -n "$XORGCONFPATH" ] ; then
-		while ! atftp $XORGCONFSERVER -g -r $XORGCONFPATH -l $XORGCONFDESTINATION ; do
+	if [ -n "\$XORGCONFSERVER" ] && [ -n "\$XORGCONFPATH" ] ; then
+		while ! atftp \$XORGCONFSERVER -g -r \$XORGCONFPATH -l $XORGCONFDESTINATION ; do
 			echo "Waiting for xorg.conf download ..."
 			sleep 5
 		done
