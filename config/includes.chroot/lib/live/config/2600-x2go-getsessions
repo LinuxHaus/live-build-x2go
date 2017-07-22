@@ -19,7 +19,7 @@ X2GoGetSessions ()
 export TERM=linux;
 
 while [ -z "\$(hostname -I)" ] ; do
-	echo "\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty9
+	echo -en "\\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty9
 	sleep 2
 done
 if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
@@ -27,13 +27,13 @@ if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
 	SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 	if [ -n "$SESSIONSSERVER" ] && [ -n "$SESSIONSPATH" ] ; then
 		while ! atftp $SESSIONSSERVER -g -r $SESSIONSPATH -l $SESSIONSDESTINATION ; do
-			echo "Waiting for session config data ..."
+			echo -en "\\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty9
 			sleep 5
 		done
 	fi
 else
 	while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
-		echo "Waiting for session config data ..."
+		echo -en "\\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty9
 		sleep 5 
 	done
 fi
