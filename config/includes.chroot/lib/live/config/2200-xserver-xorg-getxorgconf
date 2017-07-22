@@ -10,8 +10,8 @@ echo -n " xserver-xorg-getxorgconf"
                        tr ' ' '\n' | \
                        awk -F'=' ' /^xorgconfurl=/ { print $2 }')
         if [ -n "$XORGCONFURL" ] && [ -d /etc/X11 ] ; then 
-	XORGCONFDESTINATION=/etc/X11/xorg.conf.new
-        cat >/etc/network/if-up.d/0300-getxorgconf <<GETXORG
+		XORGCONFDESTINATION=/etc/X11/xorg.conf.new
+	        cat >/etc/network/if-up.d/0300-getxorgconf <<GETXORG
 #!/bin/bash
 export TERM=linux;
 
