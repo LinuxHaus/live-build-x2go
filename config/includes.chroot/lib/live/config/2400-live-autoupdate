@@ -43,12 +43,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 	#
 	exec >/dev/tty8 2>&1
 
-
-	# clear console
-	#
-	clear
-
-
 	# This is so grep, awk and sed will match the right terms regardless of LANG
 	#
 	unset LANG
