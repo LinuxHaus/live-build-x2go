@@ -3,22 +3,22 @@
 cleanup () 
 { # discard contents of tmpfs, umount if necessary
 	if [ -n "$NTFSROOT" ]; then
-		echo "Removing '$TEMPDIR/*'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Removing '$TEMPDIR/*'."
 		rm -rf $TEMPDIR/*
 	else
-		echo "Unmounting '$TEMPDIR'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Unmounting '$TEMPDIR'."
 		umount $TEMPDIR
 	fi
 	if rmdir $TEMPDIR; then
-		echo "Removed empty directory '$TEMPDIR'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Removed empty directory '$TEMPDIR'."
 	else
-		echo "Could not remove directory '$TEMPDIR'."
+		echo -en "\n$(date +'%F | %T | ')'\$0': Could not remove directory '$TEMPDIR'."
 	fi
 	if [ -n "$NTFSROOT" ]; then
 		if umount $MOUNTPOINT; then
-			echo "Unmounted '$MOUNTPOINT'."
+			echo -en "\n$(date +'%F | %T | ')'\$0': Unmounted '$MOUNTPOINT'."
 		else
-			echo "Could not unmount '$MOUNTPOINT'."
+			echo -en "\n$(date +'%F | %T | ')'\$0': Could not unmount '$MOUNTPOINT'."
 		fi
 	fi
 }
