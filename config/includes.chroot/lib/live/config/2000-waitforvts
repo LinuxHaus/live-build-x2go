@@ -13,7 +13,7 @@ export TERM=linux;
 
 # wait until terminal is available
 while ! [ -c /dev/tty$(fgconsole -n) ] ; do
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for an unused VT to become available."
+	echo -en "\n'\$0' is waiting for an unused VT to become available."
 	sleep 2
 done
 
