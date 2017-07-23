@@ -15,7 +15,7 @@ echo -n " xserver-xorg-getxorgconf"
 #!/bin/bash
 export TERM=linux;
 
-if [ "$METHOD" = loopback ]; then
+if [ "\$METHOD" = loopback ]; then
         exit 0
 fi
 
