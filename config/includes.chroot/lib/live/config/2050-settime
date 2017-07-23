@@ -1,0 +1,28 @@
+#!/bin/bash
+
+SetTime ()
+{
+
+# Output startup message
+#
+echo -n " settime"
+
+cat >/etc/network/if-up.d/0050-settime <<SHOWIPS
+#!/bin/bash
+export TERM=linux;
+
+while [ -z "\$(hostname -I)" ] ; do
+	echo -en "\n'\$0' is waiting for a client IP." | tee -a /dev/tty\$(fgconsole -n)
+	sleep 2
+done
+if ntpdate-debian -s && hwclock --systohc ; then
+	echo -en "\n\$(date +'%F | %T | ')'\$0' - time has been set." | tee -a /dev/tty\$(fgconsole -n)
+else
+	echo -en "\n\$(date +'%F | %T | ')'\$0' - error setting time. Timestamps will be based on CMOS Clock." | tee -a /dev/tty\$(fgconsole -n)
+fi
+
+chmod 755 /etc/network/if-up.d/0050-settime
+
+}
+
+SetTime
