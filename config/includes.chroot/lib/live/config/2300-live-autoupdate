@@ -34,11 +34,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 #
 (
 
-# wait until terminal is available
-while ! [ -c /dev/tty$(fgconsole -n) ] ; do
-	sleep 10
-done
-
 # redirect all output to first available VT console
 #
 exec >/dev/tty$(fgconsole -n) 2>&1

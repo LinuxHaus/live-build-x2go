@@ -7,6 +7,11 @@ ShowIFConfig ()
 #
 echo -n " showifconfig"
 
+# wait until terminal is available
+while ! [ -c /dev/tty$(fgconsole -n) ] ; do
+	sleep 10
+done
+
 # Make sure no language-specific stuff interferes with our matching
 # grep: highlight everything that matches "inet" to the end of its line
 # and also (-E, |$) show every line that has an end => Everything else
