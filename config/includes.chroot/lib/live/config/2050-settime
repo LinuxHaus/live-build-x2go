@@ -11,14 +11,19 @@ cat >/etc/network/if-up.d/0050-settime <<SETTIME
 #!/bin/bash
 export TERM=linux;
 
+while ! [ -s /var/run/availablevt ] ; do
+	echo -en "\n'\$0' is waiting for a free console."
+	sleep 2
+done
+
 while [ -z "\$(hostname -I)" ] ; do
-	echo -en "\n'\$0' is waiting for a client IP." | tee -a /dev/tty\$(fgconsole -n)
+	echo -en "\n'\$0' is waiting for a client IP." | tee -a /dev/tty\$(cat /var/run/availablevt)
 	sleep 2
 done
 if ntpdate-debian -s && hwclock --systohc ; then
-	echo -en "\n\$(date +'%F | %T | ')'\$0' - time has been set." | tee -a /dev/tty\$(fgconsole -n)
+	echo -en "\n\$(date +'%F | %T | ')'\$0' - time has been set." | tee -a /dev/tty\$(cat /var/run/availablevt)
 else
-	echo -en "\n\$(date +'%F | %T | ')'\$0' - error setting time. Timestamps will be based on CMOS Clock." | tee -a /dev/tty\$(fgconsole -n)
+	echo -en "\n\$(date +'%F | %T | ')'\$0' - error setting time. Timestamps will be based on CMOS Clock." | tee -a /dev/tty\$(cat /var/run/availablevt)
 fi
 SETTIME
 
