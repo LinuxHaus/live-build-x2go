@@ -14,7 +14,7 @@ cat >/etc/network/if-up.d/0100-showips <<SHOWIPS
 #!/bin/bash
 export TERM=linux;
 
-if [ "$METHOD" = loopback ]; then
+if [ "\$METHOD" = loopback ]; then
         exit 0
 fi
 
