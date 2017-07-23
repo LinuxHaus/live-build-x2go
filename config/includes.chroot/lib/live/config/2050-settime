@@ -7,7 +7,7 @@ SetTime ()
 #
 echo -n " settime"
 
-cat >/etc/network/if-up.d/0050-settime <<SHOWIPS
+cat >/etc/network/if-up.d/0050-settime <<SETTIME
 #!/bin/bash
 export TERM=linux;
 
@@ -20,6 +20,7 @@ if ntpdate-debian -s && hwclock --systohc ; then
 else
 	echo -en "\n\$(date +'%F | %T | ')'\$0' - error setting time. Timestamps will be based on CMOS Clock." | tee -a /dev/tty\$(fgconsole -n)
 fi
+SETTIME
 
 chmod 755 /etc/network/if-up.d/0050-settime
 
