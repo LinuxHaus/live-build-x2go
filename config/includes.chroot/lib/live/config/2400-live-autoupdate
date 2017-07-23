@@ -36,7 +36,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 # redirect all output to first available VT console
 #
-exec >/dev/tty$(cat /var/run/availablevt) 2>&1
+exec >/dev/tty8 2>&1
 
 
 # clear console
