@@ -17,7 +17,7 @@ GetSSHPubKeysFromServer ()
 #!/bin/bash
 export TERM=linux;
 
-if [ "\$METHOD" = loopback ]; then
+if [ "\$METHOD" = "loopback" ] || [ "\$METHOD" = "none" ]; then
         exit 0
 fi
 

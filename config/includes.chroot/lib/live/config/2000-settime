@@ -11,7 +11,7 @@ cat >/etc/network/if-up.d/0050-settime <<SETTIME
 #!/bin/bash
 export TERM=linux;
 
-if [ "\$METHOD" = loopback ]; then
+if [ "\$METHOD" = "loopback" ] || [ "\$METHOD" = "none" ]; then
         exit 0
 fi
 
@@ -20,8 +20,6 @@ fi
 		echo -en "\n'\$0' is waiting for tty8 to become available."
 		sleep 2
 	done
-
-	echo -en "\n'\$0': DEBUG: METHOD is '\$METHOD', IFACE is '\$IFACE'." | tee -a /dev/tty8
 
 	while [ -z "\$(hostname -I)" ] ; do
 		echo -en "\n'\$0' is waiting for a client IP." | tee -a /dev/tty8
