@@ -16,7 +16,7 @@ cleanup ()
 	else
 		echo "\n$(date +'%F | %T | ')'$0': Could not remove directory '$TEMPDIR'."
 	fi
-	if [ -n "$NTFSROOT" ]; then
+	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
 		if umount $MOUNTPOINT; then
 			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
 		else
@@ -59,6 +59,29 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	if [ -z "$DOWNLOADURL" ]; then
 		echo "\n$(date +'%F | %T | ')'$0': No update URL. Exiting."
+		return 0
+	fi
+
+	if ! [ -d /lib/live/mount/findiso ] ; then
+		LISTOFPARTITIONS=$(grep -H ^0$ /sys/block/*/removable | awk -F '/' '{ print $4 }' | xargs -n 1 -I XXX fdisk -l /dev/XXX 2>/dev/null | awk '$0 ~ /Linux$/ { print $1}')
+		TEMPMOUNT=$(mktemp -d -p /lib/live/mount/)
+		FINDFILE=(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
+		[ -z "$FINDFILE" ] && exit 0
+		for PARTITON in $LISTOFPARTITIONS ; do
+			mount $PARTITION $TEMPMOUNT
+			if ! [ -f $FINDFILE ] ; then
+				umount $TEMPMOUNT
+			else
+				umount $TEMPMOUNT
+				mkdir /lib/live/mount/findiso
+				mount $PARTITION /lib/live/mount/findiso
+				RAMDISKMODE="yes"
+				break
+			fi
+		done
+	fi
+	if ! [ -d /lib/live/mount/findiso ] ; then
+		echo "\n$(date +'%F | %T | ')'$0': Local update directory not found. Exiting."
 		return 0
 	fi
 
@@ -429,6 +452,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 			echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
 		else
 			echo "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
+		fi
+		if [ -n "$RAMDISKMODE" ] ; then
+			umount $MOUNTPOINT
 		fi
 	fi
 
