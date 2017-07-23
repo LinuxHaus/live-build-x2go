@@ -22,29 +22,35 @@ if [ "$METHOD" = loopback ]; then
         exit 0
 fi
 
-while [ -z "\$(hostname -I)" ] ; do
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
-	sleep 2
-done
-if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
-	SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-	SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
-	if [ -n "\$SESSIONSSERVER" ] && [ -n "\$SESSIONSPATH" ] ; then
-		while ! atftp \$SESSIONSSERVER -g -r \$SESSIONSPATH -l $SESSIONSDESTINATION ; do
+(
+	while ! [ -c /dev/tty8 ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
+		sleep 2
+	done
+	while [ -z "\$(hostname -I)" ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
+		sleep 2
+	done
+	if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
+		SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+		SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		if [ -n "\$SESSIONSSERVER" ] && [ -n "\$SESSIONSPATH" ] ; then
+			while ! atftp \$SESSIONSSERVER -g -r \$SESSIONSPATH -l $SESSIONSDESTINATION ; do
+				echo -en "\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty8
+				sleep 5
+			done
+		fi
+	else
+		while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
 			echo -en "\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty8
-			sleep 5
+			sleep 5 
 		done
 	fi
-else
-	while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
-		echo -en "\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty8
-		sleep 5 
-	done
-fi
 
-if [ -s $SESSIONSDESTINATION ] ; then
-	mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
-fi
+	if [ -s $SESSIONSDESTINATION ] ; then
+		mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
+	fi
+) &
 GETSESS
 		chmod 755 /etc/network/if-up.d/0400-getsessions
 	fi
