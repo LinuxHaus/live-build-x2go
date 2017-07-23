@@ -18,21 +18,27 @@ if [ "$METHOD" = loopback ]; then
         exit 0
 fi
 
-while [ -z "\$(hostname -I)" ] ; do
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
-	sleep 2
-done
+(
+	while ! [ -c /dev/tty8 ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
+		sleep 2
+	done
+	while [ -z "\$(hostname -I)" ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
+		sleep 2
+	done
 
-IPMSG=\$(LANG=C \
-/sbin/ip a | \
-/bin/grep -P --color=always "inet.*? [\. 0-9a-f:/]*? |$" | \
-GREP_COLOR="1;32" \
-/bin/grep -P --color=always "link/ether .*? |$" ); \
-IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" ); 
-sed -i '/^- /d' /etc/issue; 
-sed -i '/^- /d' /etc/issue.net; 
-echo "\$IPMSG" >> /etc/issue; 
-echo "\$IPMSG" >> /etc/issue.net
+	IPMSG=\$(LANG=C \
+	/sbin/ip a | \
+	/bin/grep -P --color=always "inet.*? [\. 0-9a-f:/]*? |$" | \
+	GREP_COLOR="1;32" \
+	/bin/grep -P --color=always "link/ether .*? |$" ); \
+	IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" ); 
+	sed -i '/^- /d' /etc/issue; 
+	sed -i '/^- /d' /etc/issue.net; 
+	echo "\$IPMSG" >> /etc/issue; 
+	echo "\$IPMSG" >> /etc/issue.net
+) &
 SHOWIPS
 
 chmod 755 /etc/network/if-up.d/0100-showips
