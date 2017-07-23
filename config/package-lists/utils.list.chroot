@@ -2,7 +2,9 @@ acpid
 acpi-support 
 atftp 
 ca-certificates
+hwclock
 kbd 
+ntpdate
 openssh-client
 openssh-server
 openssh-sftp-server
