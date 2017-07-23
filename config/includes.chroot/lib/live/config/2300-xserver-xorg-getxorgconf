@@ -15,8 +15,13 @@ echo -n " xserver-xorg-getxorgconf"
 #!/bin/bash
 export TERM=linux;
 
+while ! [ -s /var/run/availablevt ] ; do
+	echo -en "\n'\$0' is waiting for a free console."
+	sleep 2
+done
+
 while [ -z "\$(hostname -I)" ] ; do
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty\$(fgconsole -n)
+	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty\$(cat /var/run/availablevt)
 	sleep 2
 done
 if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
@@ -24,13 +29,13 @@ if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
 	XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 	if [ -n "\$XORGCONFSERVER" ] && [ -n "\$XORGCONFPATH" ] ; then
 		while ! atftp \$XORGCONFSERVER -g -r \$XORGCONFPATH -l $XORGCONFDESTINATION ; do
-			echo "Waiting for xorg.conf download ..."
+			echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for xorg.conf download ..." | tee -a /dev/tty\$(cat /var/run/availablevt)
 			sleep 5
 		done
 	fi
 else
 	while ! wget -q -O $XORGCONFDESTINATION $XORGCONFURL ; do
-		echo "Waiting for xorg.conf download ..."
+		echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for xorg.conf download ..." | tee -a /dev/tty\$(cat /var/run/availablevt)
 		sleep 5 
 	done
 fi
