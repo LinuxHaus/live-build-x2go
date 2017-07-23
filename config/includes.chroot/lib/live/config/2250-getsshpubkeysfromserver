@@ -17,13 +17,8 @@ GetSSHPubKeysFromServer ()
 #!/bin/bash
 export TERM=linux;
 
-while ! [ -s /var/run/availablevt ] ; do
-	echo -en "\n'\$0' is waiting for a free console."
-	sleep 2
-done
-
 while [ -z "\$(hostname -I)" ] ; do
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty\$(cat /var/run/availablevt)
+	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
 	sleep 2
 done
 
@@ -39,13 +34,13 @@ if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
 	PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 	if [ -n "\$PUBKEYSERVER" ] && [ -n "\$PUBKEYPATH" ] ; then
 		while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
-			echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty\$(cat /var/run/availablevt)
+			echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty8
 			sleep 5
 		done
 	fi
 else
 	while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
-		echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty\$(cat /var/run/availablevt)
+		echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty8
 		sleep 5
 	done
 fi
