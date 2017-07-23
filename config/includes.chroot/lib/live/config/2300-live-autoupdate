@@ -128,7 +128,18 @@ else
 	MOUNTPOINT="/lib/live/mount/findiso/"
 	# create a temporary directory and mount a tmpfs there
 	TEMPDIR=$(mktemp -d --tmpdir=/mnt)
-	IMGSIZE=$(df /lib/live/mount/medium | awk ' /medium/ { print $2}')
+	
+	if [ -d /lib/live/mount/findiso/ ] ; then
+		# if we have access to the entire filesystem, use the
+		# directory size as base size for the current image - 
+		# and if the download directory is even bigger, use that size
+		IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))")
+		IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download")
+		[ $IMGSIZEDOWNLOAD -gt $IMGSIZE ] && IMGSIZE=$IMGSIZEDOWNLOAD
+	else
+		IMGSIZE=$(df /lib/live/mount/medium | awk ' /medium/ { print $2}')
+	fi
+	# multiply current size by 1.5 as safety margin
 	mount -t tmpfs -osize=$((IMGSIZE*15/10))k tmpfs $TEMPDIR
 
 fi
