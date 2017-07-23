@@ -1,0 +1,55 @@
+#!/bin/sh
+
+GetSSHPubKeysFromServer ()
+{
+
+	# Output startup message
+	#
+	echo -n " getsshpubkeysfromserver"
+
+
+	PUBKEYURL=$(cat /proc/cmdline | \
+		    tr ' ' '\n' | \
+		    awk -F'=' ' /^pubkey=/ { print $2 }')
+
+	if [ -n "$PUBKEYURL" ] ; then
+		cat >/etc/network/if-up.d/0200-getsshpubkeysfromserver <<GETPUBKEY
+#!/bin/bash
+export TERM=linux;
+
+while [ -z "\$(hostname -I)" ] ; do
+	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty\$(fgconsole -n)
+	sleep 2
+done
+
+# Set Keyfile
+#
+mkdir -p /root/.ssh
+chmod 600 /root/.ssh
+touch /root/.ssh/authorized_keys
+chmod 600 /root/.ssh/authorized_keys
+
+if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
+	PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
+	PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+	if [ -n "\$PUBKEYSERVER" ] && [ -n "\$PUBKEYPATH" ] ; then
+		while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
+			echo "Waiting for SSH Public Key ..."
+			sleep 5
+		done
+	fi
+else
+	while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+		echo "Waiting for SSH Public Key ..."
+		sleep 5
+	done
+fi
+GETPUBKEY
+
+		chmod 755 /etc/network/if-up.d/0200-getsshpubkeysfromserver
+	fi
+
+}
+
+GetSSHPubKeysFromServer
+
