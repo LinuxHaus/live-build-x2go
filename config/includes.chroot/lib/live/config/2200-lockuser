@@ -1,0 +1,20 @@
+#!/bin/sh
+
+LockUser ()
+{
+
+# Output startup message
+#
+echo -n " lockuser"
+
+
+# Set password
+#
+if grep -q "\W*nouser\W*" /proc/cmdline ; then
+	passwd -l user >/dev/null
+fi
+
+}
+
+LockUser
+

@@ -1,0 +1,23 @@
+#!/bin/sh
+
+X2GoGetPortableAppSessions ()
+{
+
+# Output startup message
+#
+echo -n " x2go-getportableappsessions"
+
+# This script is for using the iso-hybrid image along with the "second partition" patch
+# it allows you to share a configuration between X2GoClient for Windows in portable
+# mode and the X2Go-ThinClientEnvironment on the same USB media using different partitions
+
+if [ -L /dev/disk/by-label/PORTABLEAPP ]; then 
+	mkdir -p /media/PORTABLEAPP && \
+	mount -o sync /dev/disk/by-label/PORTABLEAPP /media/PORTABLEAPP && \
+	ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+else
+	true
+fi
+}
+
+X2GoGetPortableAppSessions

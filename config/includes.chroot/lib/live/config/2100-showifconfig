@@ -1,0 +1,43 @@
+#!/bin/bash
+
+ShowIFConfig ()
+{
+
+# Output startup message
+#
+echo -n " showifconfig"
+
+# wait until terminal is available
+while ! [ -c /dev/tty$(fgconsole -n) ] ; do
+	sleep 10
+done
+
+# Make sure no language-specific stuff interferes with our matching
+# grep: highlight everything that matches "inet" to the end of its line
+# and also (-E, |$) show every line that has an end => Everything else
+cat >/etc/network/if-up.d/0100-showips <<SHOWIPS
+#!/bin/bash
+export TERM=linux;
+
+while [ -z "\$(hostname -I)" ] ; do
+	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty\$(fgconsole -n)
+	sleep 2
+done
+
+IPMSG=\$(LANG=C \
+/sbin/ip a | \
+/bin/grep -P --color=always "inet.*? [\. 0-9a-f:/]*? |$" | \
+GREP_COLOR="1;32" \
+/bin/grep -P --color=always "link/ether .*? |$" ); \
+IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" ); 
+sed -i '/^- /d' /etc/issue; 
+sed -i '/^- /d' /etc/issue.net; 
+echo "\$IPMSG" >> /etc/issue; 
+echo "\$IPMSG" >> /etc/issue.net
+SHOWIPS
+
+chmod 755 /etc/network/if-up.d/0100-showips
+
+}
+
+ShowIFConfig
