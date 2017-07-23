@@ -17,6 +17,10 @@ GetSSHPubKeysFromServer ()
 #!/bin/bash
 export TERM=linux;
 
+if [ "$METHOD" = loopback ]; then
+        exit 0
+fi
+
 while [ -z "\$(hostname -I)" ] ; do
 	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
 	sleep 2
