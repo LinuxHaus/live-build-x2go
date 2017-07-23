@@ -2,7 +2,6 @@ acpid
 acpi-support 
 atftp 
 ca-certificates
-hwclock
 kbd 
 ntpdate
 openssh-client
@@ -12,6 +11,7 @@ openssl
 psmisc 
 rsync 
 screen 
+util-linux
 vim 
 wget
 xinetd
