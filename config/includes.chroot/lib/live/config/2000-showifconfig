@@ -10,7 +10,6 @@ echo -n " showifconfig"
 # Make sure no language-specific stuff interferes with our matching
 # grep: highlight everything that matches "inet" to the end of its line
 # and also (-E, |$) show every line that has an end => Everything else
-# Output the result on virtual terminal 9
 cat >/etc/network/if-up.d/0100-showips <<SHOWIPS
 #!/bin/bash
 export TERM=linux;
