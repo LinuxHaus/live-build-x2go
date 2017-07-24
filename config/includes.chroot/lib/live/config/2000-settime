@@ -29,8 +29,10 @@ fi
 		echo -en "\n'\$0' is waiting for a previous ntpdate call to finish." | tee -a /dev/tty8
 		sleep 2
 	done
-	echo -en "\n\$(date +'%F | %T | ')'\$0': Interface '\$IFACE' is up - attempting to set time via ntp ..." | tee -a /dev/tty8
-	
+	echo -en "\n\$(date +'%F | %T | ')'\$0': Interface '\$IFACE' is up - attempting to set time via ntp in 20 seconds ..." | tee -a /dev/tty8
+
+	sleep 20 # make sure IP, Route, DNS are all up
+
 	if ntpdate-debian -s && hwclock --systohc ; then
 		echo -en "\n\$(date +'%F | %T | ')'\$0' - time has been set." | tee -a /dev/tty8
 	else
