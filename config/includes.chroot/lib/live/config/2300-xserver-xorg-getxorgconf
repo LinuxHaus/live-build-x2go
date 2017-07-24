@@ -46,6 +46,8 @@ fi
 		done
 	fi
 
+	echo -en "\n\$(date +'%F | %T | ')'\$0': xorg.conf download complete." | tee -a /dev/tty8
+
 	if [ -s $XORGCONFDESTINATION ] ; then
 		mv $XORGCONFDESTINATION /etc/X11/xorg.conf
 	fi
