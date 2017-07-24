@@ -152,8 +152,8 @@ echo -n " live-autoupdater (backgrounding update task)"
 			# if we have access to the entire filesystem, use the
 			# directory size as base size for the current image - 
 			# and if the download directory is even bigger, use that size
-			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))")
-			IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download")
+			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))" | awk '{ print $1}')
+			IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download" || echo "0")
 			[ $IMGSIZEDOWNLOAD -gt $IMGSIZE ] && IMGSIZE=$IMGSIZEDOWNLOAD
 		else
 			IMGSIZE=$(df /lib/live/mount/medium | awk ' /medium/ { print $2}')
