@@ -67,7 +67,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		TEMPMOUNT=$(mktemp -d -p /lib/live/mount/)
 		FINDFILE=$(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
 		[ -z "$FINDFILE" ] && exit 0
-		for PARTITON in $LISTOFPARTITIONS ; do
+		for PARTITION in $LISTOFPARTITIONS ; do
 			mount $PARTITION $TEMPMOUNT
 			if ! [ -f $FINDFILE ] ; then
 				umount $TEMPMOUNT
