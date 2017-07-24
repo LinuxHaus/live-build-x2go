@@ -38,18 +38,19 @@ fi
 	touch /root/.ssh/authorized_keys
 	chmod 600 /root/.ssh/authorized_keys
 
+	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting SSH public keyfile download ..." | tee -a /dev/tty8
 	if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
 		PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
 		PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 		if [ -n "\$PUBKEYSERVER" ] && [ -n "\$PUBKEYPATH" ] ; then
 			while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
-				echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty8
+				echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for download (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
 		while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
-			echo -en "\n\$(date +'%F | %T | ')'\$0': Waiting for SSH Public Key ..." | tee -a /dev/tty8
+			echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for download (wget) ..." | tee -a /dev/tty8
 			sleep 5
 		done
 	fi
