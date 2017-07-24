@@ -31,18 +31,20 @@ fi
 		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
 		sleep 2
 	done
+
+	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting session config data download ..." | tee -a /dev/tty8
 	if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
 		SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
 		SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 		if [ -n "\$SESSIONSSERVER" ] && [ -n "\$SESSIONSPATH" ] ; then
 			while ! atftp \$SESSIONSSERVER -g -r \$SESSIONSPATH -l $SESSIONSDESTINATION ; do
-				echo -en "\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty8
+				echo -en "\n\$(date +'%F | %T | ')still waiting for session config data (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
 		while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
-			echo -en "\n\$(date +'%F | %T | ')Waiting for session config data ..." | tee -a /dev/tty8
+			echo -en "\n\$(date +'%F | %T | ')still waiting for session config data (wget) ..." | tee -a /dev/tty8
 			sleep 5 
 		done
 	fi
