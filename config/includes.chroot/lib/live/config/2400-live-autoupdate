@@ -2,6 +2,28 @@
 
 # this is not /bin/bash, so "echo -en" is not supported, but the default when calling "echo"
 
+umount_or_remount_ro ()
+{# change mount back to ro and sync
+	#
+	if [ -n "$NTFSROOT" ]; then
+		if umount $MOUNTPOINT; then
+			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
+		else
+			echo "\n$(date +'%F | %T | ')'$0': Unable to unmount '$MOUNTPOINT'."
+		fi
+	else	
+		if mount -oremount,ro,sync $MOUNTPOINT; then
+			echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
+		else
+			echo "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
+		fi
+		if [ -n "$RAMDISKMODE" ] ; then
+			umount $MOUNTPOINT
+		fi
+	fi
+
+}
+
 cleanup () 
 { # discard contents of tmpfs, umount if necessary
 	if [ -n "$NTFSROOT" ]; then
@@ -377,6 +399,8 @@ echo -n " live-autoupdater (backgrounding update task)"
 		   [ -n "$NTFSROOT" ] && umount $MOUNTPOINT
 		   echo "\n$(date +'%F | %T | ')'$0': Nothing to do. Content of $DOWNLOADPATH equals" \
 			"$RUNNINGSYSTEMNAME."
+			# now, change mount back to ro and sync
+			umount_or_remount_ro
 			return 0 # current is newest, nothing to do, 
 				 # we want to keep the old system in OTHERSYSTEMFULLPATH
 				 # as a fallback
@@ -453,22 +477,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# now, change mount back to ro and sync
 	#
-	if [ -n "$NTFSROOT" ]; then
-		if umount $MOUNTPOINT; then
-			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
-		else
-			echo "\n$(date +'%F | %T | ')'$0': Unable to unmount '$MOUNTPOINT'."
-		fi
-	else	
-		if mount -oremount,ro,sync $MOUNTPOINT; then
-			echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
-		else
-			echo "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
-		fi
-		if [ -n "$RAMDISKMODE" ] ; then
-			umount $MOUNTPOINT
-		fi
-	fi
+	umount_or_remount_ro
 
 ) &
 
