@@ -69,7 +69,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		[ -z "$FINDFILE" ] && exit 0
 		for PARTITION in $LISTOFPARTITIONS ; do
 			mount $PARTITION $TEMPMOUNT
-			if ! [ -f $FINDFILE ] ; then
+			if ! [ -f "$TEMPMOUNT/$FINDFILE" ] ; then
 				umount $TEMPMOUNT
 			else
 				umount $TEMPMOUNT
