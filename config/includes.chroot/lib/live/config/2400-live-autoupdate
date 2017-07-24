@@ -380,7 +380,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 	#
 	echo "\n$(date +'%F | %T | ')'$0': Moving $TEMPDIR/* => $DOWNLOADPATH"
 	mv $TEMPDIR/* $DOWNLOADPATH
-	cleanup # FIXME ist dieses Cleanup gerechtfertigt oder macht es dummfoog?
 	if [ -n "$NTFSROOT" ]; then
 		echo "\n$(date +'%F | %T | ')'$0': NTFSROOT detected. Attempting to mount '/dev/disk/by-uuid/$NTFSROOT'."
 		if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot; then
