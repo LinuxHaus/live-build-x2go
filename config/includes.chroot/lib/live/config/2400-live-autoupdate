@@ -91,14 +91,14 @@ echo -n " live-autoupdater (backgrounding update task)"
 		FINDFILE=$(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
 		[ -z "$FINDFILE" ] && exit 0
 		for PARTITION in $LISTOFPARTITIONS ; do
-			mount $PARTITION $TEMPMOUNT
+			mount -oro $PARTITION $TEMPMOUNT
 			if ! [ -f "$TEMPMOUNT/$FINDFILE" ] ; then
 				umount $TEMPMOUNT
 			else
 				umount $TEMPMOUNT
 				rmdir $TEMPMOUNT
 				mkdir /lib/live/mount/findiso
-				if mount $PARTITION /lib/live/mount/findiso ; then
+				if mount -oro $PARTITION /lib/live/mount/findiso ; then
 					echo "\n$(date +'%F | %T | ')'$0': mounted $PARTITION as '/lib/live/mount/findiso'."
 					RAMDISKMODE="yes"
 				else
