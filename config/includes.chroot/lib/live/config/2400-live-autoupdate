@@ -38,10 +38,13 @@ cleanup ()
 		echo "\n$(date +'%F | %T | ')'$0': Could not remove directory '$TEMPDIR'."
 	fi
 	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
-		if umount $MOUNTPOINT; then
-			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
-		else
-			echo "\n$(date +'%F | %T | ')'$0': Could not unmount '$MOUNTPOINT'."
+		if grep -q "$MOUNTPOINT" /proc/mounts ; then
+			echo "\n$(date +'%F | %T | ')'$0': '$MOUNTPOINT' is mounted, attempting umount."
+			if umount $MOUNTPOINT; then
+				echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
+			else
+				echo "\n$(date +'%F | %T | ')'$0': Could not unmount '$MOUNTPOINT'."
+			fi
 		fi
 	fi
 }
