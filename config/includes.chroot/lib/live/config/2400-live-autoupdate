@@ -3,8 +3,7 @@
 # this is not /bin/bash, so "echo -en" is not supported, but the default when calling "echo"
 
 umount_or_remount_ro ()
-{# change mount back to ro and sync
-	#
+{ # change mount back to ro and sync
 	if [ -n "$NTFSROOT" ]; then
 		if umount $MOUNTPOINT; then
 			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
