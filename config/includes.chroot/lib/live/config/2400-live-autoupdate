@@ -223,11 +223,13 @@ echo -n " live-autoupdater (backgrounding update task)"
 	# and we want to avoid that especially for media that has no wear-leveling
 	# like CF cards)
 	#
+	echo -n "\n$(date +'%F | %T | ')'$0': Preparing tempdir ..."
 	while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $TEMPDIR; do
 		echo "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
 		sleep 30
 		echo "\n$(date +'%F | %T | ')'$0': Retrying ..."
 	done
+	echo " done."
 
 
 	# Now let's figure out if we're supposed to use wget or rsync for downloading
@@ -236,6 +238,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	   echo "$DOWNLOADURL" | grep -q "^ftp"
 	   then
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
+		echo "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget."
 		wget -Nr -o /tmp/dl.log -P /tmp/ -nd \
 			--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 
 		cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
@@ -271,6 +274,8 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 
+		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
+		echo "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for rsync."
 		rsync -hh -aPv -W --inplace --log-file=/tmp/dl.log $DOWNLOADURL/x2go-tce-initrd.img \
 			$TEMPDIR/x2go-tce-initrd.img.new
 		mv $TEMPDIR/x2go-tce-initrd.img.new $TEMPDIR/x2go-tce-initrd.img
@@ -310,10 +315,11 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# Proceed to download from update location
 	#
+	echo "\n$(date +'%F | %T | ')'$0': starting download ..."
 	while ! $DOWNLOADCOMMAND; do
-		echo "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
+		echo "\n$(date +'%F | %T | ')'$0': an error occurred; sleeping 30 seconds ..."
 		sleep 30
-		echo "\n$(date +'%F | %T | ')'$0': Retrying ..."
+		echo "\n$(date +'%F | %T | ')'$0': retrying ..."
 	done
 
 	# Now check if these files are different from what we already have in our
