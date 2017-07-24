@@ -49,6 +49,7 @@ fi
 		done
 	fi
 
+	echo -en "\n\$(date +'%F | %T | ')'\$0': session config data download complete." | tee -a /dev/tty8
 	if [ -s $SESSIONSDESTINATION ] ; then
 		mv $SESSIONSDESTINATION /etc/x2go/x2gothinclient_sessions
 	fi

@@ -54,6 +54,7 @@ fi
 			sleep 5
 		done
 	fi
+	echo -en "\n\$(date +'%F | %T | ')'\$0': SSH public keyfile download complete." | tee -a /dev/tty8
 ) &
 GETPUBKEY
 
