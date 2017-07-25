@@ -1,20 +1,20 @@
 #!/bin/sh
 
-# this is not /bin/bash, so "echo -en" is not supported, but the default when calling "echo"
+# this is not /bin/bash, so "echo -e" is not supported, but the default when calling "echo"
 
 umount_or_remount_ro ()
 { # change mount back to ro and sync
 	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
 		if umount $MOUNTPOINT; then
-			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
+			echo -n "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
 		else
-			echo "\n$(date +'%F | %T | ')'$0': Unable to unmount '$MOUNTPOINT'."
+			echo -n "\n$(date +'%F | %T | ')'$0': Unable to unmount '$MOUNTPOINT'."
 		fi
 	else	
 		if mount -oremount,ro,sync $MOUNTPOINT; then
-			echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
+			echo -n "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
 		else
-			echo "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
+			echo -n "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
 		fi
 	fi
 
@@ -23,24 +23,24 @@ umount_or_remount_ro ()
 cleanup () 
 { # discard contents of tmpfs, umount if necessary
 	if [ -n "$NTFSROOT" ]; then
-		echo "\n$(date +'%F | %T | ')'$0': Removing '$TEMPDIR/*'."
+		echo -n "\n$(date +'%F | %T | ')'$0': Removing '$TEMPDIR/*'."
 		rm -rf $TEMPDIR/*
 	else
-		echo "\n$(date +'%F | %T | ')'$0': Unmounting '$TEMPDIR'."
+		echo -n "\n$(date +'%F | %T | ')'$0': Unmounting '$TEMPDIR'."
 		umount $TEMPDIR
 	fi
 	if rmdir $TEMPDIR; then
-		echo "\n$(date +'%F | %T | ')'$0': Removed empty directory '$TEMPDIR'."
+		echo -n "\n$(date +'%F | %T | ')'$0': Removed empty directory '$TEMPDIR'."
 	else
-		echo "\n$(date +'%F | %T | ')'$0': Could not remove directory '$TEMPDIR'."
+		echo -n "\n$(date +'%F | %T | ')'$0': Could not remove directory '$TEMPDIR'."
 	fi
 	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
 		if grep -q "$MOUNTPOINT" /proc/mounts ; then
-			echo "\n$(date +'%F | %T | ')'$0': '$MOUNTPOINT' is mounted, attempting umount."
+			echo -n "\n$(date +'%F | %T | ')'$0': '$MOUNTPOINT' is mounted, attempting umount."
 			if umount $MOUNTPOINT; then
-				echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
+				echo -n "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
 			else
-				echo "\n$(date +'%F | %T | ')'$0': Could not unmount '$MOUNTPOINT'."
+				echo -n "\n$(date +'%F | %T | ')'$0': Could not unmount '$MOUNTPOINT'."
 			fi
 		fi
 	fi
@@ -58,7 +58,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 (
 
 	while ! [ -c /dev/tty8 ] ; do
-		echo "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
+		echo -n "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
 		sleep 2
 	done
 
@@ -79,12 +79,12 @@ echo -n " live-autoupdater (backgrounding update task)"
 		       awk -F'=' ' /^updateurl=/ { print $2 }')
 
 	if [ -z "$DOWNLOADURL" ]; then
-		echo "\n$(date +'%F | %T | ')'$0': No update URL. Exiting."
+		echo -n "\n$(date +'%F | %T | ')'$0': No update URL. Exiting."
 		return 0
 	fi
 
 	if ! [ -d /lib/live/mount/findiso ] ; then
-		echo "\n$(date +'%F | %T | ')'$0': '/lib/live/mount/findiso' directory not found. Scanning for partitions."
+		echo -n "\n$(date +'%F | %T | ')'$0': '/lib/live/mount/findiso' directory not found. Scanning for partitions."
 		LISTOFPARTITIONS=$(grep -H ^0$ /sys/block/*/removable | awk -F '/' '{ print $4 }' | xargs -n 1 -I XXX fdisk -l /dev/XXX 2>/dev/null | awk '$0 ~ /Linux$/ { print $1}')
 		TEMPMOUNT=$(mktemp -d -p /lib/live/mount/)
 		FINDFILE=$(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
@@ -98,17 +98,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 				rmdir $TEMPMOUNT
 				mkdir /lib/live/mount/findiso
 				if mount -oro $PARTITION /lib/live/mount/findiso ; then
-					echo "\n$(date +'%F | %T | ')'$0': mounted $PARTITION as '/lib/live/mount/findiso'."
+					echo -n "\n$(date +'%F | %T | ')'$0': mounted $PARTITION as '/lib/live/mount/findiso'."
 					RAMDISKMODE="yes"
 				else
-					echo "\n$(date +'%F | %T | ')'$0': error mounting $PARTITION as '/lib/live/mount/findiso'."
+					echo -n "\n$(date +'%F | %T | ')'$0': error mounting $PARTITION as '/lib/live/mount/findiso'."
 				fi
 				break
 			fi
 		done
 	fi
 	if ! [ -d /lib/live/mount/findiso ] ; then
-		echo "\n$(date +'%F | %T | ')'$0': Local update directory not found. Exiting."
+		echo -n "\n$(date +'%F | %T | ')'$0': Local update directory not found. Exiting."
 		return 0
 	fi
 
@@ -120,7 +120,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 				awk -F'=' ' /^bwlimit=/ { print $2 }')
 	if [ -z "$BWLIMITPERCENT" ]; then 
 		BWLIMITPERCENT=20
-		echo "\n$(date +'%F | %T | ')'$0': Bandwidth limit not set. Defaulting to 20%."
+		echo -n "\n$(date +'%F | %T | ')'$0': Bandwidth limit not set. Defaulting to 20%."
 	fi
 
 
@@ -134,7 +134,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		MAXSLEEPTIME=900
 	fi
 	SLEEPTIME=0
-	echo "\n$(date +'%F | %T | ')'$0': Calculating random update delay (120-$MAXSLEEPTIME seconds)..."
+	echo -n "\n$(date +'%F | %T | ')'$0': Calculating random update delay (120-$MAXSLEEPTIME seconds)..."
 	# During startup, script is run with /bin/sh, 
 	# even when #!/bin/bash is set,
 	# so we need to improvise.
@@ -143,7 +143,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	if [ $SLEEPTIME -lt 120 ]; then
 		SLEEPTIME=$((SLEEPTIME+120))
 	fi
-	echo "\n$(date +'%F | %T | ')'$0': Sleeping for $SLEEPTIME seconds ..."
+	echo -n "\n$(date +'%F | %T | ')'$0': Sleeping for $SLEEPTIME seconds ..."
 	sleep $SLEEPTIME
 
 
@@ -162,9 +162,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 		fi
 
 		if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot ; then
-			echo "\n$(date +'%F | %T | ')'$0': Mounted '/dev/disk/by-uuid/$NTFSROOT'."
+			echo -n "\n$(date +'%F | %T | ')'$0': Mounted '/dev/disk/by-uuid/$NTFSROOT'."
 		else
-			echo "\n$(date +'%F | %T | ')'$0': Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
+			echo -n "\n$(date +'%F | %T | ')'$0': Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
 		fi
 		# TODO: Further error handling
 		MOUNTPOINT="/lib/live/mount/ntfsroot/"
@@ -196,7 +196,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		) \
 	     ); then
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		echo "\n$(date +'%F | %T | ')'$0': No directories suitable for update."
+		echo -n "\n$(date +'%F | %T | ')'$0': No directories suitable for update."
 		return 0 # directories missing, most likely not a writeable medium
 	fi
 
@@ -215,7 +215,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		GRUBPATH="$MOUNTPOINT/boot/grub/"
 	else
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		echo "\n$(date +'%F | %T | ')'$0': No suitable bootloader found."
+		echo -n "\n$(date +'%F | %T | ')'$0': No suitable bootloader found."
 		return 1
 	fi
 
@@ -231,7 +231,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		OTHERSYSTEMNAME="X2Go-live1"
 	else
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		echo "\n$(date +'%F | %T | ')'$0': Unable to determine path/name of running system."
+		echo -n "\n$(date +'%F | %T | ')'$0': Unable to determine path/name of running system."
 		return 1
 	fi
 	OTHERSYSTEMFULLPATH=$(readlink -m "$ALLSYSTEMSROOT/$OTHERSYSTEMNAME")
@@ -246,9 +246,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 	#
 	echo -n "\n$(date +'%F | %T | ')'$0': Preparing tempdir ..."
 	while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $TEMPDIR; do
-		echo "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
+		echo -n "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
 		sleep 30
-		echo "\n$(date +'%F | %T | ')'$0': Retrying ..."
+		echo -n "\n$(date +'%F | %T | ')'$0': Retrying ..."
 	done
 	echo " done."
 
@@ -259,7 +259,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	   echo "$DOWNLOADURL" | grep -q "^ftp"
 	   then
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
-		echo "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget."
+		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget."
 		wget -Nr -o /tmp/dl.log -P /tmp/ -nd \
 			--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 
 		cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
@@ -270,7 +270,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 				   )
 		case $SIZEFACTORSTRING in
 			"" | \
-			[0-9]) 	echo "\n$(date +'%F | %T | ')'$0': Not enough Bandwidth for update task - "
+			[0-9]) 	echo -n "\n$(date +'%F | %T | ')'$0': Not enough Bandwidth for update task - "
 				echo -n "aborting."
 				cleanup
 				return 0
@@ -288,7 +288,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 				awk ' { print $1*$2*$3/100 }' | \
 				awk -F'.' '{ print $1 }' \
 			  ) # outputs integer kilobytes, not rounded
-		echo "\n$(date +'%F | %T | ')'$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
+		echo -n "\n$(date +'%F | %T | ')'$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
 		DOWNLOADCOMMAND="wget -Nr -l 1 -nd -P "$TEMPDIR" \
 				  --progress=bar:force \
 				  --limit-rate=${BWLIMIT}k $DOWNLOADURL"
@@ -296,7 +296,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
-		echo "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for rsync."
+		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for rsync."
 		rsync -hh -aPv -W --inplace --log-file=/tmp/dl.log $DOWNLOADURL/x2go-tce-initrd.img \
 			$TEMPDIR/x2go-tce-initrd.img.new
 		mv $TEMPDIR/x2go-tce-initrd.img.new $TEMPDIR/x2go-tce-initrd.img
@@ -306,7 +306,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 				   )
 		case $SIZEFACTORSTRING in
 			"" | \
-			[0-9]) 	echo "\n$(date +'%F | %T | ')'$0': Not enough Bandwidth for update task - "
+			[0-9]) 	echo -n "\n$(date +'%F | %T | ')'$0': Not enough Bandwidth for update task - "
 				echo -n "aborting."
 				cleanup
 				return 0
@@ -323,12 +323,12 @@ echo -n " live-autoupdater (backgrounding update task)"
 				awk ' { print $1*$2*$3/100 }' | \
 				awk -F'.' '{ print $1 }' \
 			  ) # outputs integer kilobytes, not rounded
-		echo "\n$(date +'%F | %T | ')'$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
+		echo -n "\n$(date +'%F | %T | ')'$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
 		DOWNLOADCOMMAND="rsync -aPv --inplace --bwlimit=$BWLIMIT $DOWNLOADURL/ \
 				  $TEMPDIR"
 	else 
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		echo "\n$(date +'%F | %T | ')'$0': Unsupported download mechanism - aborting."
+		echo -n "\n$(date +'%F | %T | ')'$0': Unsupported download mechanism - aborting."
 		return 1
 	fi
 	rm /tmp/dl.log
@@ -336,27 +336,27 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# Proceed to download from update location
 	#
-	echo "\n$(date +'%F | %T | ')'$0': starting download ..."
+	echo -n "\n$(date +'%F | %T | ')'$0': starting download ..."
 	while ! $DOWNLOADCOMMAND; do
-		echo "\n$(date +'%F | %T | ')'$0': an error occurred; sleeping 30 seconds ..."
+		echo -n "\n$(date +'%F | %T | ')'$0': an error occurred; sleeping 30 seconds ..."
 		sleep 30
-		echo "\n$(date +'%F | %T | ')'$0': retrying ..."
+		echo -n "\n$(date +'%F | %T | ')'$0': retrying ..."
 	done
 
 	# Now check if these files are different from what we already have in our
 	# download directory on the boot medium
 	#
-	echo "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$TEMPDIR' ..."
+	echo -n "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$TEMPDIR' ..."
 	if diff -q $DOWNLOADPATH $TEMPDIR \
 		>/dev/null
 
 		then
 		cleanup
-		echo "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$DOWNLOADPATH'."
+		echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$DOWNLOADPATH'."
 		return 0 	# current is newest, nothing to do, we want to avoid
 				# unneccessary writes to the medium
 	else
-		echo "\n$(date +'%F | %T | ')'$0': Differences detected. Continuing ..."
+		echo -n "\n$(date +'%F | %T | ')'$0': Differences detected. Continuing ..."
 	fi
 
 
@@ -364,9 +364,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 	# remount it rw and async for speed
 	#
 	if mount -oremount,rw,async $MOUNTPOINT; then
-		echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' as rw and async."
+		echo -n "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' as rw and async."
 	else
-		echo "\n$(date +'%F | %T | ')'$0': Could not remount '$MOUNTPOINT' as rw and async."
+		echo -n "\n$(date +'%F | %T | ')'$0': Could not remount '$MOUNTPOINT' as rw and async."
 	fi
 
 
@@ -377,27 +377,27 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# move everything over to the boot medium
 	#
-	echo "\n$(date +'%F | %T | ')'$0': Moving $TEMPDIR/* => $DOWNLOADPATH"
+	echo -n "\n$(date +'%F | %T | ')'$0': Moving $TEMPDIR/* => $DOWNLOADPATH"
 	# using mv would accumulate clutter in $DOWNLOADPATH if any extra files are present in the source
 	rsync -aPv --inplace --delete --modify-window=1 $TEMPDIR/ $DOWNLOADPATH/ && \
 	rm -rf $TEMPDIR/*
 	if [ -n "$NTFSROOT" ]; then
-		echo "\n$(date +'%F | %T | ')'$0': NTFSROOT detected. Attempting to mount '/dev/disk/by-uuid/$NTFSROOT'."
+		echo -n "\n$(date +'%F | %T | ')'$0': NTFSROOT detected. Attempting to mount '/dev/disk/by-uuid/$NTFSROOT'."
 		if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot; then
-			echo "\n$(date +'%F | %T | ')'$0': Mount successful."
+			echo -n "\n$(date +'%F | %T | ')'$0': Mount successful."
 		else
-			echo "\n$(date +'%F | %T | ')'$0': Failed to mount NTFSROOT."
+			echo -n "\n$(date +'%F | %T | ')'$0': Failed to mount NTFSROOT."
 		fi
 	fi
 
 
 	# let's check if we just downloaded a copy of our running system
 	#
-	echo "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$RUNNINGSYSTEMFULLPATH'"
+	echo -n "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$RUNNINGSYSTEMFULLPATH'"
 	if diff -q $DOWNLOADPATH $RUNNINGSYSTEMFULLPATH >/dev/null && \
 		   [ -d "$OTHERSYSTEMFULLPATH" ] ; then
 		   [ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-		   echo "\n$(date +'%F | %T | ')'$0': Nothing to do. Content of $DOWNLOADPATH equals" \
+		   echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. Content of $DOWNLOADPATH equals" \
 			"$RUNNINGSYSTEMNAME."
 			# now, change mount back to ro and sync
 			umount_or_remount_ro
@@ -414,20 +414,20 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# let's check if our destination is already up to date or needs updating
 	#
-	echo "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$OTHERSYSTEMFULLPATH'"
+	echo -n "\n$(date +'%F | %T | ')'$0': Diff'ing '$DOWNLOADPATH' '$OTHERSYSTEMFULLPATH'"
 	if diff -q $DOWNLOADPATH $OTHERSYSTEMFULLPATH >/dev/null; then
 			[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
-			echo "\n$(date +'%F | %T | ')'$0': Nothing to do - content of '$DOWNLOADPATH' equals"\
+			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do - content of '$DOWNLOADPATH' equals"\
 			      "'$OTHERSYSTEMNAME'."
 			return 0 # OTHERSYSTEMFULLPATH is already up to date
 	else
 		# keep rsyncing until the update is complete
-		echo "\n$(date +'%F | %T | ')'$0': Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH"
+		echo -n "\n$(date +'%F | %T | ')'$0': Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH"
 		while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $OTHERSYSTEMFULLPATH
 			do
-			echo "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
+			echo -n "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
 			sleep 30
-			echo "\n$(date +'%F | %T | ')'$0': Retrying ..."
+			echo -n "\n$(date +'%F | %T | ')'$0': Retrying ..."
 		done
 	fi
 
@@ -435,7 +435,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	# change default boot to the image we just downloaded and installed
 	#
 	if [ -n "$SYSLINUXPATH" ]; then
-		echo "\n$(date +'%F | %T | ')'$0': Changing syslinux default to $OTHERSYSTEMNAME."
+		echo -n "\n$(date +'%F | %T | ')'$0': Changing syslinux default to $OTHERSYSTEMNAME."
 		sed -i -e"/^default/cdefault $OTHERSYSTEMNAME" \
 			$SYSLINUXPATH/syslinux.cfg
 
@@ -451,16 +451,16 @@ echo -n " live-autoupdater (backgrounding update task)"
 				     awk -F':' '$2 ~ /'"${OTHERSYSTEMNAME}"'/ { print $1 }')
 		OTHERTITLEPOSITION=$((OTHERTITLEPOSITION-1))
 		if [ "$CURRENTTITLEPOSITION" = "$CURRENTDEFAULT" ]; then
-			echo "\n$(date +'%F | %T | ')'$0': Changing GRUB-legacy default to $OTHERTITLEPOSITION ..."
+			echo -n "\n$(date +'%F | %T | ')'$0': Changing GRUB-legacy default to $OTHERTITLEPOSITION ..."
 			sed -i -e"/^default/cdefault $OTHERTITLEPOSITION" \
 				$MENULST
 		else
-			echo "\n$(date +'%F | %T | ')'$0': Not changing GRUB-legacy default."
-			echo "\n$(date +'%F | %T | ')'$0': Reason: We're at boot position '$CURRENTTITLEPOSITION',"
-			echo "\n$(date +'%F | %T | ')'$0': while default is set to position '$CURRENTDEFAULT'."
+			echo -n "\n$(date +'%F | %T | ')'$0': Not changing GRUB-legacy default."
+			echo -n "\n$(date +'%F | %T | ')'$0': Reason: We're at boot position '$CURRENTTITLEPOSITION',"
+			echo -n "\n$(date +'%F | %T | ')'$0': while default is set to position '$CURRENTDEFAULT'."
 		fi
 	else
-		echo "\n$(date +'%F | %T | ')'$0': Unsupported bootloader."
+		echo -n "\n$(date +'%F | %T | ')'$0': Unsupported bootloader."
 	fi
 
 	# we're on an async mount point, so let's sync to be safe
