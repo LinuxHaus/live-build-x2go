@@ -9,9 +9,10 @@ show_versions ()
 		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
 		echo "--- BEGIN TIMESTAMPS ---" >/var/run/x2go-tce-timestamps
 		for TIMESTAMPFILE in $LISTOFTIMESTAMPFILES; do 
-			echo "$(basename $(dirname $TIMESTAMPFILE));$(cat $TIMESTAMPFILE);" >>/var/run/x2go-tce-timestamps
+			echo ";;$(basename $(dirname $TIMESTAMPFILE));$(cat $TIMESTAMPFILE);" >>/var/run/x2go-tce-timestamps
 			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
 		done
+		sed -i "s/;$RUNNINGSYSTEMNAME/X;$RUNNINGSYSTEMNAME/i" /var/run/x2go-tce-timestamps
 		echo "---- END TIMESTAMPS ----" >>/var/run/x2go-tce-timestamps
 	fi
 }
@@ -86,6 +87,14 @@ echo -n " live-autoupdater (backgrounding update task)"
 	unset LC_ALL
 	unset LC_MESSAGES
 
+
+	# determine our booted environment as well as the other available ones
+	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline | \
+				tr ' ' '\n' | \
+				awk -F'=' ' /^findiso=/ { print $2 }')"))
+
+	ALLSYSTEMSROOT=$(dirname $RUNNINGSYSTEMFULLPATH)
+	RUNNINGSYSTEMNAME=$(basename $RUNNINGSYSTEMFULLPATH)
 
 	# download url pointing to directory with all required files goes here
 	DOWNLOADURL=$(cat /proc/cmdline | \
@@ -235,12 +244,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 		return 1
 	fi
 
-	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
-				awk -F'=' ' /^findiso=/ { print $2 }')"))
-
-	ALLSYSTEMSROOT=$(dirname $RUNNINGSYSTEMFULLPATH)
-	RUNNINGSYSTEMNAME=$(basename $RUNNINGSYSTEMFULLPATH)
 	if [ "$RUNNINGSYSTEMNAME" = "X2Go-live1" ]; then
 		OTHERSYSTEMNAME="X2Go-live2"
 	elif [ "$RUNNINGSYSTEMNAME" = "X2Go-live2" ]; then
