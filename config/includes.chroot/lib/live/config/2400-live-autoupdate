@@ -259,9 +259,10 @@ echo -n " live-autoupdater (backgrounding update task)"
 	   echo "$DOWNLOADURL" | grep -q "^ftp"
 	   then
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
-		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget."
-		wget -Nr -o /tmp/dl.log -P /tmp/ -nd \
-			--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 
+		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget.\n"
+		wget -Nr -o - -P /tmp/ -nd \
+			--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img | \
+			tee /tmp/dl.log
 		cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
 		rm "/tmp/x2go-tce-initrd.img"
 		SIZEFACTORSTRING=$(	awk -F' |\(|\)' ' $9 == "saved" && \
@@ -296,9 +297,10 @@ echo -n " live-autoupdater (backgrounding update task)"
 	elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
-		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for rsync."
-		rsync -hh -aPv -W --inplace --log-file=/tmp/dl.log $DOWNLOADURL/x2go-tce-initrd.img \
-			$TEMPDIR/x2go-tce-initrd.img.new
+		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for rsync.\n"
+		rsync -hh -aPv -W --inplace --log-file=- $DOWNLOADURL/x2go-tce-initrd.img \
+			$TEMPDIR/x2go-tce-initrd.img.new | \
+			tee /tmp/dl.log
 		mv $TEMPDIR/x2go-tce-initrd.img.new $TEMPDIR/x2go-tce-initrd.img
 		SIZEFACTORSTRING=$(	sed -e's_\(. bytes/sec\)_ \1_' /tmp/dl.log | \
 					awk '$4 == "sent" && $12 == "bytes/sec" \
