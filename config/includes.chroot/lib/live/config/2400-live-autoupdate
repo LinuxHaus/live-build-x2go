@@ -424,13 +424,19 @@ echo -n " live-autoupdater (backgrounding update task)"
 			return 0 # OTHERSYSTEMFULLPATH is already up to date
 	else
 		# keep rsyncing until the update is complete
-		echo -n "\n$(date +'%F | %T | ')'$0': Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH"
+		echo -n "\n$(date +'%F | %T | ')'$0': Copying $DOWNLOADPATH/ => $OTHERSYSTEMFULLPATH ..."
 		while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $OTHERSYSTEMFULLPATH
 			do
 			echo -n "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
 			sleep 30
 			echo -n "\n$(date +'%F | %T | ')'$0': Retrying ..."
 		done
+		echo -n "\n$(date +'%F | %T | ')'$0': done."
+		if rm -rf $DOWNLOADPATH/* ; then
+			echo -n "\n$(date +'%F | %T | ')'$0': INFO: purged download directory to avoid clutter buildup."
+		else
+			echo -n "\n$(date +'%F | %T | ')'$0': ERROR: unable to purge download directory."
+		fi
 	fi
 
 
