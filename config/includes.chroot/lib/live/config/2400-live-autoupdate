@@ -312,6 +312,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 		DOWNLOADCOMMAND="wget -Nr -l 1 -nd -P "$TEMPDIR" \
 				  --progress=bar:force \
 				  --limit-rate=${BWLIMIT}k $DOWNLOADURL"
+		DOWNLOADCOMMANDFORTIMESTAMP="wget -Nr -l 1 -nd -P "$TEMPDIR" \
+				  --progress=bar:force \
+				  --limit-rate=${BWLIMIT}k $DOWNLOADURL/x2go-tce-timestamp"
 
 	elif echo "$DOWNLOADURL" | grep -q "^rsync"; then
 
@@ -346,6 +349,8 @@ echo -n " live-autoupdater (backgrounding update task)"
 		echo -n "\n$(date +'%F | %T | ')'$0': Determined bandwidth limit: '$BWLIMIT KB/s'"
 		DOWNLOADCOMMAND="rsync -aPv --inplace --bwlimit=$BWLIMIT $DOWNLOADURL/ \
 				  $TEMPDIR"
+		DOWNLOADCOMMANDFORTIMESTAMP="rsync -aPv --inplace --bwlimit=$BWLIMIT $DOWNLOADURL/x2go-tce-timestamp \
+				  $TEMPDIR"
 	else 
 		[ -n "$NTFSROOT" ] && umount $MOUNTPOINT
 		echo -n "\n$(date +'%F | %T | ')'$0': Unsupported download mechanism - aborting."
@@ -354,8 +359,23 @@ echo -n " live-autoupdater (backgrounding update task)"
 	rm /tmp/dl.log
 
 
+
 	# Proceed to download from update location
 	#
+	echo -n "\n$(date +'%F | %T | ')'$0': starting timestamp download ..."
+	if ! $DOWNLOADCOMMANDFORTIMESTAMP; then
+		echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
+	else
+		RUNNINGVERSION=$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
+		if [ $RUNNINGVERSION) -ge $(cat $TEMPDIR/x2go-tce-timestamp) ] ; then
+			cleanup
+			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
+			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGSYSTEMVERSION - $(date --date=@$RUNNINGSYSTEMVERSION))."
+			return 0 	# current is newest, nothing to do, we want to avoid
+					# unneccessary writes to the medium
+		fi
+	fi
+
 	echo -n "\n$(date +'%F | %T | ')'$0': starting download ..."
 	while ! $DOWNLOADCOMMAND; do
 		echo -n "\n$(date +'%F | %T | ')'$0': an error occurred; sleeping 30 seconds ..."
