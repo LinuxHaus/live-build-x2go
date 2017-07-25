@@ -367,7 +367,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
 	else
 		RUNNINGVERSION=$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
-		if [ $RUNNINGVERSION) -ge $(cat $TEMPDIR/x2go-tce-timestamp) ] ; then
+		if [ $RUNNINGVERSION -ge $(cat $TEMPDIR/x2go-tce-timestamp) ] ; then
 			cleanup
 			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
 			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGSYSTEMVERSION - $(date --date=@$RUNNINGSYSTEMVERSION))."
