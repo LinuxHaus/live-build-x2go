@@ -87,6 +87,48 @@ echo -n " live-autoupdater (backgrounding update task)"
 	unset LC_ALL
 	unset LC_MESSAGES
 
+	# Define our mountpoint and check if we're capable of auto-updating
+	NTFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
+	if [ -n "$NTFSROOT" ]; then
+		mkdir -p /lib/live/mount/ntfsroot
+		# This is in case we've been passed an incomplete UUID and/or one with dashes
+		# For example, "vol c:" on Windows will return the last 8 digits of the UUID
+		# only, and separate them with a dash.
+		if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
+			NTFSROOT=$(echo $NTFSROOT | tr -d '-')
+			if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
+				NTFSROOT=$(basename $(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1))
+			fi
+		fi
+
+		if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot ; then
+			echo -n "\n$(date +'%F | %T | ')'$0': Mounted '/dev/disk/by-uuid/$NTFSROOT'."
+		else
+			echo -n "\n$(date +'%F | %T | ')'$0': Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
+		fi
+		# TODO: Further error handling
+		MOUNTPOINT="/lib/live/mount/ntfsroot/"
+		# create a temporary directory
+		TEMPDIR=$(mktemp -d --tmpdir=$MOUNTPOINT)
+	else
+		MOUNTPOINT="/lib/live/mount/findiso/"
+		# create a temporary directory and mount a tmpfs there
+		TEMPDIR=$(mktemp -d --tmpdir=/mnt)
+		
+		if [ -d /lib/live/mount/findiso/ ] ; then
+			# if we have access to the entire filesystem, use the
+			# directory size as base size for the current image - 
+			# and if the download directory is even bigger, use that size
+			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))" | awk '{ print $1}')
+			IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download" | awk '{ print $1}' || echo "0")
+			[ $IMGSIZEDOWNLOAD -gt $IMGSIZE ] && IMGSIZE=$IMGSIZEDOWNLOAD
+		else
+			IMGSIZE=$(df /lib/live/mount/medium | awk ' /medium/ { print $2}')
+		fi
+		# multiply current size by 1.5 as safety margin
+		mount -t tmpfs -osize=$((IMGSIZE*15/10))k tmpfs $TEMPDIR
+
+	fi
 
 	# determine our booted environment as well as the other available ones
 	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline | \
@@ -149,7 +191,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 	fi
 
 
-
 	# sleeping a random amount of time to ease load on the update server
 	#
 	MAXSLEEPTIME=$(cat /proc/cmdline | \
@@ -172,48 +213,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 	sleep $SLEEPTIME
 
 
-	# Define our mountpoint and check if we're capable of auto-updating
-	NTFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
-	if [ -n "$NTFSROOT" ]; then
-		mkdir -p /lib/live/mount/ntfsroot
-		# This is in case we've been passed an incomplete UUID and/or one with dashes
-		# For example, "vol c:" on Windows will return the last 8 digits of the UUID
-		# only, and separate them with a dash.
-		if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
-			NTFSROOT=$(echo $NTFSROOT | tr -d '-')
-			if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
-				NTFSROOT=$(basename $(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1))
-			fi
-		fi
-
-		if mount -t ntfs-3g -rw /dev/disk/by-uuid/$NTFSROOT /lib/live/mount/ntfsroot ; then
-			echo -n "\n$(date +'%F | %T | ')'$0': Mounted '/dev/disk/by-uuid/$NTFSROOT'."
-		else
-			echo -n "\n$(date +'%F | %T | ')'$0': Unable to mount '/dev/disk/by-uuid/$NTFSROOT'."
-		fi
-		# TODO: Further error handling
-		MOUNTPOINT="/lib/live/mount/ntfsroot/"
-		# create a temporary directory
-		TEMPDIR=$(mktemp -d --tmpdir=$MOUNTPOINT)
-	else
-		MOUNTPOINT="/lib/live/mount/findiso/"
-		# create a temporary directory and mount a tmpfs there
-		TEMPDIR=$(mktemp -d --tmpdir=/mnt)
-		
-		if [ -d /lib/live/mount/findiso/ ] ; then
-			# if we have access to the entire filesystem, use the
-			# directory size as base size for the current image - 
-			# and if the download directory is even bigger, use that size
-			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))" | awk '{ print $1}')
-			IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download" | awk '{ print $1}' || echo "0")
-			[ $IMGSIZEDOWNLOAD -gt $IMGSIZE ] && IMGSIZE=$IMGSIZEDOWNLOAD
-		else
-			IMGSIZE=$(df /lib/live/mount/medium | awk ' /medium/ { print $2}')
-		fi
-		# multiply current size by 1.5 as safety margin
-		mount -t tmpfs -osize=$((IMGSIZE*15/10))k tmpfs $TEMPDIR
-
-	fi
 	if ! (	[ -d "$MOUNTPOINT/boot/X2Go-live-download" ] && \
 		( \
 			[ -d "$MOUNTPOINT/boot/X2Go-live1" ] || \
