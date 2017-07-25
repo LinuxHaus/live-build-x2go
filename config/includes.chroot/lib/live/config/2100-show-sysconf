@@ -41,7 +41,7 @@ fi
 	echo "\$IPMSG" >> /etc/issue.net
 
 	if grep -q findiso /proc/cmdline ; then
-		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | tr " " "\n" | awk -F'=' ' $1 == "findiso" { print \$2 }')))
+		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | tr " " "\n" | awk -F'=' ' \$1 == "findiso" { print \$2 }')))
 		echo "- Booted Environment: $BOOTEDENV" >> /etc/issue
 		echo "- Booted Environment: $BOOTEDENV" >> /etc/issue.net
 	fi
