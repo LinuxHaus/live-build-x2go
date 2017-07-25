@@ -2,6 +2,17 @@
 
 # this is not /bin/bash, so "echo -e" is not supported, but the default when calling "echo"
 
+show_versions ()
+{ # This prints the TCE versions that are stored on the local medium to the log output
+	LISTOFTIMESTAMPFILES=$(find /lib/live/mount/findiso/boot -name "x2go-tce-timestamp")
+	if [ -n "$LISTOFTIMESTAMPFILES" ]; then
+		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
+		for TIMESTAMPFILE in $LISTOFTIMESTAMPFILES; do 
+			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
+		done
+	fi
+}
+
 umount_or_remount_ro ()
 { # change mount back to ro and sync
 	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
@@ -111,6 +122,8 @@ echo -n " live-autoupdater (backgrounding update task)"
 		echo -n "\n$(date +'%F | %T | ')'$0': Local update directory not found. Exiting."
 		return 0
 	fi
+
+	show_versions
 
 	# Bandwidth limit goes here
 	#
@@ -439,6 +452,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		fi
 	fi
 
+	show_versions
 
 	# change default boot to the image we just downloaded and installed
 	#
