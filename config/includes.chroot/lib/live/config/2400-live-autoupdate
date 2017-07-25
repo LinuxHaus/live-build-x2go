@@ -7,9 +7,12 @@ show_versions ()
 	LISTOFTIMESTAMPFILES=$(find /lib/live/mount/findiso/boot -name "x2go-tce-timestamp")
 	if [ -n "$LISTOFTIMESTAMPFILES" ]; then
 		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
+		echo "--- BEGIN TIMESTAMPS ---" >/var/run/x2go-tce-timestamps
 		for TIMESTAMPFILE in $LISTOFTIMESTAMPFILES; do 
+			echo "$(basename $(dirname $TIMESTAMPFILE));$(cat $TIMESTAMPFILE);" >>/var/run/x2go-tce-timestamps
 			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
 		done
+		echo "---- END TIMESTAMPS ----" >>/var/run/x2go-tce-timestamps
 	fi
 }
 
