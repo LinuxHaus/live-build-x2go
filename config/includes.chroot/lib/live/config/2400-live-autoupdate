@@ -4,7 +4,7 @@
 
 umount_or_remount_ro ()
 { # change mount back to ro and sync
-	if [ -n "$NTFSROOT" ]; then
+	if [ -n "$NTFSROOT" ] || [ -n "$RAMDISKMODE" ] ; then
 		if umount $MOUNTPOINT; then
 			echo "\n$(date +'%F | %T | ')'$0': Unmounted '$MOUNTPOINT'."
 		else
@@ -15,9 +15,6 @@ umount_or_remount_ro ()
 			echo "\n$(date +'%F | %T | ')'$0': Remounted '$MOUNTPOINT' ro and sync."
 		else
 			echo "\n$(date +'%F | %T | ')'$0': Unable to remount '$MOUNTPOINT' ro and sync."
-		fi
-		if [ -n "$RAMDISKMODE" ] ; then
-			umount $MOUNTPOINT
 		fi
 	fi
 
