@@ -19,6 +19,13 @@ if [ "\$METHOD" = "loopback" ] || [ "\$METHOD" = "none" ]; then
 fi
 
 (
+	if grep -q findiso /proc/cmdline ; then
+		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | tr " " "\n" | awk -F'=' ' \$1 == "findiso" { print \$2 }')))
+	fi
+	if [ -d /lib/live/mount/rootfs/filesystem.squashfs/lib ] ; then
+		TIMESTAMP=\$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
+		HUMANTIMESTAMP=\$(date --date="@\$TIMESTAMP")
+	fi
 	while ! [ -c /dev/tty8 ] ; do
 		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
 		sleep 2
@@ -36,22 +43,17 @@ fi
 
 	IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" )
 	sed -i '/^- /d' /etc/issue
-	sed -i '/^- /d' /etc/issue.net
 	echo "\$IPMSG" >> /etc/issue
+	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue
+	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue
+	sed -i '/^- /d' /etc/issue.net
 	echo "\$IPMSG" >> /etc/issue.net
-
-	if grep -q findiso /proc/cmdline ; then
-		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | tr " " "\n" | awk -F'=' ' \$1 == "findiso" { print \$2 }')))
-		echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue
-		echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue.net
-	fi
-
-	if [ -d /lib/live/mount/rootfs/filesystem.squashfs/lib ] ; then
-		TIMESTAMP=\$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
-		HUMANTIMESTAMP=\$(date --date="@\$TIMESTAMP")
-		echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue
-		echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue.net
-	fi
+	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue.net
+	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue.net
+	sed -i '/^- /d' /var/run/banner
+	echo "\$IPMSG" >> /var/run/banner
+	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /var/run/banner
+	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /var/run/banner
 ) &
 SHOWSYSCONF
 
