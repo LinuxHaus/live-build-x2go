@@ -26,6 +26,15 @@ fi
 		TIMESTAMP=\$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
 		HUMANTIMESTAMP=\$(date --date="@\$TIMESTAMP")
 	fi
+
+	# clear old entries
+	sed -i '/^- /d' /etc/issue
+	sed -i '/^- /d' /etc/issue.net
+	sed -i '/^- /d' /var/run/banner
+
+	# enable banner in sshd config if it was disabled
+	sed -i 's/^#Banner/Banner/' /etc/ssh/sshd_config
+
 	while ! [ -c /dev/tty8 ] ; do
 		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
 		sleep 2
@@ -42,15 +51,12 @@ fi
 		/bin/grep -P --color=always "link/ether .*? |$" )
 
 	IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" )
-	sed -i '/^- /d' /etc/issue
 	echo "\$IPMSG" >> /etc/issue
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue
-	sed -i '/^- /d' /etc/issue.net
 	echo "\$IPMSG" >> /etc/issue.net
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue.net
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue.net
-	sed -i '/^- /d' /var/run/banner
 	echo "\$IPMSG" >> /var/run/banner
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /var/run/banner
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /var/run/banner
