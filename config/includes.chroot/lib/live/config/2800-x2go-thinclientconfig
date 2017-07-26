@@ -147,7 +147,7 @@ if [ -e "/home/user/custom/background.svg" ]; then
 fi
 
 # append custom branding image if one was retrieved to additional options
-if [ -e "/home/user/custom/background.svg" ]; then
+if [ -e "/home/user/custom/branding.svg" ]; then
     ADDOPTS="\$ADDOPTS --branding='/home/user/custom/branding.svg'"
 fi
 
