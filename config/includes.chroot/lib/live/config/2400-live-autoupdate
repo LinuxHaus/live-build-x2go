@@ -2,8 +2,25 @@
 
 # this is not /bin/bash, so "echo -e" is not supported, but the default when calling "echo"
 
+prepare_tempdir ()
+{ # prepare temporary directory by filling it with the contents of our download folder
+	# Now we'll copy the content of the X2Go-live-download folder to our tempdir
+	# this is so we can run wget in update mode (-N) or rsync without needing
+	# write access to our boot medium (write access means increased wear and tear,
+	# and we want to avoid that especially for media that has no wear-leveling
+	# like CF cards)
+	#
+	echo -n "\n$(date +'%F | %T | ')'$0': Preparing tempdir ..."
+	while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $TEMPDIR; do
+		echo -n "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
+		sleep 30
+		echo -n "\n$(date +'%F | %T | ')'$0': Retrying ..."
+	done
+	echo " done."
+}
+
 check_timestamp ()
-{ #this attempts to download a timestamp file
+{ # this attempts to download a timestamp file
 	echo -n "\n$(date +'%F | %T | ')'$0': starting timestamp download ..."
 	if ! $DOWNLOADCOMMANDFORTIMESTAMP; then
 		return 1
@@ -17,7 +34,7 @@ check_timestamp ()
 }
 
 show_versions ()
-{ # This prints the TCE versions that are stored on the local medium to the log output
+{ # this prints the TCE versions that are stored on the local medium to the log output
 	LISTOFTIMESTAMPFILES=$(find /lib/live/mount/findiso/boot -name "x2go-tce-timestamp")
 	if [ -n "$LISTOFTIMESTAMPFILES" ]; then
 		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
@@ -269,22 +286,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 	OTHERSYSTEMFULLPATH=$(readlink -m "$ALLSYSTEMSROOT/$OTHERSYSTEMNAME")
 	DOWNLOADPATH=$(readlink -m "$ALLSYSTEMSROOT/X2Go-live-download/")
 
-
-	# Now we'll copy the content of the X2Go-live-download folder to our tempdir
-	# this is so we can run wget in update mode (-N) or rsync without needing
-	# write access to our boot medium (write access means increased wear and tear,
-	# and we want to avoid that especially for media that has no wear-leveling
-	# like CF cards)
-	#
-	echo -n "\n$(date +'%F | %T | ')'$0': Preparing tempdir ..."
-	while ! rsync -aPv --inplace --modify-window=1 $DOWNLOADPATH/ $TEMPDIR; do
-		echo -n "\n$(date +'%F | %T | ')'$0': Sleeping 30 seconds ..."
-		sleep 30
-		echo -n "\n$(date +'%F | %T | ')'$0': Retrying ..."
-	done
-	echo " done."
-
-
 	# Now let's figure out if we're supposed to use wget or rsync for downloading
 	#
 	if echo "$DOWNLOADURL" | grep -q "^http" || \
@@ -295,16 +296,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 				  $DOWNLOADURL/x2go-tce-timestamp"
 
 		check_timestamp
-		if [ $? -eq 1 ]; then
+		CTRC=$?
+		if [ $CTRC -eq 1 ]; then
 				echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
-		elif [ $? -eq 5 ]; then
+		elif [ $CTRC -eq 5 ]; then
 				cleanup
 				echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
 				echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
 				return 0 	# current is newest, nothing to do, we want to avoid
 						# unneccessary writes to the medium
 		else
-			: # NOP
+			prepare_tempdir
 		fi
 
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
@@ -349,16 +351,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 				  $TEMPDIR"
 
 		check_timestamp
-		if [ $? -eq 1 ]; then
+		CTRC=$?
+		if [ $CTRC -eq 1 ]; then
 				echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
-		elif [ $? -eq 5 ]; then
+		elif [ $CTRC -eq 5 ]; then
 				cleanup
 				echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
 				echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
 				return 0 	# current is newest, nothing to do, we want to avoid
 						# unneccessary writes to the medium
 		else
-			: # NOP
+			prepare_tempdir
 		fi
 
 
