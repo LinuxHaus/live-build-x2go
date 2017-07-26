@@ -365,7 +365,6 @@ echo -n " live-autoupdater (backgrounding update task)"
 			: # NOP
 		fi
 		prepare_tempdir
-		fi
 
 
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
