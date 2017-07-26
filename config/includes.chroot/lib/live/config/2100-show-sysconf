@@ -52,12 +52,12 @@ fi
 		/bin/grep -P --color=always "link/ether .*? |$" )
 
 	IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" )
-	echo "\$IPMSG" >> /etc/issue
+	echo "\$IPMSG" | tee -a /etc/motd >> /etc/issue
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue
-	echo "\$IPMSG" >> /etc/motd
-	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/motd
-	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/motd
+
+	# make sure all unused VTs show the new /etc/issue
+	ps -C getty --no-header | awk '{ print \$1 }' | xargs -n 1 kill -1
 ) &
 SHOWSYSCONF
 
