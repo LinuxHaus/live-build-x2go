@@ -298,16 +298,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 		check_timestamp
 		CTRC=$?
 		if [ $CTRC -eq 1 ]; then
-				echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
+			echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
 		elif [ $CTRC -eq 5 ]; then
-				cleanup
-				echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
-				echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
-				return 0 	# current is newest, nothing to do, we want to avoid
-						# unneccessary writes to the medium
+			cleanup
+			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
+			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
+			return 0 	# current is newest, nothing to do, we want to avoid
+					# unneccessary writes to the medium
 		else
-			prepare_tempdir
+			: # NOP
 		fi
+		prepare_tempdir
 
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
 		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget.\n"
@@ -353,15 +354,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 		check_timestamp
 		CTRC=$?
 		if [ $CTRC -eq 1 ]; then
-				echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
+			echo -n "\n$(date +'%F | %T | ')'$0': an error occurred during timestamp download; trying full download instead ..."
 		elif [ $CTRC -eq 5 ]; then
-				cleanup
-				echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
-				echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
-				return 0 	# current is newest, nothing to do, we want to avoid
-						# unneccessary writes to the medium
+			cleanup
+			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
+			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
+			return 0 	# current is newest, nothing to do, we want to avoid
+					# unneccessary writes to the medium
 		else
-			prepare_tempdir
+			: # NOP
+		fi
+		prepare_tempdir
 		fi
 
 
