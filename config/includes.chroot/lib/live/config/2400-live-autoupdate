@@ -369,7 +369,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		if [ $RUNNINGVERSION -ge $(cat $TEMPDIR/x2go-tce-timestamp) ] ; then
 			cleanup
 			echo -n "\n$(date +'%F | %T | ')'$0': Nothing to do. - Files on server not newer than '$RUNNINGSYSTEMNAME'."
-			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGSYSTEMVERSION - $(date --date=@$RUNNINGSYSTEMVERSION))."
+			echo -n "\n$(date +'%F | %T | ')'$0': ('$RUNNINGSYSTEMNAME' is Version $RUNNINGVERSION - $(date --date=@$RUNNINGVERSION))."
 			return 0 	# current is newest, nothing to do, we want to avoid
 					# unneccessary writes to the medium
 		fi
