@@ -29,8 +29,9 @@ fi
 
 	# clear old entries
 	sed -i '/^- /d' /etc/issue
-	#sed -i '/^- /d' /etc/issue.net
-	#sed -i '/^- /d' /etc/motd
+	# delete motd call from pam login, so we don't get the same greeting twice when logging in locally
+	sed -i '/^session    optional   pam_motd.so/d' /etc/pam.d/login
+
 
 	## enable banner in sshd config if it was disabled
 	#sed -i 's/^#Banner/Banner/' /etc/ssh/sshd_config
@@ -54,10 +55,6 @@ fi
 	echo "\$IPMSG" >> /etc/issue
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue
-	# we need to strip the ANSI as it doesn't work in issue.net via SSH
-	echo "\$IPMSG" | sed -r "s/\x1B\[(([0-9]+)(;[0-9]+)*)?[m,K,H,f,J]//g" >> /etc/issue.net
-	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue.net
-	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue.net
 	echo "\$IPMSG" >> /etc/motd
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/motd
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/motd
