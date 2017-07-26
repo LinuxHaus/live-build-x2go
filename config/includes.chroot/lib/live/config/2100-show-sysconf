@@ -30,7 +30,6 @@ fi
 	# clear old entries
 	sed -i '/^- /d' /etc/issue
 	sed -i '/^- /d' /etc/issue.net
-	sed -i '/^- /d' /var/run/banner
 
 	# enable banner in sshd config if it was disabled
 	sed -i 's/^#Banner/Banner/' /etc/ssh/sshd_config
@@ -57,9 +56,6 @@ fi
 	echo "\$IPMSG" >> /etc/issue.net
 	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /etc/issue.net
 	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /etc/issue.net
-	echo "\$IPMSG" >> /var/run/banner
-	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" >> /var/run/banner
-	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" >> /var/run/banner
 ) &
 SHOWSYSCONF
 
