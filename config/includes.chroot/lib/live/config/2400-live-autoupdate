@@ -40,8 +40,8 @@ show_versions ()
 		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
 		echo "--- BEGIN TIMESTAMPS ---" >/var/run/x2go-tce-timestamps
 		for TIMESTAMPFILE in $LISTOFTIMESTAMPFILES; do 
-			echo "$(basename $(cat $TIMESTAMPFILE));$(dirname $TIMESTAMPFILE);" >>/var/run/x2go-tce-timestamps
-			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
+			echo "$(cat $TIMESTAMPFILE);$(basename $(dirname $TIMESTAMPFILE));" >>/var/run/x2go-tce-timestamps
+			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(cat $TIMESTAMPFILE) - $(dirname $TIMESTAMPFILE)) - $(date --date=@$(cat $TIMESTAMPFILE))"
 		done
 		sed -i "s/$RUNNINGSYSTEMNAME;$/$RUNNINGSYSTEMNAME;X/i" /var/run/x2go-tce-timestamps
 		echo "---- END TIMESTAMPS ----" >>/var/run/x2go-tce-timestamps
