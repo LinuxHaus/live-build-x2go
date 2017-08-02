@@ -1,39 +1,68 @@
 #!/bin/bash
 
-ShowIFConfig ()
+ShowSysConf ()
 {
 
 # Output startup message
 #
-echo -n " showifconfig"
+echo -n " show-sysconf"
 
-#setterm -term linux -r >/dev/tty9
 # Make sure no language-specific stuff interferes with our matching
 # grep: highlight everything that matches "inet" to the end of its line
 # and also (-E, |$) show every line that has an end => Everything else
-# Output the result on virtual terminal 9
-cat >/etc/network/if-up.d/showips <<SHOWIPS
+cat >/etc/network/if-up.d/0100-show-sysconf <<SHOWSYSCONF
 #!/bin/bash
 export TERM=linux;
 
-while ! ip a | grep -v "inet 127.0.0.1" | grep -v "inet6 ::1/128" | grep -q inet ; do
-        sleep 2
-done
+if [ "\$METHOD" = "loopback" ] || [ "\$METHOD" = "none" ]; then
+        exit 0
+fi
 
-IPMSG=\$(LANG=C \
-/sbin/ip a | \
-/bin/grep -P --color=always "inet.*? [\. 0-9a-f:/]*? |$" | \
-GREP_COLOR="1;32" \
-/bin/grep -P --color=always "link/ether .*? |$" ); \
-IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" ); 
-sed -i '/^- /d' /etc/issue; 
-sed -i '/^- /d' /etc/issue.net; 
-echo "\$IPMSG" >> /etc/issue; 
-echo "\$IPMSG" >> /etc/issue.net 
-SHOWIPS
+(
+	if grep -q findiso /proc/cmdline ; then
+		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | tr " " "\n" | awk -F'=' ' \$1 == "findiso" { print \$2 }')))
+	fi
+	if [ -d /lib/live/mount/rootfs/filesystem.squashfs/lib ] ; then
+		TIMESTAMP=\$(stat -c %Y /lib/live/mount/rootfs/filesystem.squashfs/lib)
+		HUMANTIMESTAMP=\$(date --date="@\$TIMESTAMP")
+	fi
 
-chmod 755 /etc/network/if-up.d/showips
+	# clear old entries
+	sed -i '/^- /d' /etc/issue
+	# delete motd call from pam login, so we don't get the same greeting twice when logging in locally
+	sed -i '/^session    optional   pam_motd.so/d' /etc/pam.d/login
+
+
+	## enable banner in sshd config if it was disabled
+	#sed -i 's/^#Banner/Banner/' /etc/ssh/sshd_config
+
+	while ! [ -c /dev/tty8 ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
+		sleep 2
+	done
+	while [ -z "\$(hostname -I)" ] ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
+		sleep 2
+	done
+
+	IPMSG=\$(LANG=C \
+		/sbin/ip a | \
+		/bin/grep -P --color=always "inet.*? [\. 0-9a-f:/]*? |$" | \
+		GREP_COLOR="1;32" \
+		/bin/grep -P --color=always "link/ether .*? |$" )
+
+	IPMSG=\$( sed 's/^/- /' <<< "\$IPMSG" )
+	echo "\$IPMSG" | tee -a /etc/motd >> /etc/issue
+	[ -n "\$BOOTEDENV" ] && echo "- Booted Environment: \$BOOTEDENV" | tee -a /etc/motd >> /etc/issue
+	[ -n "\$TIMESTAMP" ] && echo "- Build Version: \$TIMESTAMP (\$HUMANTIMESTAMP)" | tee -a /etc/motd >> /etc/issue
+
+	# make sure all unused VTs show the new /etc/issue
+	ps -C getty --no-header | awk '{ print \$1 }' | xargs -n 1 kill -1
+) &
+SHOWSYSCONF
+
+chmod 755 /etc/network/if-up.d/0100-show-sysconf
 
 }
 
-ShowIFConfig
+ShowSysConf
