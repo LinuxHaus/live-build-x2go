@@ -49,7 +49,7 @@ fi
 	fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': branding SVG download complete." | tee -a /dev/tty8
-	if ! [ -s ${BRANDINGDESTINATION}.tmp ] ; then
+	if [ -s ${BRANDINGDESTINATION}.tmp ] ; then
 		mv ${BRANDINGDESTINATION}.tmp $BRANDINGDESTINATION
 	fi
 ) &

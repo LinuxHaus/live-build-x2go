@@ -49,7 +49,7 @@ fi
 	fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': background SVG download complete." | tee -a /dev/tty8
-	if ! [ -s ${BGDESTINATION}.tmp ] ; then
+	if [ -s ${BGDESTINATION}.tmp ] ; then
 		mv ${BGDESTINATION}.tmp $BGDESTINATION
 	fi
 ) &
