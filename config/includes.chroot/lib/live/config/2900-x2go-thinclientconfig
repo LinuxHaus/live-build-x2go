@@ -102,13 +102,38 @@ LDAP2=\$(cat /proc/cmdline | \
 	    sed 's/^ldap2=/ldap2#/' | \
 	    awk -F'#' ' /^ldap2#/ { print \$2 }')
 
+
+# Check for background and branding SVGs
+BRANDING=''
+if grep -q ' branding=' /proc/cmdline; then
+	while ! [ -s /etc/x2go/branding.svg ]; do
+		OLDCON=\$(fgconsole)
+		chvt 1
+	        echo "'$0' is waiting for a valid '/etc/x2go/branding.svg' file."
+		sleep 2
+	done
+	[ -n "$OLDCON" ] && chvt $OLDCON
+	\$BRANDING='--branding=/etc/x2go/branding.svg'
+fi
+BACKGROUND=''
+if grep -q ' bg=' /proc/cmdline; then
+	while ! [ -s /etc/x2go/bg.svg ]; do
+		OLDCON=\$(fgconsole)
+		chvt 1
+	        echo "'$0' is waiting for a valid '/etc/x2go/bg.svg' file."
+		sleep 2
+	done
+	[ -n "$OLDCON" ] && chvt $OLDCON
+	\$BACKGROUND='--background=/etc/x2go/bg.svg'
+fi
+
 # Spawn X2GoClient
 if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
 else 
 	SESSIONFROM="--session-conf=/etc/x2go/x2gothinclient_sessions"
 	while ! [ -s /etc/x2go/x2gothinclient_sessions ]; do
-		OLDCON=$(fgconsole)
+		OLDCON=\$(fgconsole)
 		chvt 1
 	        echo "'$0' is waiting for a valid '/etc/x2go/x2gothinclient_sessions' file."
 		sleep 2
@@ -146,7 +171,7 @@ if [ -n "\$BLANKINGTIME" ]; then
 	fi
 fi
 
-x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM
+x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING
 XSESSION
 
 chown user:user /home/user/.xsession
