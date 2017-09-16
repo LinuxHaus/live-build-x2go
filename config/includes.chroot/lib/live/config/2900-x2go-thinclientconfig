@@ -113,7 +113,7 @@ if grep -q ' branding=' /proc/cmdline; then
 		sleep 2
 	done
 	[ -n "\$OLDCON" ] && chvt \$OLDCON
-	\$BRANDING='--branding=/etc/x2go/branding.svg'
+	BRANDING='--branding=/etc/x2go/branding.svg'
 fi
 BACKGROUND=''
 if grep -q ' bg=' /proc/cmdline; then
@@ -124,7 +124,7 @@ if grep -q ' bg=' /proc/cmdline; then
 		sleep 2
 	done
 	[ -n "\$OLDCON" ] && chvt \$OLDCON
-	\$BACKGROUND='--background=/etc/x2go/bg.svg'
+	BACKGROUND='--background=/etc/x2go/bg.svg'
 fi
 
 # Spawn X2GoClient
