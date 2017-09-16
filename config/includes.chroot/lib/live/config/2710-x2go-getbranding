@@ -12,7 +12,7 @@ X2GoGetBranding ()
 		       awk -F'=' ' /^branding=/ { print $2 }')
 	BRANDINGDESTINATION=/etc/x2go/branding.svg
 
-	if [ -n "$BRANDINGURL"] ; then
+	if [ -n "$BRANDINGURL" ] ; then
 		cat >/etc/network/if-up.d/0410-getbranding <<GETBRAND
 #!/bin/bash
 export TERM=linux;
