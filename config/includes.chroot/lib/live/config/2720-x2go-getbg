@@ -12,7 +12,7 @@ X2GoGetBG ()
 		       awk -F'=' ' /^bg=/ { print $2 }')
 	BGDESTINATION=/etc/x2go/bg.svg
 
-	if [ -n "$BGURL"] ; then
+	if [ -n "$BGURL" ] ; then
 		cat >/etc/network/if-up.d/0420-getbg <<GETBG
 #!/bin/bash
 export TERM=linux;
@@ -58,4 +58,4 @@ GETBG
 	fi
 }
 
-X2GoGetBranding
+X2GoGetBG
