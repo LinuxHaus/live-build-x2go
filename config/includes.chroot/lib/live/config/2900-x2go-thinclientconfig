@@ -73,10 +73,10 @@ for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d '
 			/usr/bin/xrandr --output \$NEXT_DISPLAY --\$XRANDRCMD \$THIS_DISPLAY
 		fi
 
-		# now set THIS_DISPLAY -> every subsequent iteration of the loop will now enter the code block
-		# above where [ -n \${THIS_DISPLAY+x} ] is the conditional
-		THIS_DISPLAY=\$NEXT_DISPLAY
 	fi
+	# now set THIS_DISPLAY -> every subsequent iteration of the loop will now enter the code block
+	# above where [ -n \${THIS_DISPLAY+x} ] is the conditional
+	THIS_DISPLAY=\$NEXT_DISPLAY
 done
 
 # Spawn openbox
