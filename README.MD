@@ -1,8 +1,11 @@
-Only usable on systems with minimum 1G RAM
-Install Debian jessie on your server
-become root on the server
-apt update
-apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
+#Requirements
+A system with at least 1 GB of RAM.
+
+#Gettings Started
+1. Install Debian Jessie on your server.
+2. Become root on the server.
+3. Perform an update: apt update
+4. Install required packages: apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
 
 # tftp/pxe config
 cat <<EOF>/etc/default/atftpd 
