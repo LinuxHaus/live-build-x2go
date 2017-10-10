@@ -1,7 +1,7 @@
-# Requirements
+# Requirements:
 A system with at least 1 GB of RAM.
 
-# Gettings Started
+# Gettings Started:
 1. Install Debian Jessie on your server.
 2. Become root on the server.
 3. Perform an update: ``` apt update ```
@@ -45,7 +45,7 @@ IP_OF_FQDN=`dig $FQDN +short`
    }
 ```
 
-# Actual build starts here
+# Actual build starts here:
 ```
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
