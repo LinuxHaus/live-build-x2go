@@ -8,6 +8,7 @@ A system with at least 1 GB of RAM.
 4. Install required packages: apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
 
 # tftp/pxe Config:
+```
 cat <<EOF>/etc/default/atftpd 
 USE_INETD=false
 OPTIONS="--daemon --port 69 --retry-timeout 5 --no-multicast --maxthread 100 --verbose=5 /srv/tftp"
@@ -17,8 +18,10 @@ ln -s /usr/lib/ipxe/undionly.kpxe /srv/tftp/bios/
 ln -s /boot/ipxe.efi /srv/tftp/uefi/
 FQDN=demo.x2go.org
 IP_OF_FQDN=`dig $FQDN +short`
+```
 
 # Part of dhcpd.conf from isc-dhcp-server package:
+```
    if substring ( option vendor-class-identifier , 19,1 ) = "0" {
            filename "bios/undionly.kpxe";
    }
@@ -40,10 +43,10 @@ IP_OF_FQDN=`dig $FQDN +short`
 
       filename = concat( "http://$FQDN/", hwmac );
    }
-
+```
 
 # Actual build starts here
-
+```
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
@@ -64,3 +67,4 @@ initrd http://$FQDN/initrd.img
 boot
 EOF
 ln -s myhw $MAC_OF_YOURCLIENT
+```
