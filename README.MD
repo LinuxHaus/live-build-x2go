@@ -4,8 +4,8 @@ A system with at least 1 GB of RAM.
 # Gettings Started
 1. Install Debian Jessie on your server.
 2. Become root on the server.
-3. Perform an update: apt update
-4. Install required packages: apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
+3. Perform an update: ``` apt update ```
+4. Install required packages: ``` apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc ```
 
 # tftp/pxe Config:
 ```
