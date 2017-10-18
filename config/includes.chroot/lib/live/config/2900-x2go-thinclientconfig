@@ -16,6 +16,8 @@ sed -i -e '/<keyboard>/,/<\/keyboard>/{//!d}' /etc/xdg/openbox/rc.xml
 sed -i -e '\#<action name="ShowMenu"><menu>[a-z-]*-menu</menu></action>#d' /etc/xdg/openbox/rc.xml
 # make sure OpenBox maximizes X2GoClient on launch and hides window decorations
 sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e '\#<applications>#a<decor>no</decor>' -e '\#<applications>#a</application>' /etc/xdg/openbox/rc.xml
+#make sure OpenBox' ToggleMaximize is disabled, or else clicking the top row of pixels will un-maximize X2GoClient
+sed -i -e '/ToggleMaximize/d' /etc/xdg/openbox/rc.xml
 
 cat >/home/user/.xsession <<XSESSION
 # inspired by 
