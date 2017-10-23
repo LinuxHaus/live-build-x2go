@@ -136,7 +136,7 @@ fi
 # Spawn X2GoClient
 if [ -n "\$SESSIONSELECT" ]; then
 	STARTSESSION="--session=\$SESSIONSELECT"
-else 
+fi
 if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
 else 
