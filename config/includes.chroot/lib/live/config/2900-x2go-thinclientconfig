@@ -92,6 +92,9 @@ xsetroot -solid "#246ed8"
 BROKERURL=\$(cat /proc/cmdline | \
 	    tr ' ' '\n' | \
 	    awk -F'=' ' /^broker-url=/ { print \$2 }')
+SESSIONSELECT=\$(cat /proc/cmdline | \
+	    tr ' ' '\n' | \
+	    awk -F'=' ' /^session=/ { print \$2 }')
 LDAP=\$(cat /proc/cmdline | \
 	    tr ' ' '\n' | \
 	    sed 's/^ldap=/ldap#/' | \
@@ -131,6 +134,9 @@ if grep -q ' bg=' /proc/cmdline; then
 fi
 
 # Spawn X2GoClient
+if [ -n "\$SESSIONSELECT" ]; then
+	STARTSESSION="--session=\$SESSIONSELECT"
+else 
 if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
 else 
@@ -174,7 +180,7 @@ if [ -n "\$BLANKINGTIME" ]; then
 	fi
 fi
 
-x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING
+x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
 
 chown user:user /home/user/.xsession
