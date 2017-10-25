@@ -11,7 +11,8 @@ if grep -q "\W*tcpprint\W*" /proc/cmdline ; then
 
         TCPPRINTONLYFROM=$(cat /proc/cmdline | \
                        sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-                       awk -F'=' ' /^tcpprintonlyfrom=/ { print $2 }')
+                       awk -F'=' ' /^tcpprintonlyfrom=/ { print $2 }' | \
+		       tr -dc 'a-zA-Z0-9.\-')
 	if [ -n "$TCPPRINTONLYFROM" ] ; then
 		TCPPRINTONLYFROM="only_from = $TCPPRINTONLYFROM"
 	fi

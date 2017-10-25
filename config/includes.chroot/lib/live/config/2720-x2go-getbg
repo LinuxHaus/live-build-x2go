@@ -9,7 +9,8 @@ X2GoGetBG ()
 
 	BGURL=$(cat /proc/cmdline | \
 		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-		       awk -F'=' ' /^bg=/ { print $2 }')
+		       awk -F'=' ' /^bg=/ { print $2 }' | \
+		       tr -dc 'a-zA-Z0-9.:/?%_\-')
 	BGDESTINATION=/etc/x2go/bg.svg
 
 	if [ -n "$BGURL" ] ; then
@@ -33,16 +34,16 @@ fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting background SVG download ..." | tee -a /dev/tty8
 	if echo "$BGURL" | grep -q "^tftp://" ; then
-		BGSERVER=$(echo "$BGURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-		BGPATH=$(echo "$BGURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		BGSERVER=$(echo "$BGURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
+		BGPATH=$(echo "$BGURL" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 		if [ -n "\$BGSERVER" ] && [ -n "\$BGPATH" ] ; then
-			while ! atftp \$BGSERVER -g -r \$BGPATH -l ${BGDESTINATION}.tmp ; do
+			while ! atftp "\$BGSERVER" -g -r "\$BGPATH" -l ${BGDESTINATION}.tmp ; do
 				echo -en "\n\$(date +'%F | %T | ')still waiting for background SVG download (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
-		while ! wget -q -O ${BGDESTINATION}.tmp $BGURL ; do
+		while ! wget -q -O ${BGDESTINATION}.tmp "$BGURL" ; do
 			echo -en "\n\$(date +'%F | %T | ')still waiting for background SVG download (wget) ..." | tee -a /dev/tty8
 			sleep 5 
 		done

@@ -9,7 +9,8 @@ X2GoGetBranding ()
 
 	BRANDINGURL=$(cat /proc/cmdline | \
 		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-		       awk -F'=' ' /^branding=/ { print $2 }')
+		       awk -F'=' ' /^branding=/ { print $2 }' | \
+		       tr -dc 'a-zA-Z0-9.:/?%_\-')
 	BRANDINGDESTINATION=/etc/x2go/branding.svg
 
 	if [ -n "$BRANDINGURL" ] ; then
@@ -36,13 +37,13 @@ fi
 		BRANDINGSERVER=$(echo "$BRANDINGURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
 		BRANDINGPATH=$(echo "$BRANDINGURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
 		if [ -n "\$BRANDINGSERVER" ] && [ -n "\$BRANDINGPATH" ] ; then
-			while ! atftp \$BRANDINGSERVER -g -r \$BRANDINGPATH -l ${BRANDINGDESTINATION}.tmp ; do
+			while ! atftp "\$BRANDINGSERVER" -g -r "\$BRANDINGPATH" -l ${BRANDINGDESTINATION}.tmp ; do
 				echo -en "\n\$(date +'%F | %T | ')still waiting for branding SVG download (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
-		while ! wget -q -O ${BRANDINGDESTINATION}.tmp $BRANDINGURL ; do
+		while ! wget -q -O ${BRANDINGDESTINATION}.tmp "$BRANDINGURL" ; do
 			echo -en "\n\$(date +'%F | %T | ')still waiting for branding SVG download (wget) ..." | tee -a /dev/tty8
 			sleep 5 
 		done
