@@ -28,7 +28,7 @@ cat >/home/user/.xsession <<XSESSION
 pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
 
 # additional variable instead of "case \$(...) in", as we need the value again later on
-XRANDRCMDTAINTED=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\$1 == "xinerama" { print \$2 }')
+XRANDRCMDTAINTED=\$(cat /proc/cmdline | sed -e 's/ \([^ ]*\)=/\n\1=/g' | awk -F '=' '\$1 == "xinerama" { print \$2 }')
 
 # sanitize input
 case \$XRANDRCMDTAINTED in
@@ -90,21 +90,21 @@ xsetroot -solid "#246ed8"
 
 # Get X2GoConfig
 BROKERURL=\$(cat /proc/cmdline | \
-	    tr ' ' '\n' | \
+	    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 	    awk -F'=' ' /^broker-url=/ { print \$2 }')
 SESSIONSELECT=\$(cat /proc/cmdline | \
-	    tr ' ' '\n' | \
+	    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 	    awk -F'=' ' /^session=/ { print \$2 }')
 LDAP=\$(cat /proc/cmdline | \
-	    tr ' ' '\n' | \
+	    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 	    sed 's/^ldap=/ldap#/' | \
 	    awk -F'#' ' /^ldap#/ { print \$2 }')
 LDAP1=\$(cat /proc/cmdline | \
-	    tr ' ' '\n' | \
+	    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 	    sed 's/^ldap1=/ldap1#/' | \
 	    awk -F'#' ' /^ldap1#/ { print \$2 }')
 LDAP2=\$(cat /proc/cmdline | \
-	    tr ' ' '\n' | \
+	    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 	    sed 's/^ldap2=/ldap2#/' | \
 	    awk -F'#' ' /^ldap2#/ { print \$2 }')
 
@@ -161,7 +161,7 @@ else
 	LDAPPARAMS=""
 fi
 
-BLANKINGTIME=\$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '\$1 == "blank" { print \$2 }')
+BLANKINGTIME=\$(cat /proc/cmdline | sed -e 's/ \([^ ]*\)=/\n\1=/g' | awk -F '=' '\$1 == "blank" { print \$2 }')
 if [ -n "\$BLANKINGTIME" ]; then
 	DPMSARR=(\$(echo \$BLANKINGTIME | awk -F ':' '\$1 ~/^[0-9]*\$/ && \$2 ~/^[0-9]*\$/ && \$3 ~/^[0-9]*\$/  { print \$1 " " \$2 " " \$3}'))
 	if [ \${DPMSARR[0]} -eq 0 ]; then

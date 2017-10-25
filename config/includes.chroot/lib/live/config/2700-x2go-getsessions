@@ -7,7 +7,7 @@ X2GoGetSessions ()
 	echo -n " x2go-getsessions"
 
 	SESSIONSURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
+		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 		       awk -F'=' ' /^sessionsurl=/ { print $2 }')
 	if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
 		# only mv this file if SESSIONSURL was set. If not, leave it in place - as

@@ -8,7 +8,7 @@ X2GoGetBG ()
 
 
 	BGURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
+		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 		       awk -F'=' ' /^bg=/ { print $2 }')
 	BGDESTINATION=/etc/x2go/bg.svg
 

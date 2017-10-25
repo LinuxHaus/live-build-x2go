@@ -7,7 +7,7 @@ XServerXorgGetXorgConf ()
 echo -n " xserver-xorg-getxorgconf"
 
         XORGCONFURL=$(cat /proc/cmdline | \
-                       tr ' ' '\n' | \
+                       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
                        awk -F'=' ' /^xorgconfurl=/ { print $2 }')
         if [ -n "$XORGCONFURL" ] && [ -d /etc/X11 ] ; then 
 		XORGCONFDESTINATION=/etc/X11/xorg.conf.new

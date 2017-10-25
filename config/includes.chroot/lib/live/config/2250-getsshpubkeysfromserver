@@ -9,7 +9,7 @@ GetSSHPubKeysFromServer ()
 
 
 	PUBKEYURL=$(cat /proc/cmdline | \
-		    tr ' ' '\n' | \
+		    sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 		    awk -F'=' ' /^pubkey=/ { print $2 }')
 
 	if [ -n "$PUBKEYURL" ] ; then

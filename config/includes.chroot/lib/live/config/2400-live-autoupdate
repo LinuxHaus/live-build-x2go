@@ -119,7 +119,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	unset LC_MESSAGES
 
 	# Define our mountpoint and check if we're capable of auto-updating
-	NTFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
+	NTFSROOT=$(cat /proc/cmdline | sed -e 's/ \([^ ]*\)=/\n\1=/g' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
 	if [ -n "$NTFSROOT" ]; then
 		mkdir -p /lib/live/mount/ntfsroot
 		# This is in case we've been passed an incomplete UUID and/or one with dashes
@@ -128,7 +128,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
 			NTFSROOT=$(echo $NTFSROOT | tr -d '-')
 			if ! [ -L "/dev/disk/by-uuid/$NTFSROOT" ]; then
-				NTFSROOT=$(basename $(echo /dev/disk/by-uuid/*$NTFSROOT | tr ' ' '\n' | head -1))
+				NTFSROOT=$(basename $(echo /dev/disk/by-uuid/*$NTFSROOT | sed -e 's/ \([^ ]*\)=/\n\1=/g' | head -1))
 			fi
 		fi
 
@@ -163,7 +163,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# determine our booted environment as well as the other available ones
 	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
+				sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 				awk -F'=' ' /^findiso=/ { print $2 }')"))
 
 	ALLSYSTEMSROOT=$(dirname $RUNNINGSYSTEMFULLPATH)
@@ -171,7 +171,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# download url pointing to directory with all required files goes here
 	DOWNLOADURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
+		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 		       awk -F'=' ' /^updateurl=/ { print $2 }')
 
 	if [ -z "$DOWNLOADURL" ]; then
@@ -183,7 +183,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		echo -n "\n$(date +'%F | %T | ')'$0': '/lib/live/mount/findiso' directory not found. Scanning for partitions."
 		LISTOFPARTITIONS=$(grep -H ^0$ /sys/block/*/removable | awk -F '/' '{ print $4 }' | xargs -n 1 -I XXX fdisk -l /dev/XXX 2>/dev/null | awk '$0 ~ /Linux$/ { print $1}')
 		TEMPMOUNT=$(mktemp -d -p /lib/live/mount/)
-		FINDFILE=$(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
+		FINDFILE=$(cat /proc/cmdline | sed -e 's/ \([^ ]*\)=/\n\1=/g' | awk -F '=' '$1 == "findiso" { print $2 }')
 		[ -z "$FINDFILE" ] && exit 0
 		for PARTITION in $LISTOFPARTITIONS ; do
 			mount -oro $PARTITION $TEMPMOUNT
@@ -214,7 +214,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	#
 	#BWLIMITPERCENT=20 # in percent, numeric-only
 	BWLIMITPERCENT=$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
+				sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 				awk -F'=' ' /^bwlimit=/ { print $2 }')
 	if [ -z "$BWLIMITPERCENT" ]; then 
 		BWLIMITPERCENT=20
@@ -225,7 +225,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	# sleeping a random amount of time to ease load on the update server
 	#
 	MAXSLEEPTIME=$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
+				sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 				awk -F'=' ' /^updatesleep=/ && $2 ~ /^[0-9]*$/ { print $2 }')
 	if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 240 ] ; then
 		MAXSLEEPTIME=900

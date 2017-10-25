@@ -8,7 +8,7 @@ X2GoGetBranding ()
 
 
 	BRANDINGURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
+		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
 		       awk -F'=' ' /^branding=/ { print $2 }')
 	BRANDINGDESTINATION=/etc/x2go/branding.svg
 
