@@ -135,7 +135,7 @@ fi
 
 # Spawn X2GoClient
 if [ -n "\$SESSIONSELECT" ]; then
-	STARTSESSION="--session=\$SESSIONSELECT"
+	STARTSESSION="--session='\$SESSIONSELECT'"
 fi
 if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
@@ -180,7 +180,7 @@ if [ -n "\$BLANKINGTIME" ]; then
 	fi
 fi
 
-x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
+eval x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
 
 chown user:user /home/user/.xsession
