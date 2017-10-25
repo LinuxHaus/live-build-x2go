@@ -43,7 +43,7 @@ show_versions ()
 			echo "$(cat $TIMESTAMPFILE);$(basename $(dirname $TIMESTAMPFILE));" >>/var/run/x2go-tce-timestamps
 			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) - $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
 		done
-		sed -i "s/$RUNNINGSYSTEMNAME;$/$RUNNINGSYSTEMNAME;X/i" /var/run/x2go-tce-timestamps
+		sed -i "s/"$RUNNINGSYSTEMNAME";$/"$RUNNINGSYSTEMNAME";X/i" /var/run/x2go-tce-timestamps
 		echo "---- END TIMESTAMPS ----" >>/var/run/x2go-tce-timestamps
 	fi
 }
