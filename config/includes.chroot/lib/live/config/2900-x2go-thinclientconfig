@@ -181,28 +181,29 @@ if [ -n "\$BLANKINGTIME" ]; then
 fi
 
 THROTTLINGCOMMAND=""
-THROTTLEVALUES=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F '=' '\$1 == "throttle" { print \$2 }' | tr -dc '0-9.:')
+THROTTLEVALUES=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F '=' '\$1 == "throttle" { print \$2 }' | tr -dc '0-9.:u')
 if [ -n "\$THROTTLEVALUES" ]; then
-	THROTTLEARR=(\$(echo \$THROTTLEVALUES | awk -F ':' '\$1 ~/^[0-9\.]*\$/ && \$2 ~/^[0-9\.]*\$/ && \$3 ~/^[0-9\.]*\$/ && \$4 ~/^[0-9\.]*\$/ && \$4 ~/^[0-9\.]*\$/ { print \$1 " " \$2 " " \$3 " " \$4 " " \$5}'))
-	if [ -n "\${THROTTLEARR[4]}" ]; then
+	THROTTLEARR=(\$(echo \$THROTTLEVALUES | awk -F ':' '\$1 ~/^[0-9\.u]*\$/ && \$2 ~/^[0-9\.u]*\$/ && \$3 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ { print \$1 " " \$2 " " \$3 " " \$4 " " \$5}'))
+	if [ -n "\${THROTTLEARR[4]}" ] && [ "\${THROTTLEARR[4]}" != "u" ] ; then
 		THROTTLELATENCY="-L \${THROTTLEARR[4]}"
 	fi
-	if [ -n "\${THROTTLEARR[3]}" ]; then
+	if [ -n "\${THROTTLEARR[3]}" ] && [ "\${THROTTLEARR[3]}" != "u" ]; then
 		THROTTLELENGTH="-l \${THROTTLEARR[3]}"
 	fi
-	if [ -n "\${THROTTLEARR[2]}" ]; then
+	if [ -n "\${THROTTLEARR[2]}" ] && [ "\${THROTTLEARR[2]}" != "u" ]; then
 		THROTTLETIME="-t \${THROTTLEARR[2]}"
 	fi
-	if [ -n "\${THROTTLEARR[1]}" ]; then
+	if [ -n "\${THROTTLEARR[1]}" ] && [ "\${THROTTLEARR[1]}" != "u" ]; then
 		THROTTLEDOWN="-d \${THROTTLEARR[1]}"
 	fi
-	if [ -n "\${THROTTLEARR[0]}" ]; then
+	if [ -n "\${THROTTLEARR[0]}" ] && [ "\${THROTTLEARR[0]}" != "u" ]; then
 		THROTTLEUP="-u \${THROTTLEARR[0]}"
+	fi
+	# only set THROTTLINGCOMMAND if at least one value was detected and sanitized properly
+	if [ -n "\$THROTTLEUP" ] || [ -n "\$THROTTLEDOWN" ] || [ -n "\$THROTTLETIME" ] || [ -n "\$THROTTLELENGTH" ] || [ -n "\$THROTTLELATENCY" ]; then
 		THROTTLINGCOMMAND="trickle -s \$THROTTLEDOWN \$THROTTLEUP \$THROTTLETIME \$THROTTLELENGTH \$THROTTLELATENCY"
 	fi
-# only set THROTTLINGCOMMAND if at least one value was detected and sanitized properly
 fi
-
 
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
