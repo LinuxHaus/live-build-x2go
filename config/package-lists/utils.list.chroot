@@ -11,6 +11,7 @@ openssl
 psmisc 
 rsync 
 screen 
+trickle
 util-linux
 vim 
 wget
