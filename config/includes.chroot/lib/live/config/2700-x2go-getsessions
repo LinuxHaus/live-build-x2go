@@ -6,10 +6,9 @@ X2GoGetSessions ()
 	#
 	echo -n " x2go-getsessions"
 
-	SESSIONSURL=$(cat /proc/cmdline | \
-		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-		       awk -F'=' ' /^sessionsurl=/ { print $2 }' | \
-		       tr -dc 'a-zA-Z0-9.:/?%_\-')
+	SESSIONSURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		      awk -F'=' ' /^sessionsurl=/ { print $2 }' | \
+		      tr -dc 'a-zA-Z0-9.:/?%_\-')
 	if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
 		# only mv this file if SESSIONSURL was set. If not, leave it in place - as
                 # it might have been customized at image creation time

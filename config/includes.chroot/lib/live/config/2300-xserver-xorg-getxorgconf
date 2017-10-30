@@ -6,10 +6,9 @@ XServerXorgGetXorgConf ()
 #
 echo -n " xserver-xorg-getxorgconf"
 
-        XORGCONFURL=$(cat /proc/cmdline | \
-                       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-                       awk -F'=' ' /^xorgconfurl=/ { print $2 }' | \
-		       tr -dc 'a-zA-Z0-9.:/?%_\-')
+        XORGCONFURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+                      awk -F'=' ' /^xorgconfurl=/ { print $2 }' | \
+		      tr -dc 'a-zA-Z0-9.:/?%_\-')
         if [ -n "$XORGCONFURL" ] && [ -d /etc/X11 ] ; then 
 		XORGCONFDESTINATION=/etc/X11/xorg.conf.new
 	        cat >/etc/network/if-up.d/0300-getxorgconf <<GETXORG

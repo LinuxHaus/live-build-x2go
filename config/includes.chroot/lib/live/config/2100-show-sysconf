@@ -20,7 +20,7 @@ fi
 
 (
 	if grep -q findiso /proc/cmdline ; then
-		BOOTEDENV=\$(basename \$(dirname \$(cat /proc/cmdline | sed -e 's/ \([^ ]*\)=/\n\1=/g' | awk -F'=' ' \$1 == "findiso" { print \$2 }')) | tr -dc 'a-zA-Z0-9. _\-')
+		BOOTEDENV=\$(basename \$(dirname \$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F'=' ' \$1 == "findiso" { print \$2 }')) | tr -dc 'a-zA-Z0-9. _\-')
 	fi
 	for TIMESTAMPFILE in /lib/live/mount/rootfs/*/lib; do
 		TIMESTAMP=\$(stat -c %Y \$TIMESTAMPFILE)

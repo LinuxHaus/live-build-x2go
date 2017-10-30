@@ -7,10 +7,9 @@ X2GoGetBranding ()
 	echo -n " x2go-getbranding"
 
 
-	BRANDINGURL=$(cat /proc/cmdline | \
-		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-		       awk -F'=' ' /^branding=/ { print $2 }' | \
-		       tr -dc 'a-zA-Z0-9.:/?%_\-')
+	BRANDINGURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		      awk -F'=' ' /^branding=/ { print $2 }' | \
+		      tr -dc 'a-zA-Z0-9.:/?%_\-')
 	BRANDINGDESTINATION=/etc/x2go/branding.svg
 
 	if [ -n "$BRANDINGURL" ] ; then

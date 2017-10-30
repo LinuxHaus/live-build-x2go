@@ -7,10 +7,9 @@ X2GoGetBG ()
 	echo -n " x2go-getbg"
 
 
-	BGURL=$(cat /proc/cmdline | \
-		       sed -e 's/ \([^ ]*\)=/\n\1=/g' | \
-		       awk -F'=' ' /^bg=/ { print $2 }' | \
-		       tr -dc 'a-zA-Z0-9.:/?%_\-')
+	BGURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		awk -F'=' ' /^bg=/ { print $2 }' | \
+		tr -dc 'a-zA-Z0-9.:/?%_\-')
 	BGDESTINATION=/etc/x2go/bg.svg
 
 	if [ -n "$BGURL" ] ; then
