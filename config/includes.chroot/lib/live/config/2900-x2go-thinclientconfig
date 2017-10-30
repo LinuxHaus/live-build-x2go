@@ -192,25 +192,25 @@ if [ -n "\$THROTTLEVALUES" ]; then
 
 	THROTTLEARR=(\$(echo \$THROTTLEVALUES | awk -F ':' '\$1 ~/^[0-9\.u]*\$/ && \$2 ~/^[0-9\.u]*\$/ && \$3 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ { print \$1 " " \$2 " " \$3 " " \$4 " " \$5}'))
 	if [ -n "\${THROTTLEARR[0]}" ] && [ "\${THROTTLEARR[0]}" != "u" ]; then
-		THROTTLEDOWN="-d \${THROTTLEARR[0]}"
+		THROTTLEDOWN="-d \${THROTTLEARR[0]}"    # default 10, never used
 	elif [ "\${THROTTLEARR[0]}" = "u" ]; then
 		THROTTLEDOWN="-d \$MAXSPEEDKBYTE"
 	fi
 	if [ -n "\${THROTTLEARR[1]}" ] && [ "\${THROTTLEARR[1]}" != "u" ]; then
-		THROTTLEUP="-u \${THROTTLEARR[1]}"
+		THROTTLEUP="-u \${THROTTLEARR[1]}"      # default 10, never used
 	elif [ "\${THROTTLEARR[1]}" = "u" ]; then
 		THROTTLEUP="-d \$MAXSPEEDKBYTE"
 	elif [ -z "\${THROTTLEARR[1]}" ] ; then
-		THROTTLEUP="-d \${THROTTLEARR[0]}"
+		THROTTLEUP="-d \${THROTTLEARR[0]}"      # set up=down if only 1 param
 	fi
 	if [ -n "\${THROTTLEARR[2]}" ] ; then
-		THROTTLETIME="-t \${THROTTLEARR[2]}"
+		THROTTLETIME="-t \${THROTTLEARR[2]}"    # default 3.0
 	fi
 	if [ -n "\${THROTTLEARR[3]}" ] ; then
-		THROTTLELENGTH="-l \${THROTTLEARR[3]}"
+		THROTTLELENGTH="-l \${THROTTLEARR[3]}"  # default 20
 	fi
 	if [ -n "\${THROTTLEARR[4]}" ] ; then
-		THROTTLELATENCY="-L \${THROTTLEARR[4]}"
+		THROTTLELATENCY="-L \${THROTTLEARR[4]}" # default 0
 	fi
 	# only set THROTTLINGCOMMAND if at least one value was detected and sanitized properly
 	if [ -n "\$THROTTLEUP" ] || [ -n "\$THROTTLEDOWN" ] || [ -n "\$THROTTLETIME" ] || [ -n "\$THROTTLELENGTH" ] || [ -n "\$THROTTLELATENCY" ]; then
