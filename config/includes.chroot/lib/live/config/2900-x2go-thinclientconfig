@@ -183,21 +183,34 @@ fi
 THROTTLINGCOMMAND=""
 THROTTLEVALUES=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F '=' '\$1 == "throttle" { print \$2 }' | tr -dc '0-9.:u')
 if [ -n "\$THROTTLEVALUES" ]; then
+	# determine maximum line speed
+	# look for all interfaces in state "up", then read their speed value from the file named speed
+	# just ignore the output if there is none, then sort numeric, unique, and read last line=highest,
+	# then sanitize
+	MAXSPEEDMBIT=$(grep -l "up" /sys/class/net/*/operstate | xargs -n1 dirname | xargs -n 1 -I XXX cat XXX/speed 2>/dev/null | sort -n -u | tail -1 | tr -dc '0-9.')
+	MAXSPEEDKBYTE=$((MAXSPEEDMBIT*128)) #Megabit * 1024 / 8 -> KiloByte
+
 	THROTTLEARR=(\$(echo \$THROTTLEVALUES | awk -F ':' '\$1 ~/^[0-9\.u]*\$/ && \$2 ~/^[0-9\.u]*\$/ && \$3 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ && \$4 ~/^[0-9\.u]*\$/ { print \$1 " " \$2 " " \$3 " " \$4 " " \$5}'))
-	if [ -n "\${THROTTLEARR[4]}" ] && [ "\${THROTTLEARR[4]}" != "u" ] ; then
-		THROTTLELATENCY="-L \${THROTTLEARR[4]}"
-	fi
-	if [ -n "\${THROTTLEARR[3]}" ] && [ "\${THROTTLEARR[3]}" != "u" ]; then
-		THROTTLELENGTH="-l \${THROTTLEARR[3]}"
-	fi
-	if [ -n "\${THROTTLEARR[2]}" ] && [ "\${THROTTLEARR[2]}" != "u" ]; then
-		THROTTLETIME="-t \${THROTTLEARR[2]}"
+	if [ -n "\${THROTTLEARR[0]}" ] && [ "\${THROTTLEARR[0]}" != "u" ]; then
+		THROTTLEDOWN="-d \${THROTTLEARR[0]}"
+	elif [ "\${THROTTLEARR[0]}" = "u" ]; then
+		THROTTLEDOWN="-d \$MAXSPEEDKBYTE"
 	fi
 	if [ -n "\${THROTTLEARR[1]}" ] && [ "\${THROTTLEARR[1]}" != "u" ]; then
-		THROTTLEDOWN="-d \${THROTTLEARR[1]}"
+		THROTTLEUP="-u \${THROTTLEARR[1]}"
+	elif [ "\${THROTTLEARR[1]}" = "u" ]; then
+		THROTTLEUP="-d \$MAXSPEEDKBYTE"
+	elif [ -z "\${THROTTLEARR[1]}" ] ; then
+		THROTTLEUP="-d \${THROTTLEARR[0]}"
 	fi
-	if [ -n "\${THROTTLEARR[0]}" ] && [ "\${THROTTLEARR[0]}" != "u" ]; then
-		THROTTLEUP="-u \${THROTTLEARR[0]}"
+	if [ -n "\${THROTTLEARR[2]}" ] ; then
+		THROTTLETIME="-t \${THROTTLEARR[2]}"
+	fi
+	if [ -n "\${THROTTLEARR[3]}" ] ; then
+		THROTTLELENGTH="-l \${THROTTLEARR[3]}"
+	fi
+	if [ -n "\${THROTTLEARR[4]}" ] ; then
+		THROTTLELATENCY="-L \${THROTTLEARR[4]}"
 	fi
 	# only set THROTTLINGCOMMAND if at least one value was detected and sanitized properly
 	if [ -n "\$THROTTLEUP" ] || [ -n "\$THROTTLEDOWN" ] || [ -n "\$THROTTLETIME" ] || [ -n "\$THROTTLELENGTH" ] || [ -n "\$THROTTLELATENCY" ]; then
