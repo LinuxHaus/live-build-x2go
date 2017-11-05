@@ -234,7 +234,7 @@ fi
 
 # workaround for NX "magic pixel" being active in --thinclient mode
 while ! ps -C xdotool >/dev/null ; do
-        while [ $(xdotool search --name . | wc -l) -lt 3 ] ; do
+        while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
                 sleep 1
         done ;
         xdotool search . behave %@ blur windowmap
