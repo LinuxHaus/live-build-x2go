@@ -222,8 +222,11 @@ if [ -n "\$THROTTLEVALUES" ]; then
 fi
 
 # workaround for NX "magic pixel" being active in --thinclient mode
-while true ; do
-        ps -C xdotool >/dev/null || xdotool search . behave %@ blur windowmap ;
+while ! ps -C xdotool >/dev/null ; do
+        while [ $(xdotool search --name . | wc -l) -lt 3 ] ; do
+                sleep 1
+        done ;
+        xdotool search . behave %@ blur windowmap
 done &
 
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
