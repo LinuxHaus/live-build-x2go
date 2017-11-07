@@ -21,9 +21,15 @@ GetSSHHostKeysFromMedia ()
 		# any keyfile in the config dir will be copied over to live system
 		for KEYFILE in $1/config/sshdkeys/ssh_host*key* ; do
 			[ -e "$KEYFILE" ] && cp $KEYFILE /etc/ssh/ && KEYFLAG=1
+			if echo $(basename $KEYFILE) | grep -q '\.pub$' ; then
+				chmod 644 /etc/ssh/$(basename $KEYFILE)
+			else
+				chmod 600 /etc/ssh/$(basename $KEYFILE)
+			fi
 		done
 		# no keys present (as detected by flag not being set), but directory is there? Store keys.
 		if [ -z "$KEYFLAG" ] ; then
+			ssh-keygen -A # make sure we have keyfiles for every key the server expects
 			mount -oremount,rw $1 && cp /etc/ssh/ssh_host*key* $1/config/sshdkeys/
 		else
 			# reload sshd config
