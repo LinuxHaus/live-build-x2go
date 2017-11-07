@@ -1,0 +1,63 @@
+#!/bin/sh
+
+
+GetSSHHostKeysFromMedia ()
+{
+        # Output startup message
+        #
+        echo -n " getsshhostkeysfrommedia"
+
+	# nudge automounter, in case device was already plugged in at power-up
+	udevadm trigger --action=add
+
+	# list devices (and mountpoints, if present)
+	X2GOTCELIVELABELS=$(lsblk -oLABEL,NAME,MOUNTPOINT -l | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}')
+
+	# block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
+	BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort | awk -F'/' '{print $4}')
+
+	check_for_config (){
+	if [ -d $1/config/sshdkeys ] ; then
+		# any keyfile in the config dir will be copied over to live system
+		for KEYFILE in $1/config/sshdkeys/ssh_host*key* ; do
+			[ -e "$KEYFILE" ] && cp $KEYFILE /etc/ssh/ && KEYFLAG=1
+		done
+		# no keys present (as detected by flag not being set), but directory is there? Store keys.
+		if [ -z "$KEYFLAG" ] ; then
+			mount -oremount,rw $1 && cp /etc/ssh/ssh_host*key* $1/config/sshdkeys/
+		else
+			# reload sshd config
+			service ssh reload
+		fi
+		return 0
+	else
+		return 1
+	fi
+	}
+
+	for BLOCKDEV in $BLOCKDEVS; do 
+		NEXTDEVICE=$(echo -e "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
+		if [ -n "$NEXTDEVICE" ] ; then
+			MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
+			NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
+
+			if [ -n "$MNTPT" ] ; then
+				# echo "$NEXTDEVICE is mounted at: $MNTPT"
+				check_for_config $MNTPT && exit 0
+			else
+				# echo "$NEXTDEVICE is not mounted"
+				if grep -q "^0$" /sys/block/*/removable ; then
+					# echo "Is fixed disk, mounting"
+					mkdir -p /media/fixeddisks/$NEXTDEVICE
+					mount /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
+					check_for_config /media/fixeddisks/$NEXTDEVICE && exit 0
+				else
+					# echo "Is removable disk, not mounted by automounter -> don't touch"
+					:
+				fi
+			fi
+		fi
+	done
+}
+
+GetSSHHostKeysFromMedia
