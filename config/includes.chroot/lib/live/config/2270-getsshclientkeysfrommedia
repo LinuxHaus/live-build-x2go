@@ -53,7 +53,7 @@ GetSSHClientKeysFromMedia ()
 
 			# any keyfile in the config dir will be copied over to live system
 			#
-			for KEYFILE in $1/config/ssh/* $1/ssh $1/.ssh ; do
+			for KEYFILE in $1/config/ssh/* $1/ssh/* $1/.ssh/* ; do
 				[ -s "$KEYFILE" ] || continue
 				KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
 				touch "$KEYDESTPATH"
