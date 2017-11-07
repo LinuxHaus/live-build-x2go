@@ -93,6 +93,7 @@ GetSSHHostKeysFromMedia ()
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
 						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						check_for_config /media/fixeddisks/$NEXTDEVICE && umount /media/fixeddisks/$NEXTDEVICE && exit 0
+						umount /media/fixeddisks/$NEXTDEVICE
 					else
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a removable disk, not mounted by automounter, skipping." | tee -a /dev/tty8
 						:
