@@ -63,12 +63,16 @@ GetSSHHostKeysFromMedia ()
 				fi
 				
 			else
-				# reload sshd config
-				echo -n "\n$(date +'%F | %T | ')'$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
-				if service ssh reload ; then
-					echo -n "\n$(date +'%F | %T | ')'$0' New keyfiles activated." | tee -a /dev/tty8
+				if ps -C sshd >/dev/null 2>&1 ; then
+					# reload sshd config
+					echo -n "\n$(date +'%F | %T | ')'$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
+					if service ssh reload ; then
+						echo -n "\n$(date +'%F | %T | ')'$0' New keyfiles activated." | tee -a /dev/tty8
+					else
+						echo -n "\n$(date +'%F | %T | ')'$0' Error activating new keyfiles." | tee -a /dev/tty8
+					fi
 				else
-					echo -n "\n$(date +'%F | %T | ')'$0' Error activating new keyfiles." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' sshd not running (yet), so no reloading required." | tee -a /dev/tty8
 				fi
 			fi
 			return 0
