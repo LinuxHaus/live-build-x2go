@@ -54,7 +54,9 @@ GetSSHClientKeysFromMedia ()
 			# any keyfile in the config dir will be copied over to live system
 			#
 			for KEYFILE in $1/config/ssh/* $1/ssh/* $1/.ssh/* ; do
-				[ -s "$KEYFILE" ] || continue
+				([ -f "$KEYFILE" ] && [ -s "$KEYFILE" ]) || continue
+				egrep -q "BEGIN .*(PRIVATE|PUBLIC) KEY" "$KEYFILE" || continue
+				echo -n "\n$(date +'%F | %T | ')'$0' Keyfile '$KEYFILE' found, copying and adjusting ownership and permissions on destination." | tee -a /dev/tty8
 				KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
 				touch "$KEYDESTPATH"
 				chown   user:user \
