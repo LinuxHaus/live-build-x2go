@@ -42,7 +42,7 @@ GetSSHHostKeysFromMedia ()
 	}
 
 	for BLOCKDEV in $BLOCKDEVS; do 
-		NEXTDEVICE=$(echo -e "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
+		NEXTDEVICE=$(echo "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
 		if [ -n "$NEXTDEVICE" ] ; then
 			MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
 			NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
