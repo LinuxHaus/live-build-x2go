@@ -8,15 +8,15 @@ GetSSHHostKeysFromMedia ()
         echo -n " getsshhostkeysfrommedia"
 	(
 		while ! [ -c /dev/tty8 ] ; do
-			echo -n "\n\$(date +'%F | %T | ')'\$0' is waiting for tty8 to become available."
+			echo -n "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
 			sleep 2
 		done
 
 		# nudge automounter, in case device was already plugged in at power-up
 		if udevadm trigger --action=add ; then
-			echo -n "\n\$(date +'%F | %T | ')'\$0' Successfully nudged udev-automounter." | tee -a /dev/tty8
+			echo -n "\n$(date +'%F | %T | ')'$0' Successfully nudged udev-automounter." | tee -a /dev/tty8
 		else
-			echo -n "\n\$(date +'%F | %T | ')'\$0' Error while nudging udev-automounter." | tee -a /dev/tty8
+			echo -n "\n$(date +'%F | %T | ')'$0' Error while nudging udev-automounter." | tee -a /dev/tty8
 		fi
 
 		# list devices (and mountpoints, if present)
@@ -27,7 +27,7 @@ GetSSHHostKeysFromMedia ()
 
 		check_for_config (){
 		if [ -d $1/config/sshdkeys ] ; then
-			echo -n "\n\$(date +'%F | %T | ')'\$0' Keyfile directory found at '$1/config/sshdkeys'." | tee -a /dev/tty8
+			echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/sshdkeys'." | tee -a /dev/tty8
 			# any keyfile in the config dir will be copied over to live system
 			for KEYFILE in $1/config/sshdkeys/ssh_host*key* ; do
 				[ -e "$KEYFILE" ] && cp $KEYFILE /etc/ssh/ && KEYFLAG=1
@@ -39,36 +39,36 @@ GetSSHHostKeysFromMedia ()
 			done
 			# no keys present (as detected by flag not being set), but directory is there? Store keys.
 			if [ -z "$KEYFLAG" ] ; then
-				echo -n "\n\$(date +'%F | %T | ')'\$0' No keyfiles were found in the keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
+				echo -n "\n$(date +'%F | %T | ')'$0' No keyfiles were found in the keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
 				ssh-keygen -A # make sure we have keyfiles for every key the server expects
-				echo -n "\n\$(date +'%F | %T | ')'\$0' Attempting to copy current keyfiles to keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
+				echo -n "\n$(date +'%F | %T | ')'$0' Attempting to copy current keyfiles to keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
 				if awk '$2=="'$1'" {print $4 }' /proc/mounts | tr ',' '\n' | grep -q '^ro$' ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Attempting to remount '$1' with flags rw and sync." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Attempting to remount '$1' with flags rw and sync." | tee -a /dev/tty8
 					if mount -oremount,rw,sync $1 ; then
-						echo -n "\n\$(date +'%F | %T | ')'\$0' Successfully remounted '$1'." | tee -a /dev/tty8
+						echo -n "\n$(date +'%F | %T | ')'$0' Successfully remounted '$1'." | tee -a /dev/tty8
 						REMOUNT="rws"
 					else
-						echo -n "\n\$(date +'%F | %T | ')'\$0' Error remounting '$1'." | tee -a /dev/tty8
+						echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1'." | tee -a /dev/tty8
 					fi
 				fi
 				if ([ -z "$REMOUNT" ] || [ "$REMOUNT" = "rws" ]) && cp /etc/ssh/ssh_host*key* $1/config/sshdkeys/ ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Copying keyfiles succeeded." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Copying keyfiles succeeded." | tee -a /dev/tty8
 				else
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Error copying keyfiles." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Error copying keyfiles." | tee -a /dev/tty8
 				fi
 				if [ -n "$REMOUNT" ] && mount -oremount,ro $1 ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Remounted '$1' read-only." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Remounted '$1' read-only." | tee -a /dev/tty8
 				else
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Error remounting '$1' read-only." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1' read-only." | tee -a /dev/tty8
 				fi
 				
 			else
 				# reload sshd config
-				echo -n "\n\$(date +'%F | %T | ')'\$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
+				echo -n "\n$(date +'%F | %T | ')'$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
 				if service ssh reload ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' New keyfiles activated." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' New keyfiles activated." | tee -a /dev/tty8
 				else
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Error activating new keyfiles." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Error activating new keyfiles." | tee -a /dev/tty8
 				fi
 			fi
 			return 0
@@ -84,17 +84,17 @@ GetSSHHostKeysFromMedia ()
 				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
 
 				if [ -n "$MNTPT" ] ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
 					check_for_config $MNTPT && exit 0
 				else
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Device '$NEXTDEVICE' is not mounted." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is not mounted." | tee -a /dev/tty8
 					if grep -q "^0$" /sys/block/*/removable ; then
-					echo -n "\n\$(date +'%F | %T | ')'\$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
+					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
 						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						check_for_config /media/fixeddisks/$NEXTDEVICE && exit 0
 					else
-						echo -n "\n\$(date +'%F | %T | ')'\$0' Device '$NEXTDEVICE' is a removable disk, not mounted by automounter, skipping." | tee -a /dev/tty8
+						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a removable disk, not mounted by automounter, skipping." | tee -a /dev/tty8
 						:
 					fi
 				fi
