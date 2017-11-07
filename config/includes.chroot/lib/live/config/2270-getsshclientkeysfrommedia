@@ -1,0 +1,98 @@
+#!/bin/sh
+
+
+GetSSHClientKeysFromMedia ()
+{
+	# Output startup message
+	#
+	echo -n " getsshclientkeysfrommedia"
+
+	# This script is for using the iso-hybrid image along with the "second partition" patch
+	# or other suitable storage media. When used with the iso-hybrid image for X2Go in portable mode,
+	# it allows you to share ssh secret keys between X2GoClient for Windows in portable
+	# mode and the X2Go-ThinClientEnvironment on the same USB media using different partitions.
+	# It also allows you to use USB media with your key on it together with a net-booted Debian Live, for example.
+
+	# Homedir of user account
+	#
+	USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
+
+	# nudge automounter, in case device was already plugged in at power-up
+	#
+	udevadm trigger --action=add
+
+	# list devices (and mountpoints, if present)
+	#
+	X2GOTCELIVELABELS=$(lsblk -oLABEL,NAME,MOUNTPOINT -l | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}')
+
+	# support for legacy label value
+	#
+	PORTABLEAPPLABELS=$(lsblk -oLABEL,NAME,MOUNTPOINT -l | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3}')
+
+	# block device list, removable first (we want USB media to be able to override keys on fixed disks)
+	#
+	BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort -r | awk -F'/' '{print $4}')
+
+	check_for_config (){
+	if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/.ssh ]; then
+		# create .ssh-Directory in case it doesn't exist
+		#
+		mkdir -p $(readlink -m "$USERHOME/.ssh/")
+
+		# any keyfile in the config dir will be copied over to live system
+		#
+		for KEYFILE in $1/config/ssh/* $1/ssh $1/.ssh ; do
+			[ -s "$KEYFILE" ] || continue
+			KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
+			touch "$KEYDESTPATH"
+			chown   user:user \
+				$KEYDESTPATH
+			chmod   600 $KEYDESTPATH
+			cat     $(readlink -m "$KEYFILE")>$KEYDESTPATH
+
+		done
+
+		# this is so the path name in the sessions file matches again
+		# (cannot use .ssh on FAT, for example)
+		#
+		ln -s $USERHOME/.ssh $USERHOME/ssh
+
+		return 0
+	else
+		return 1
+	fi
+	}
+
+	for BLOCKDEV in $BLOCKDEVS; do 
+		NEXTDEVICE=$(echo -e "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | grep "$BLOCKDEV")
+		if [ -n "$NEXTDEVICE" ] ; then
+			MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
+			NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
+
+			if [ -n "$MNTPT" ] ; then
+				# echo "$NEXTDEVICE is mounted at: $MNTPT"
+				check_for_config $MNTPT && exit 0
+			else
+				# echo "$NEXTDEVICE is not mounted"
+				if grep -q "^0$" /sys/block/*/removable ; then
+					# echo "Is fixed disk, mounting"
+					mkdir -p /media/fixeddisks/$NEXTDEVICE
+					mount /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
+					check_for_config /media/fixeddisks/$NEXTDEVICE && exit 0
+				else
+					# echo "Is removable disk, not mounted by automounter -> don't touch"
+					:
+				fi
+			fi
+		fi
+	done
+}
+
+
+
+
+	fi
+}
+
+GetSSHClientKeysFromMedia
+
