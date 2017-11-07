@@ -88,11 +88,5 @@ GetSSHClientKeysFromMedia ()
 	done
 }
 
-
-
-
-	fi
-}
-
 GetSSHClientKeysFromMedia
 
