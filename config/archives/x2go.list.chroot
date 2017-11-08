@@ -1,1 +1,2 @@
-deb http://packages.x2go.org/debian jessie main
+#deb http://packages.x2go.org/debian jessie main
+deb http://snapshots.packages.x2go.org/20171107/debian jessie main
