@@ -91,22 +91,22 @@ xsetroot -solid "#246ed8"
 # Get X2GoConfig
 BROKERURL=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
 	     awk -F'=' ' /^broker-url=/ { print \$2 }' | \
-	     tr -dc 'a-zA-Z0-9.:/?%_\-')
+	     tr -dc 'a-zA-Z0-9.:/?%_\-@')
 SESSIONSELECT=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
 	         awk -F'=' ' /^session=/ { print \$2 }' | \
-	         tr -dc 'a-zA-Z0-9.:/ _\-')
+	         tr -dc 'a-zA-Z0-9.:/ _\-@')
 LDAP=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
 	sed 's/^ldap=/ldap#/' | \
 	awk -F'#' ' /^ldap#/ { print \$2 }' | \
-	tr -dc 'a-zA-Z0-9.:_\-')
+	tr -dc 'a-zA-Z0-9.:_\-@')
 LDAP1=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
 	 sed 's/^ldap1=/ldap1#/' | \
 	 awk -F'#' ' /^ldap1#/ { print \$2 }' | \
-	 tr -dc 'a-zA-Z0-9.:_\-')
+	 tr -dc 'a-zA-Z0-9.:_\-@')
 LDAP2=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
 	 sed 's/^ldap2=/ldap2#/' | \
 	 awk -F'#' ' /^ldap2#/ { print \$2 }' | \
-	 tr -dc 'a-zA-Z0-9.:_\-')
+	 tr -dc 'a-zA-Z0-9.:_\-@')
 
 
 # Check for background and branding SVGs
@@ -217,6 +217,14 @@ if [ -n "\$THROTTLEVALUES" ]; then
 		THROTTLINGCOMMAND="trickle -s \$THROTTLEDOWN \$THROTTLEUP \$THROTTLETIME \$THROTTLELENGTH \$THROTTLELATENCY"
 	fi
 fi
+
+# workaround for NX "magic pixel" being active in --thinclient mode
+while ! ps -C xdotool >/dev/null ; do
+        while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
+                sleep 1
+        done ;
+        xdotool search . behave %@ blur windowmap
+done &
 
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
