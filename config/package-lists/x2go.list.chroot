@@ -9,6 +9,7 @@ libfreerdp-core1.1
 libfreerdp-crypto1.1
 libfreerdp-gdi1.1
 libfreerdp-locale1.1
+libfreerdp-plugins-standard
 libfreerdp-primitives1.1
 libfreerdp-rail1.1
 libfreerdp-utils1.1
