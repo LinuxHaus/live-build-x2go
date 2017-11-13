@@ -233,12 +233,25 @@ if [ -n "\$BLANKINGTIME" ]; then
 fi
 
 # workaround for NX "magic pixel" being active in --thinclient mode
-while ! ps -C xdotool >/dev/null ; do
-        while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
-                sleep 1
-        done ;
-        xdotool search . behave %@ blur windowmap
-done &
+if grep 'nomagicpixel=2' /proc/cmdline ; then
+	while ! ps -C xdotool >/dev/null ; do
+	        while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
+	                sleep 1
+	        done ;
+	        xdotool search . behave %@ blur windowmap
+	done &
+elif grep 'nomagicpixel=1' /proc/cmdline ; then
+       while true ; do
+               while [ $(xdotool search --name . | wc -l) -lt 3 ] && ! ps -C openbox >/dev/null ; do
+                       openbox &
+               done
+               while [ $(xdotool search --name . | wc -l) -gt 2 ] && ps -C openbox >/dev/null ; do
+                       killall openbox
+               done
+       done &
+else
+	: # NOP
+fi
 
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
