@@ -231,10 +231,10 @@ if grep 'nomagicpixel=2' /proc/cmdline ; then
 	done &
 elif grep 'nomagicpixel=1' /proc/cmdline ; then
        while true ; do
-               while [ \$(xdotool search --name . | wc -l) -lt 3 ] && ! ps -C openbox >/dev/null ; do
+               while [ \$(xdotool search --name . | wc -l) -ne 3 ] && ! ps -C openbox >/dev/null ; do
                        openbox &
                done
-               while [ \$(xdotool search --name . | wc -l) -gt 2 ] && ps -C openbox >/dev/null ; do
+               while [ \$(xdotool search --name . | wc -l) -eq 3 ] && ps -C openbox >/dev/null ; do
                        killall openbox
                done
        done &
