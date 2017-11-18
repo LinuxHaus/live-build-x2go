@@ -111,9 +111,10 @@ LDAP2=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cm
 
 # Check for background and branding SVGs
 BRANDING=''
+OLDCON=''
 if grep -q ' branding=' /proc/cmdline; then
 	while ! [ -s /etc/x2go/branding.svg ]; do
-		OLDCON=\$(fgconsole)
+		[ -z "\$OLDCON" ] && OLDCON="\$(fgconsole)"
 		chvt 1
 	        echo "'\$0' is waiting for a valid '/etc/x2go/branding.svg' file."
 		sleep 2
@@ -122,9 +123,10 @@ if grep -q ' branding=' /proc/cmdline; then
 	BRANDING='--branding=/etc/x2go/branding.svg'
 fi
 BACKGROUND=''
+OLDCON=''
 if grep -q ' bg=' /proc/cmdline; then
 	while ! [ -s /etc/x2go/bg.svg ]; do
-		OLDCON=\$(fgconsole)
+		[ -z "\$OLDCON" ] && OLDCON="\$(fgconsole)"
 		chvt 1
 	        echo "'\$0' is waiting for a valid '/etc/x2go/bg.svg' file."
 		sleep 2
@@ -141,8 +143,9 @@ if [ -n "\$BROKERURL" ]; then
 	SESSIONFROM="--broker-url=\$BROKERURL"
 else 
 	SESSIONFROM="--session-conf=/etc/x2go/x2gothinclient_sessions"
+	OLDCON=''
 	while ! [ -s /etc/x2go/x2gothinclient_sessions ]; do
-		OLDCON=\$(fgconsole)
+		[ -z "\$OLDCON" ] && OLDCON="\$(fgconsole)"
 		chvt 1
 	        echo "'\$0' is waiting for a valid '/etc/x2go/x2gothinclient_sessions' file."
 		sleep 2
