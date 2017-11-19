@@ -1,7 +1,4 @@
 cryptsetup
-firefox-esr
-firefox-esr-l10n-de
-flashplugin-nonfree
 freerdp-x11
 iso-codes
 libfile-path-expand-perl
@@ -56,8 +53,6 @@ pulseaudio-utils
 rdesktop
 udev
 x2goclient
-x2gothinclient-minidesktop
-x2gothinclient-usbmount
 x2gousbmount
 xfonts-75dpi
 xfonts-scalable
