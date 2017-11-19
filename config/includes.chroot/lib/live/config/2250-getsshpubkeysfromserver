@@ -8,9 +8,9 @@ GetSSHPubKeysFromServer ()
 	echo -n " getsshpubkeysfromserver"
 
 
-	PUBKEYURL=$(cat /proc/cmdline | \
-		    tr ' ' '\n' | \
-		    awk -F'=' ' /^pubkey=/ { print $2 }')
+	PUBKEYURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		    awk -F'=' ' /^pubkey=/ { print $2 }' |\
+		    tr -dc 'a-zA-Z0-9.:/?%_\-')
 
 	if [ -n "$PUBKEYURL" ] ; then
 		cat >/etc/network/if-up.d/0200-getsshpubkeysfromserver <<GETPUBKEY
@@ -40,16 +40,16 @@ fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting SSH public keyfile download ..." | tee -a /dev/tty8
 	if echo "$PUBKEYURL" | grep -q "^tftp://" ; then
-		PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-		PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		PUBKEYSERVER=$(echo "$PUBKEYURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
+		PUBKEYPATH=$(echo "$PUBKEYURL" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 		if [ -n "\$PUBKEYSERVER" ] && [ -n "\$PUBKEYPATH" ] ; then
-			while ! atftp $PUBKEYSERVER -g -r $PUBKEYPATH -l /root/.ssh/authorized_keys ; do
+			while ! atftp "\$PUBKEYSERVER" -g -r "\$PUBKEYPATH" -l /root/.ssh/authorized_keys ; do
 				echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for download (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
-		while ! wget -q -O - $PUBKEYURL >/root/.ssh/authorized_keys ; do
+		while ! wget -q -O - "$PUBKEYURL" >/root/.ssh/authorized_keys ; do
 			echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for download (wget) ..." | tee -a /dev/tty8
 			sleep 5
 		done

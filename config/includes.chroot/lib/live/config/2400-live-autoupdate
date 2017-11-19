@@ -40,10 +40,10 @@ show_versions ()
 		echo -n "\n$(date +'%F | %T | ')'$0': List of locally stored TCE versions:"
 		echo "--- BEGIN TIMESTAMPS ---" >/var/run/x2go-tce-timestamps
 		for TIMESTAMPFILE in $LISTOFTIMESTAMPFILES; do 
-			echo "$(basename $(cat $TIMESTAMPFILE));$(dirname $TIMESTAMPFILE);" >>/var/run/x2go-tce-timestamps
-			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
+			echo "$(cat $TIMESTAMPFILE);$(basename $(dirname $TIMESTAMPFILE));" >>/var/run/x2go-tce-timestamps
+			echo -n "\n$(date +'%F | %T | ')'$0': $(basename $(dirname $TIMESTAMPFILE)) - $(cat $TIMESTAMPFILE) - $(date --date=@$(cat $TIMESTAMPFILE))"
 		done
-		sed -i "s/$RUNNINGSYSTEMNAME;$/$RUNNINGSYSTEMNAME;X/i" /var/run/x2go-tce-timestamps
+		sed -i "s/"$RUNNINGSYSTEMNAME";$/"$RUNNINGSYSTEMNAME";X/i" /var/run/x2go-tce-timestamps
 		echo "---- END TIMESTAMPS ----" >>/var/run/x2go-tce-timestamps
 	fi
 }
@@ -119,7 +119,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 	unset LC_MESSAGES
 
 	# Define our mountpoint and check if we're capable of auto-updating
-	NTFSROOT=$(cat /proc/cmdline | tr ' ' '\n' | awk -F '=' '/^ntfs-uuid/ { print $2 }')
+	NTFSROOT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F '=' '/^ntfs-uuid/ { print $2 }' |  tr -dc 'a-zA-Z0-9_\-')
 	if [ -n "$NTFSROOT" ]; then
 		mkdir -p /lib/live/mount/ntfsroot
 		# This is in case we've been passed an incomplete UUID and/or one with dashes
@@ -150,7 +150,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 			# if we have access to the entire filesystem, use the
 			# directory size as base size for the current image - 
 			# and if the download directory is even bigger, use that size
-			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }'))" | awk '{ print $1}')
+			IMGSIZE=$(du -s "/lib/live/mount/findiso/$(dirname $(sed -e 's/^.*findiso/findiso/' -e 's/ .*$//' /proc/cmdline | awk -F '=' '{ print $2 }' | tr -dc 'a-zA-Z0-9./ _\-'))" | awk '{ print $1}')
 			IMGSIZEDOWNLOAD=$(du -s "/lib/live/mount/findiso/boot/X2Go-live-download" | awk '{ print $1}' || echo "0")
 			[ $IMGSIZEDOWNLOAD -gt $IMGSIZE ] && IMGSIZE=$IMGSIZEDOWNLOAD
 		else
@@ -162,17 +162,17 @@ echo -n " live-autoupdater (backgrounding update task)"
 	fi
 
 	# determine our booted environment as well as the other available ones
-	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
-				awk -F'=' ' /^findiso=/ { print $2 }')"))
+	RUNNINGSYSTEMFULLPATH=$(dirname $(readlink -m "$MOUNTPOINT/$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+				awk -F'=' ' /^findiso=/ { print $2 }' | \
+				tr -dc 'a-zA-Z0-9./ _\-')"))
 
 	ALLSYSTEMSROOT=$(dirname $RUNNINGSYSTEMFULLPATH)
 	RUNNINGSYSTEMNAME=$(basename $RUNNINGSYSTEMFULLPATH)
 
 	# download url pointing to directory with all required files goes here
-	DOWNLOADURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
-		       awk -F'=' ' /^updateurl=/ { print $2 }')
+	DOWNLOADURL=$( sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		       awk -F'=' ' /^updateurl=/ { print $2 }' | \
+		       tr -dc 'a-zA-Z0-9.:/?%_\-')
 
 	if [ -z "$DOWNLOADURL" ]; then
 		echo -n "\n$(date +'%F | %T | ')'$0': No update URL. Exiting."
@@ -183,7 +183,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		echo -n "\n$(date +'%F | %T | ')'$0': '/lib/live/mount/findiso' directory not found. Scanning for partitions."
 		LISTOFPARTITIONS=$(grep -H ^0$ /sys/block/*/removable | awk -F '/' '{ print $4 }' | xargs -n 1 -I XXX fdisk -l /dev/XXX 2>/dev/null | awk '$0 ~ /Linux$/ { print $1}')
 		TEMPMOUNT=$(mktemp -d -p /lib/live/mount/)
-		FINDFILE=$(cat /proc/cmdline | tr " " "\n" | awk -F '=' '$1 == "findiso" { print $2 }')
+		FINDFILE=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | awk -F '=' '$1 == "findiso" { print $2 }' | tr -dc 'a-zA-Z0-9./ _\-')
 		[ -z "$FINDFILE" ] && exit 0
 		for PARTITION in $LISTOFPARTITIONS ; do
 			mount -oro $PARTITION $TEMPMOUNT
@@ -213,9 +213,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 	# Bandwidth limit goes here
 	#
 	#BWLIMITPERCENT=20 # in percent, numeric-only
-	BWLIMITPERCENT=$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
-				awk -F'=' ' /^bwlimit=/ { print $2 }')
+	BWLIMITPERCENT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+			 awk -F'=' ' /^bwlimit=/ { print $2 }' | \
+			 tr -dc '0-9')
 	if [ -z "$BWLIMITPERCENT" ]; then 
 		BWLIMITPERCENT=20
 		echo -n "\n$(date +'%F | %T | ')'$0': Bandwidth limit not set. Defaulting to 20%."
@@ -224,9 +224,9 @@ echo -n " live-autoupdater (backgrounding update task)"
 
 	# sleeping a random amount of time to ease load on the update server
 	#
-	MAXSLEEPTIME=$(cat /proc/cmdline | \
-				tr ' ' '\n' | \
-				awk -F'=' ' /^updatesleep=/ && $2 ~ /^[0-9]*$/ { print $2 }')
+	MAXSLEEPTIME=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		       awk -F'=' ' /^updatesleep=/ && $2 ~ /^[0-9]*$/ { print $2 }' | \
+		       tr -dc '0-9')
 	if [ -z "$MAXSLEEPTIME" ] || [ $MAXSLEEPTIME -lt 240 ] ; then
 		MAXSLEEPTIME=900
 	fi
@@ -313,7 +313,7 @@ echo -n " live-autoupdater (backgrounding update task)"
 		# Attempt to determine available bandwidth & to set BWLIMIT accordingly
 		echo -n "\n$(date +'%F | %T | ')'$0': Attempting to determine available bandwidth for wget.\n"
 		wget -Nr -P /tmp/ -nd \
-			--progress=bar:force $DOWNLOADURL/x2go-tce-initrd.img 2>&1 | \
+			--progress=bar:force "$DOWNLOADURL/x2go-tce-initrd.img" 2>&1 | \
 			tee /tmp/dl.log
 		cp --update "/tmp/x2go-tce-initrd.img" "$TEMPDIR"
 		rm "/tmp/x2go-tce-initrd.img"

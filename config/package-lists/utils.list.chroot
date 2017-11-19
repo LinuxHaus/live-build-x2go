@@ -3,6 +3,7 @@ acpi-support
 atftp 
 ca-certificates
 kbd 
+ntpdate
 openssh-client
 openssh-server
 openssh-sftp-server
@@ -10,6 +11,8 @@ openssl
 psmisc 
 rsync 
 screen 
+trickle
+util-linux
 vim 
 wget
 xinetd

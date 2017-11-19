@@ -9,9 +9,9 @@ echo -n " tcpprint"
 
 if grep -q "\W*tcpprint\W*" /proc/cmdline ; then
 
-        TCPPRINTONLYFROM=$(cat /proc/cmdline | \
-                       tr ' ' '\n' | \
-                       awk -F'=' ' /^tcpprintonlyfrom=/ { print $2 }')
+        TCPPRINTONLYFROM=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+                           awk -F'=' ' /^tcpprintonlyfrom=/ { print $2 }' | \
+		           tr -dc 'a-zA-Z0-9.\-')
 	if [ -n "$TCPPRINTONLYFROM" ] ; then
 		TCPPRINTONLYFROM="only_from = $TCPPRINTONLYFROM"
 	fi

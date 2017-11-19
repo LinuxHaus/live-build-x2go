@@ -6,9 +6,9 @@ X2GoGetSessions ()
 	#
 	echo -n " x2go-getsessions"
 
-	SESSIONSURL=$(cat /proc/cmdline | \
-		       tr ' ' '\n' | \
-		       awk -F'=' ' /^sessionsurl=/ { print $2 }')
+	SESSIONSURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		      awk -F'=' ' /^sessionsurl=/ { print $2 }' | \
+		      tr -dc 'a-zA-Z0-9.:/?%_\-')
 	if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
 		# only mv this file if SESSIONSURL was set. If not, leave it in place - as
                 # it might have been customized at image creation time
@@ -34,16 +34,16 @@ fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting session config data download ..." | tee -a /dev/tty8
 	if echo "$SESSIONSURL" | grep -q "^tftp://" ; then
-		SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-		SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		SESSIONSSERVER=$(echo "$SESSIONSURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
+		SESSIONSPATH=$(echo "$SESSIONSURL" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 		if [ -n "\$SESSIONSSERVER" ] && [ -n "\$SESSIONSPATH" ] ; then
-			while ! atftp \$SESSIONSSERVER -g -r \$SESSIONSPATH -l $SESSIONSDESTINATION ; do
+			while ! atftp "\$SESSIONSSERVER" -g -r "\$SESSIONSPATH" -l $SESSIONSDESTINATION ; do
 				echo -en "\n\$(date +'%F | %T | ')still waiting for session config data (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
-		while ! wget -q -O $SESSIONSDESTINATION $SESSIONSURL ; do
+		while ! wget -q -O $SESSIONSDESTINATION "$SESSIONSURL" ; do
 			echo -en "\n\$(date +'%F | %T | ')still waiting for session config data (wget) ..." | tee -a /dev/tty8
 			sleep 5 
 		done

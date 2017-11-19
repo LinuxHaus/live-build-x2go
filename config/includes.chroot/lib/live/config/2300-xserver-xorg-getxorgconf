@@ -6,9 +6,9 @@ XServerXorgGetXorgConf ()
 #
 echo -n " xserver-xorg-getxorgconf"
 
-        XORGCONFURL=$(cat /proc/cmdline | \
-                       tr ' ' '\n' | \
-                       awk -F'=' ' /^xorgconfurl=/ { print $2 }')
+        XORGCONFURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+                      awk -F'=' ' /^xorgconfurl=/ { print $2 }' | \
+		      tr -dc 'a-zA-Z0-9.:/?%_\-')
         if [ -n "$XORGCONFURL" ] && [ -d /etc/X11 ] ; then 
 		XORGCONFDESTINATION=/etc/X11/xorg.conf.new
 	        cat >/etc/network/if-up.d/0300-getxorgconf <<GETXORG
@@ -31,16 +31,16 @@ fi
 
 	echo -en "\n\$(date +'%F | %T | ')'\$0': Attempting xorg.conf download ..." | tee -a /dev/tty8
 	if echo "$XORGCONFURL" | grep -q "^tftp://" ; then
-		XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/]*\)/.*$#\1#' )
-		XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/]*/\(.*\)$#\1#' )
+		XORGCONFSERVER=$(echo "$XORGCONFURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
+		XORGCONFPATH=$(echo "$XORGCONFURL" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 		if [ -n "\$XORGCONFSERVER" ] && [ -n "\$XORGCONFPATH" ] ; then
-			while ! atftp \$XORGCONFSERVER -g -r \$XORGCONFPATH -l $XORGCONFDESTINATION ; do
+			while ! atftp "\$XORGCONFSERVER" -g -r "\$XORGCONFPATH" -l $XORGCONFDESTINATION ; do
 				echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for xorg.conf download (tftp) ..." | tee -a /dev/tty8
 				sleep 5
 			done
 		fi
 	else
-		while ! wget -q -O $XORGCONFDESTINATION $XORGCONFURL ; do
+		while ! wget -q -O $XORGCONFDESTINATION "$XORGCONFURL" ; do
 			echo -en "\n\$(date +'%F | %T | ')'\$0': still waiting for xorg.conf download (wget) ..." | tee -a /dev/tty8
 			sleep 5 
 		done
