@@ -1,2 +1,2 @@
-#deb http://packages.x2go.org/debian jessie main
-deb http://packages.x2go.org/debian jessie heuler
+#deb http://packages.x2go.org/debian stretch main
+deb http://packages.x2go.org/debian stretch heuler
