@@ -14,10 +14,8 @@ libfreerdp-plugins-standard
 libfreerdp-primitives1.1
 libfreerdp-rail1.1
 libfreerdp-utils1.1
-libgstreamer0.10-0
-libgstreamer-plugins-base0.10-0
 libjpeg62-turbo
-libssl1.0.0
+libssl1.0.2
 libwinpr-crt0.1
 libwinpr-crypto0.1
 libwinpr-dsparse0.1
@@ -48,7 +46,6 @@ libxrender1
 libxv1
 pinentry-x2go
 pulseaudio
-pulseaudio-module-x11
 pulseaudio-utils
 rdesktop
 udev
