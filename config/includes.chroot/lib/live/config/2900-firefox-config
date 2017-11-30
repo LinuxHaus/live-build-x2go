@@ -10,18 +10,18 @@ FirefoxConfig ()
 		      awk -F'=' ' /^homepageurl=/ { print $2 } ')
 	if [ -z "$HOMEPAGEURL" ] ; then 
 		HOMEPAGEURL='http://www.x2go.org/'
-		sed -i	-e '/"browser.rights.3.shown"/d' \
-			-e '/"browser.startup.homepage_override.mstone"/d' \
-			-e '/"browser.startup.homepage"/d' \
-			/etc/firefox-esr/firefox-esr.js
-		cat >>/etc/firefox-esr/firefox-esr.js <<FIREFOXCONFIG
+	fi
+	sed -i	-e '/"browser.rights.3.shown"/d' \
+		-e '/"browser.startup.homepage_override.mstone"/d' \
+		-e '/"browser.startup.homepage"/d' \
+		/etc/firefox-esr/firefox-esr.js
+	cat >>/etc/firefox-esr/firefox-esr.js <<FIREFOXCONFIG
 
 //set some sane browser defaults
 lockPref("browser.rights.3.shown", true);
 lockPref("browser.startup.homepage_override.mstone","ignore");
 lockPref("browser.startup.homepage", "$HOMEPAGEURL");
 FIREFOXCONFIG
-	fi
 }
 
 FirefoxConfig
