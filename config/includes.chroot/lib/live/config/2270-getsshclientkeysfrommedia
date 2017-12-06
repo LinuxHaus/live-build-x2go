@@ -31,10 +31,10 @@ GetSSHClientKeysFromMedia ()
 			# No Match? Then we're a regular TCE-Live.
 			if [ -z "$USERHOME" ] ; then
 				USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
-				TARGETUSERNAME="x2gothinclient"
+				TARGETUSERNAME=$(getent passwd 1000 | awk -F':' '{ print $1 }')
 			else
 				# let's not forget to set the target user name if we're no MATE-MiniDesktop
-				TARGETUSERNAME=$(getent passwd 1000 | awk -F':' '{ print $1 }')
+				TARGETUSERNAME="x2gothinclient"
 			fi
 
 			# nudge automounter, in case device was already plugged in at power-up
