@@ -19,6 +19,9 @@ sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e
 #make sure OpenBox' ToggleMaximize is disabled, or else clicking the top row of pixels will un-maximize X2GoClient
 sed -i -e '/ToggleMaximize/d' /etc/xdg/openbox/rc.xml
 
+# this is so that xsession can log to tty8
+adduser user tty
+
 cat >/home/user/.xsession <<XSESSION
 # inspired by 
 # http://code.x2go.org/gitweb?p=x2gothinclient.git;a=blob_plain;f=displaymanager/sbin/x2gothinclientd;h=6897d42d17bd6778e7de5e62ec3f51727d4e8800;hb=HEAD
@@ -89,7 +92,7 @@ fi
 
 # Spawn openbox
 openbox &
-echo -n "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox."
+echo -en "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox." | tee -a /dev/tty8
 
 # set screen background to X2Go default blue on all detected screens
 xsetroot -solid "#246ed8"
@@ -239,25 +242,25 @@ fi
 # workaround for NX "magic pixel" being active in --thinclient mode
 if grep 'nomagicpixel=2' /proc/cmdline ; then
 	while ! ps -C xdotool >/dev/null ; do
-	        while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
-	                sleep 1
-	        done ;
-                echo -n "\n\$(date +'%F | %T | ')'\$0' spawning window foreground monitor (magic-pixel-fix 2)."
-	        xdotool search . behave %@ blur windowmap
+		while [ \$(xdotool search --name . | wc -l) -lt 3 ] ; do
+			sleep 1
+		done ;
+		echo -en "\n\$(date +'%F | %T | ')'\$0' spawning window foreground monitor (magic-pixel-fix 2)." | tee -a /dev/tty8
+		xdotool search . behave %@ blur windowmap
 	done &
 elif grep 'nomagicpixel=1' /proc/cmdline ; then
-       echo -n "\n\$(date +'%F | %T | ')'\$0' spawning openbox monitor (magic-pixel-fix 1)."
-       while true ; do
-               while [ \$(xdotool search --name . | wc -l) -ne 3 ] && ! ps -C openbox >/dev/null ; do
-                       openbox &
-                       echo -n "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox."
-               done
-               while [ \$(xdotool search --name . | wc -l) -eq 3 ] && ps -C openbox >/dev/null ; do
-                       killall openbox
-                       echo -n "\n\$(date +'%F | %T | ')'\$0' killed OpenBox."
-               done
-       	       echo -n "\n\$(date +'%F | %T | ')'\$0' reloading openbox monitor (magic-pixel-fix 1)."
-       done &
+	echo -en "\n\$(date +'%F | %T | ')'\$0' spawning openbox monitor (magic-pixel-fix 1)." | tee -a /dev/tty8
+	while true ; do
+		while [ \$(xdotool search --name . | wc -l) -ne 3 ] && ! ps -C openbox >/dev/null ; do
+			openbox &
+			echo -en "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox." | tee -a /dev/tty8
+		done
+		while [ \$(xdotool search --name . | wc -l) -eq 3 ] && ps -C openbox >/dev/null ; do
+			killall openbox
+			echo -en "\n\$(date +'%F | %T | ')'\$0' killed OpenBox." | tee -a /dev/tty8
+		done
+		sleep 1 # to save cpu cycles
+	done &
 else
 	: # NOP
 fi
