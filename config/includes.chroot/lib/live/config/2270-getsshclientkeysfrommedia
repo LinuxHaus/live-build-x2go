@@ -26,8 +26,16 @@ GetSSHClientKeysFromMedia ()
 			done
 
 			# Homedir of user account
-			#
-			USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
+			# if we're a MATE-MiniDesktop, let this be our homedirectory
+			USERHOME=$(getent passwd x2gothinclient | awk -F':' '{ print $6 }')
+			# No Match? Then we're a regular TCE-Live.
+			if [ -z "$USERHOME" ] ; then
+				USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
+				TARGETUSERNAME="x2gothinclient"
+			else
+				# let's not forget to set the target user name if we're no MATE-MiniDesktop
+				TARGETUSERNAME=$(getent passwd 1000 | awk -F':' '{ print $1 }')
+			fi
 
 			# nudge automounter, in case device was already plugged in at power-up
 			if udevadm trigger --action=add ; then
@@ -43,7 +51,11 @@ GetSSHClientKeysFromMedia ()
 			PORTABLEAPPLABELS=$(lsblk -oLABEL,NAME,MOUNTPOINT -l | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3}')
 
 			# block device list, removable first (we want USB media to be able to override keys on fixed disks)
-			BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort -r | awk -F'/' '{print $4}')
+			BLOCKDEVLOOPCOUNT=0 # this is for debugging/logging; it seems the blockdevs list is empty on Debian stretch
+			while [ -z "$BLOCKDEVS" ] ; do
+				BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort -r | awk -F'/' '{print $4}')
+				BLOCKDEVLOOPCOUNT=$((BLOCKDEVLOOPCOUNT+1))
+			done
 
 			check_for_config (){
 			if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/.ssh ]; then
@@ -60,7 +72,7 @@ GetSSHClientKeysFromMedia ()
 					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile '$KEYFILE' found, copying and adjusting ownership and permissions on destination." | tee -a /dev/tty8
 					KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
 					touch "$KEYDESTPATH"
-					chown   user:user \
+					chown   $TARGETUSERNAME: \
 						$KEYDESTPATH
 					chmod   600 $KEYDESTPATH
 					cat     $(readlink -m "$KEYFILE")>$KEYDESTPATH
@@ -109,7 +121,7 @@ GetSSHClientKeysFromMedia ()
 					fi
 				fi
 			done
-			touch /var/lib/live/config/opensshclientkeys
+			echo "BLOCKDEVS: '$BLOCKDEVS'" > /var/lib/live/config/opensshclientkeys
 		) &
 	fi
 }
