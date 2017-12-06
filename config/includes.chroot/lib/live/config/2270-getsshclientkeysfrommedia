@@ -33,7 +33,7 @@ GetSSHClientKeysFromMedia ()
 				USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
 				TARGETUSERNAME=$(getent passwd 1000 | awk -F':' '{ print $1 }')
 			else
-				# let's not forget to set the target user name if we're no MATE-MiniDesktop
+				# let's not forget to set the target user name if we're MATE-MiniDesktop
 				TARGETUSERNAME="x2gothinclient"
 			fi
 
