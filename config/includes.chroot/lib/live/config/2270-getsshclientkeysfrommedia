@@ -31,10 +31,10 @@ GetSSHClientKeysFromMedia ()
 			# No Match? Then we're a regular TCE-Live.
 			if [ -z "$USERHOME" ] ; then
 				USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
-				TARGETUSERNAME="x2gothinclient"
-			else
-				# let's not forget to set the target user name if we're no MATE-MiniDesktop
 				TARGETUSERNAME=$(getent passwd 1000 | awk -F':' '{ print $1 }')
+			else
+				# let's not forget to set the target user name if we're MATE-MiniDesktop
+				TARGETUSERNAME="x2gothinclient"
 			fi
 
 			# nudge automounter, in case device was already plugged in at power-up
@@ -95,7 +95,7 @@ GetSSHClientKeysFromMedia ()
 				if [ -n "$NEXTDEVICE" ] ; then
 					MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
 					NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
-
+					echo -n "\n$(date +'%F | %T | ')'$0' Checking status of Device '$NEXTDEVICE' for BLOCKDEV '$BLOCKDEV'." | tee -a /dev/tty8
 					if [ -n "$MNTPT" ] ; then
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
 						if check_for_config $MNTPT ; then
@@ -119,6 +119,9 @@ GetSSHClientKeysFromMedia ()
 							:
 						fi
 					fi
+				else
+                                        echo -n "\n$(date +'%F | %T | ')'$0' No NEXTDEVICE found for BLOCKDEV '$BLOCKDEV'." | tee -a /dev/tty8
+
 				fi
 			done
 			echo "BLOCKDEVS: '$BLOCKDEVS'" > /var/lib/live/config/opensshclientkeys
