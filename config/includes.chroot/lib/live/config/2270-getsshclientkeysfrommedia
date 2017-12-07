@@ -117,7 +117,8 @@ GetSSHClientKeysFromMedia ()
 
 				fi
 			done
-			echo "BLOCKDEVS: '$BLOCKDEVS'" > /var/lib/live/config/opensshclientkeys
+			echo "BLOCKDEVLOOPCOUNT: '$BLOCKDEVLOOPCOUNT'" > /var/lib/live/config/opensshclientkeys
+			echo "BLOCKDEVS: '$BLOCKDEVS'" >> /var/lib/live/config/opensshclientkeys
 			echo "X2GOTCELIVELABELS: '$X2GOTCELIVELABELS'" >> /var/lib/live/config/opensshclientkeys
 			echo "PORTABLEAPPLABELS: '$PORTABLEAPPLABELS'" >> /var/lib/live/config/opensshclientkeys
 		) &
