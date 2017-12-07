@@ -112,9 +112,6 @@ GetSSHClientKeysFromMedia ()
 							:
 						fi
 					fi
-				else
-                                        echo -n "\n$(date +'%F | %T | ')'$0' No NEXTDEVICE found for BLOCKDEV '$BLOCKDEV'." | tee -a /dev/tty8
-
 				fi
 			done
 			echo "BLOCKDEVLOOPCOUNT: '$BLOCKDEVLOOPCOUNT'" > /var/lib/live/config/opensshclientkeys
