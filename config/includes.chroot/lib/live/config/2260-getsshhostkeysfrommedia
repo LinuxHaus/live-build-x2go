@@ -20,7 +20,10 @@ GetSSHHostKeysFromMedia ()
 		fi
 
 		# list devices (and mountpoints, if present)
-		X2GOTCELIVELABELS=$(lsblk -oLABEL,NAME,MOUNTPOINT -l | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}')
+		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT -l)
+
+		# search for our magic label
+		X2GOTCELIVELABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}')
 
 		# block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
 		BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort | awk -F'/' '{print $4}')
@@ -90,7 +93,7 @@ GetSSHHostKeysFromMedia ()
 				if [ -n "$MNTPT" ] ; then
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
 					if check_for_config $MNTPT ; then
-						touch /var/lib/live/config/opensshkeys
+						echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 						exit 0
 					fi
 				else
@@ -101,7 +104,7 @@ GetSSHHostKeysFromMedia ()
 						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
 							umount /media/fixeddisks/$NEXTDEVICE
-							touch /var/lib/live/config/opensshkeys
+							echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 							exit 0
 						fi
 						umount /media/fixeddisks/$NEXTDEVICE
@@ -112,7 +115,7 @@ GetSSHHostKeysFromMedia ()
 				fi
 			fi
 		done
-		touch /var/lib/live/config/opensshkeys
+		echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 	) &
 }
 
