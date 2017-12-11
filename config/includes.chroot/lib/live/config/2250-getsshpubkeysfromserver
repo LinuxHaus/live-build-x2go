@@ -8,7 +8,7 @@ GetSSHPubKeysFromServer ()
 	echo -n " getsshpubkeysfromserver"
 
 
-	PUBKEYURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+	PUBKEYURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
 		    awk -F'=' ' /^pubkey=/ { print $2 }' |\
 		    tr -dc 'a-zA-Z0-9.:/?%_\-')
 
