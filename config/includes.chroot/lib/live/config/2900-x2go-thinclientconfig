@@ -101,6 +101,11 @@ fi
 openbox &
 echo -en "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox." | tee -a /dev/tty8
 
+if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+	xset dpms force standby
+	xset dpms force on
+fi
+
 # set screen background to X2Go default blue on all detected screens
 xsetroot -solid "#246ed8"
 
@@ -231,7 +236,7 @@ if [ -n "\$BLANKINGTIME" ]; then
 		# Disable screensaver and DPMS Power Saving if requested
 		xset s off
 		if grep -q '\W*nodpms\W*' /proc/cmdline; then
-			xset -dpms
+			xset dpms 0 0 0 # lasts over force commands, unlike -dpms
 		fi
 	else
 		xset s on
