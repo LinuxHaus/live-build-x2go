@@ -86,9 +86,24 @@ done
 openbox &
 
 # code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
+# it seems that a simple 
+# xset dpms force standby ; xset dpms force on
+# isn't enough (doesn't always help),
+# so let's add some resiliency and logging
+
 if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
-        xset dpms force standby
-        xset dpms force on
+	while xset q | grep -q "Monitor is On" ; do
+		while ! xset q | grep -q "Monitor is in Standby" ; do
+			echo -en "\n\$(date +'%F | %T | ')'\$0' Attempting to force TFT into 'standby'." | tee -a /dev/tty8
+			xset dpms force standby
+			echo -en "\n\$(date +'%F | %T | ')'\$0' \$(xset q | grep "Monitor is")" | tee -a /dev/tty8
+		done
+	done
+	while ! xset q | grep -q "Monitor is On" ; do
+		echo -en "\n\$(date +'%F | %T | ')'\$0' Attempting to force TFT to 'on'." | tee -a /dev/tty8
+		xset dpms force on
+		echo -en "\n\$(date +'%F | %T | ')'\$0' \$(xset q | grep "Monitor is")" | tee -a /dev/tty8
+	done
 fi
 
 # set screen background to X2Go default blue on all detected screens
