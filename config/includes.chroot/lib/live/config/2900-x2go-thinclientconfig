@@ -85,6 +85,12 @@ done
 # Spawn openbox
 openbox &
 
+# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
+if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+        xset dpms force standby
+        xset dpms force on
+fi
+
 # set screen background to X2Go default blue on all detected screens
 xsetroot -solid "#246ed8"
 
