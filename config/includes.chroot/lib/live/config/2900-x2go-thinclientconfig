@@ -236,7 +236,7 @@ if [ -n "\$BLANKINGTIME" ]; then
 	if [ \${DPMSARR[0]} -eq 0 ]; then
 		# Disable screensaver and DPMS Power Saving if requested
 		xset s off
-		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
+		if grep -q '\W*nodpms\W*' /proc/cmdline; then
 			xset -dpms
 		fi
 	else
