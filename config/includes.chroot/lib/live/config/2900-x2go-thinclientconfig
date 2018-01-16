@@ -103,9 +103,11 @@ echo -en "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox." | tee -a /dev/tty8
 
 # code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
 if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
-	CURRENTRES=\$(xrandr | awk '$0 ~/\*/ { print \$1}') # determine current resolution
+	CURRENTRES=\$(xrandr | awk '\$0 ~/\*/ { print \$1}') # determine current resolution
 	xrandr -s 640x480 # set low resolution to trigger TFT wakeup
-	xrandr -s \$CURRENTRES # restore original resolution
+	while ! [ "\$(xrandr | awk '\$0 ~/\*/ { print \$1}')" = "\$CURRENTRES" ] ; do
+        	xrandr -s \$CURRENTRES # restore original resolution
+	done
 fi
 
 # set screen background to X2Go default blue on all detected screens
