@@ -37,6 +37,14 @@ cat >/home/user/.xsession <<XSESSION
 # Spawn PulseAudio
 pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
 
+# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
+if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+	for DISPLAYNAME in \$(xrandr | awk '\$2 == "connected" { print \$1 }') ; do
+		xrandr --output \$DISPLAYNAME --off
+		xrandr --output \$DISPLAYNAME --auto
+	done
+fi
+
 # additional variable instead of "case \$(...) in", as we need the value again later on
 XRANDRCMDTAINTED=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '\$1 == "xinerama" { print \$2 }')
 
@@ -100,15 +108,6 @@ fi
 # Spawn openbox
 openbox &
 echo -en "\n\$(date +'%F | %T | ')'\$0' spawned OpenBox." | tee -a /dev/tty8
-
-# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
-if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
-	CURRENTRES=\$(xrandr | awk '\$0 ~/\*/ { print \$1}') # determine current resolution
-	xrandr -s 800x600 # set low resolution to trigger TFT wakeup
-	while ! [ "\$(xrandr | awk '\$0 ~/\*/ { print \$1}')" = "\$CURRENTRES" ] ; do
-        	xrandr -s \$CURRENTRES # restore original resolution
-	done
-fi
 
 # set screen background to X2Go default blue on all detected screens
 xsetroot -solid "#246ed8"
