@@ -27,14 +27,6 @@ cat >/home/user/.xsession <<XSESSION
 # Spawn PulseAudio
 pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
 
-# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
-if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
-	for DISPLAYNAME in \$(xrandr | awk '\$2 == "connected" { print \$1 }') ; do
-		xrandr --output \$DISPLAYNAME --off
-		xrandr --output \$DISPLAYNAME --auto
-	done
-fi
-
 # additional variable instead of "case \$(...) in", as we need the value again later on
 XRANDRCMDTAINTED=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '\$1 == "xinerama" { print \$2 }')
 
@@ -89,6 +81,11 @@ for NEXT_DISPLAY in \$(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d '
 	# above where [ -n \${THIS_DISPLAY+x} ] is the conditional
 	THIS_DISPLAY=\$NEXT_DISPLAY
 done
+
+# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
+if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+	xset dpms force suspend 
+fi
 
 # Spawn openbox
 openbox &
@@ -172,24 +169,6 @@ else
 	LDAPPARAMS=""
 fi
 
-BLANKINGTIME=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '\$1 == "blank" { print \$2 }' | tr -dc '0-9:')
-if [ -n "\$BLANKINGTIME" ]; then
-	DPMSARR=(\$(echo \$BLANKINGTIME | awk -F ':' '\$1 ~/^[0-9]*\$/ && \$2 ~/^[0-9]*\$/ && \$3 ~/^[0-9]*\$/  { print \$1 " " \$2 " " \$3}'))
-	if [ \${DPMSARR[0]} -eq 0 ]; then
-		# Disable screensaver and DPMS Power Saving if requested
-		xset s off
-		if grep -q '\W*nodpms\W*' /proc/cmdline; then
-			xset -dpms
-		fi
-	else
-		xset s on
-		xset s \${DPMSARR[0]}
-		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
-			# Yes, "+dpms dpms" is intentional. 
-			xset +dpms dpms \${DPMSARR[0]} \${DPMSARR[1]} \${DPMSARR[2]}
-		fi
-	fi
-fi
 
 THROTTLINGCOMMAND=""
 THROTTLEVALUES=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '\$1 == "throttle" { print \$2 }' | tr -dc '0-9.:u')
@@ -226,6 +205,30 @@ if [ -n "\$THROTTLEVALUES" ]; then
 	# only set THROTTLINGCOMMAND if at least one value was detected and sanitized properly
 	if [ -n "\$THROTTLEUP" ] || [ -n "\$THROTTLEDOWN" ] || [ -n "\$THROTTLETIME" ] || [ -n "\$THROTTLELENGTH" ] || [ -n "\$THROTTLELATENCY" ]; then
 		THROTTLINGCOMMAND="trickle -s \$THROTTLEDOWN \$THROTTLEUP \$THROTTLETIME \$THROTTLELENGTH \$THROTTLELATENCY"
+	fi
+fi
+
+# code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
+if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+	xset dpms force on dpms 0 0 0 -dpms
+fi
+
+BLANKINGTIME=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '\$1 == "blank" { print \$2 }' | tr -dc '0-9:')
+if [ -n "\$BLANKINGTIME" ]; then
+	DPMSARR=(\$(echo \$BLANKINGTIME | awk -F ':' '\$1 ~/^[0-9]*\$/ && \$2 ~/^[0-9]*\$/ && \$3 ~/^[0-9]*\$/  { print \$1 " " \$2 " " \$3}'))
+	if [ \${DPMSARR[0]} -eq 0 ]; then
+		# Disable screensaver and DPMS Power Saving if requested
+		xset s off
+		if grep -q '\W*nodpms\W*' /proc/cmdline; then
+			xset -dpms
+		fi
+	else
+		xset s on
+		xset s \${DPMSARR[0]}
+		if ! grep -q '\W*nodpms\W*' /proc/cmdline; then
+			# Yes, "+dpms dpms" is intentional. 
+			xset +dpms dpms \${DPMSARR[0]} \${DPMSARR[1]} \${DPMSARR[2]}
+		fi
 	fi
 fi
 
