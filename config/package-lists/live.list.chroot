@@ -2,6 +2,7 @@ cifs-utils
 console-setup
 console-setup-linux
 fuse
+httpfs2
 initramfs-tools
 kbd
 keyboard-configuration
