@@ -1,7 +1,7 @@
 firmware-linux-free 
 firmware-linux-nonfree 
 firmware-linux 
-firmware-misc-nonfree
 firmware-realtek 
+firmware-ralink 
 firmware-atheros 
 firmware-iwlwifi
