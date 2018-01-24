@@ -23,7 +23,7 @@ NTPSERVERS=\$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /pr
 if [ "\$NTPSERVERS" = "false" ] || [ "\$NTPSERVERS" = "off" ] || [ "\$NTPSERVERS" = "0" ] ; then
 	NTPCOMMAND="false"
 elif [ -n "\$NTPSERVERS" ] ; then
-	echo -en "\n\$(date +'%F | %T | ')'\$0': Using ntp server(s) '$NTPSERVERS'. First working one in list will be used." | tee -a /dev/tty8
+	echo -en "\n\$(date +'%F | %T | ')'\$0': Using ntp server(s) '\$NTPSERVERS'. First working one in list will be used." | tee -a /dev/tty8
 	NTPCOMMAND="ntpdate -s -b \$NTPSERVERS"
 else
 	echo -en "\n\$(date +'%F | %T | ')'\$0': Using Debian's default ntp servers." | tee -a /dev/tty8
