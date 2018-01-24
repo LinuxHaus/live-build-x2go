@@ -270,7 +270,6 @@ if [ -n "\$BLANKINGTIME" ]; then
 fi
 
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION $DEBUGPARAMS # yes, no escape sign in front of DEBUGPARAMS, that is intentional
-eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION
 XSESSION
 
 chown user:user /home/user/.xsession
