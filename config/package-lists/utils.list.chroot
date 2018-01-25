@@ -3,6 +3,8 @@ acpi-support
 atftp 
 ca-certificates
 kbd 
+less 
+net-tools 
 ntpdate
 openssh-client
 openssh-server
@@ -11,6 +13,7 @@ openssl
 psmisc 
 rsync 
 screen 
+traceroute
 trickle
 util-linux
 vim 
