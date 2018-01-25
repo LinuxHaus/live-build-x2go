@@ -2,6 +2,7 @@ acpid
 acpi-support 
 atftp 
 ca-certificates
+iputils-ping
 kbd 
 less 
 net-tools 
