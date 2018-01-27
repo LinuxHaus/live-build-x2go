@@ -1,0 +1,24 @@
+#!/bin/bash
+
+EarlyBlankDPMSFix ()
+{
+
+# Output startup message
+#
+echo -n " earlyblankdpmsfix"
+
+# code to fix blank screen happening with DisplayPort and some buggy TFTs (even xset q reports "Monitor is on" even though it is pitch black)
+if grep -q '\W*earlyblankdpmsfix\W*' /proc/cmdline; then
+	(
+		while ! ( [ -d /sys/class/graphics ] && [ -c /dev/tty1 ] && [ -c /dev/vcs1 ] ) ; do
+			sleep 1
+		done
+		for FBDEVICE in /sys/class/graphics/fb[0-9]*; do
+			echo 1 > $FBDEVICE/blank
+			echo 0 > $FBDEVICE/blank
+		done
+	) &
+fi
+}
+
+EarlyBlankDPMSFix
