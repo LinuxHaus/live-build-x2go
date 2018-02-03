@@ -40,7 +40,7 @@ GetSSHClientKeysFromMedia ()
 	                # search for our magic label
 			X2GOTCELIVELABELS=$(awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}' /var/lib/live/config/opensshkeys)
 
-			# support for legacy label value
+			# support for second label value (for dual-mode media where keys are stored on the windows-readable partition)
 			PORTABLEAPPLABELS=$(awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3}' /var/lib/live/config/opensshkeys)
 
 			# block device list, removable first (we want USB media to be able to override keys on fixed disks)
@@ -55,7 +55,11 @@ GetSSHClientKeysFromMedia ()
 				echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', or '$1/./ssh'." | tee -a /dev/tty8
 				# create .ssh-Directory in case it doesn't exist
 				#
-				mkdir -p $(readlink -m "$USERHOME/.ssh/")
+				mkdir -p $(readlink -m "$USERHOME/.ssh")
+				chown   $TARGETUSERNAME: \
+					$(readlink -m "$USERHOME/.ssh")
+				chmod   700 $KEYDESTPATH
+					$(readlink -m "$USERHOME/.ssh")
 
 				# any keyfile in the config dir will be copied over to live system
 				#
