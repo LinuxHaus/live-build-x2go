@@ -13,11 +13,15 @@ echo -n " x2go-getportableappsessions"
 
 if [ -L /dev/disk/by-label/PORTABLEAPP ]; then 
 	mkdir -p /media/PORTABLEAPP && \
-	mount -o sync /dev/disk/by-label/PORTABLEAPP /media/PORTABLEAPP && \
-	ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+	mount -o sync /dev/disk/by-label/PORTABLEAPP /media/PORTABLEAPP
+	if [ -s /media/PORTABLEAPP/x2goclient/sessions ] ; then
+		ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+	elif [ -s /media/PORTABLEAPP/x2goclient/.x2goclient/sessions ] ; then
+		ln -sf /media/PORTABLEAPP/x2goclient/.x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+	else
+		true
+	fi
 else
 	true
 fi
-}
-
 X2GoGetPortableAppSessions
