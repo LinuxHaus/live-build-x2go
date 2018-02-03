@@ -24,4 +24,5 @@ if [ -L /dev/disk/by-label/PORTABLEAPP ]; then
 else
 	true
 fi
+}
 X2GoGetPortableAppSessions
