@@ -43,7 +43,7 @@ if [ -n "\$AUDIOOUT" ] ; then
 					grep -A10000 "profiles" | \
 					grep "\W\Woutput:" | \
 					grep -v "active profile:" | \
-					awk -F'[+:]' '{gsub("\t","",$1) ; print "\"'\$CARD'|" \$1 ":" \$2 "\""} ';
+					awk -F'[+:]' '{gsub("\t","",\$1) ; print "\"'\$CARD'|" \$1 ":" \$2 "\""} ';
 				done | \
 				sort -u )
 		for AUDIOOUTPUT in \$AUDIOOUTPUTS; do
