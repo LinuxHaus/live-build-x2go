@@ -256,7 +256,7 @@ if [ -n "\$AUDIOOUT" ] ; then
 		done
 		echo -en "\n\$(date +'%F | %T | ')'\$0': \$(pacmd list | 'grep active profile')" | tee -a /dev/tty8
 	elif (echo "\$AUDIOOUT" | grep -q '^[^|]*|[^|]*\$') ; then
-		\$(echo "\$AUDIOOUT" | sed -e 's/^/pacmd set-card-profile "/' -e 's/\$/"/' -e 's/|/" "/')
+		\$(echo "\$AUDIOOUT" | sed -e 's/^/pacmd set-card-profile /' -e 's/|/ /')
 	else
 		: # NOP
 	fi
