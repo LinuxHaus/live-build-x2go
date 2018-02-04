@@ -98,7 +98,7 @@ GetSSHHostKeysFromMedia ()
 					fi
 				else
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is not mounted." | tee -a /dev/tty8
-					if grep -q "^0$" /sys/block/*/removable ; then
+					if grep -q "^0$" /sys/block/$BLOCKDEV/removable ; then
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
 						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
