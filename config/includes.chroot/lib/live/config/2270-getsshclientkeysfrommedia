@@ -44,10 +44,8 @@ GetSSHClientKeysFromMedia ()
 			PORTABLEAPPLABELS=$(awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3}' /var/lib/live/config/opensshkeys)
 
 			# block device list, removable first (we want USB media to be able to override keys on fixed disks)
-			BLOCKDEVLOOPCOUNT=0 # this is for debugging/logging; it seems the blockdevs list is empty on Debian stretch
 			while [ -z "$BLOCKDEVS" ] ; do
 				BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort -r | awk -F'/' '{print $4}')
-				BLOCKDEVLOOPCOUNT=$((BLOCKDEVLOOPCOUNT+1))
 			done
 
 			check_for_config (){
@@ -118,8 +116,7 @@ GetSSHClientKeysFromMedia ()
 					fi
 				fi
 			done
-			echo "BLOCKDEVLOOPCOUNT: '$BLOCKDEVLOOPCOUNT'" > /var/lib/live/config/opensshclientkeys
-			echo "BLOCKDEVS: '$BLOCKDEVS'" >> /var/lib/live/config/opensshclientkeys
+			echo "BLOCKDEVS: '$BLOCKDEVS'" > /var/lib/live/config/opensshclientkeys
 			echo "X2GOTCELIVELABELS: '$X2GOTCELIVELABELS'" >> /var/lib/live/config/opensshclientkeys
 			echo "PORTABLEAPPLABELS: '$PORTABLEAPPLABELS'" >> /var/lib/live/config/opensshclientkeys
 		) &
