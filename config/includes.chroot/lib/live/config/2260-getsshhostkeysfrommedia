@@ -12,13 +12,6 @@ GetSSHHostKeysFromMedia ()
 			sleep 2
 		done
 
-		# nudge automounter, in case device was already plugged in at power-up
-		if udevadm trigger --action=add ; then
-			echo -n "\n$(date +'%F | %T | ')'$0' Successfully nudged udev-automounter." | tee -a /dev/tty8
-		else
-			echo -n "\n$(date +'%F | %T | ')'$0' Error while nudging udev-automounter." | tee -a /dev/tty8
-		fi
-
 		# list devices (and mountpoints, if present)
 		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT -l)
 
