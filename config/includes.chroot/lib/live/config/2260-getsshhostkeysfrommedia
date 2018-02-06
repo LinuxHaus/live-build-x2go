@@ -80,10 +80,10 @@ GetSSHHostKeysFromMedia ()
 		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,HOTPLUG -ln)
 
 		# search for our magic label
-		X2GOTCELIVELABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
+		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
 		# block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
-		BLOCKDEVS="$(echo $X2GOTCELIVELABELS | awk '$3 == "0" {print $2}')\n$(echo $X2GOTCELIVELABELS | awk '$3 == "1" {print $2}')"
+		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS" | awk '$3 == "0" {print $2}' ) $(echo "$X2GOTCELIVELABELS" | awk '$3 == "1" {print $2}' )"
 
 		# for every block device in our list, do ...
 		for BLOCKDEV in $BLOCKDEVS; do 
@@ -102,7 +102,7 @@ GetSSHHostKeysFromMedia ()
 					# so let's check if we have a config directory at that mountpoint.
 					if check_for_config $MNTPT ; then
 						# if we managed to pull a config off of it (or save one on it), we make a note of this ...
-						echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
+						echo "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 						# and quit right here.
 						exit 0
 					fi
@@ -123,7 +123,7 @@ GetSSHHostKeysFromMedia ()
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
 							# we umount, then make a note that we succeeded ...
 							umount /media/fixeddisks/$NEXTDEVICE
-							echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
+							echo "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 							# and quit right here.
 							exit 0
 						fi
@@ -138,7 +138,7 @@ GetSSHHostKeysFromMedia ()
 			fi
 		done
 		# Now let's leave a mark saying that we're done, so the next script can pick up on it.
-		echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
+		echo "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 	) &
 }
 
