@@ -15,6 +15,43 @@ GetSSHClientKeysFromMedia ()
 			# mode and the X2Go-ThinClientEnvironment on the same USB media using different partitions.
 			# It also allows you to use USB media with your key on it together with a net-booted Debian Live, for example.
 
+			check_for_config (){
+				if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/.ssh ]; then
+					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', or '$1/./ssh'." | tee -a /dev/tty8
+					# create .ssh-Directory in case it doesn't exist
+					#
+					mkdir -p $(readlink -m "$USERHOME/.ssh")
+					chown   $TARGETUSERNAME: \
+						$(readlink -m "$USERHOME/.ssh")
+					chmod   700 $KEYDESTPATH
+						$(readlink -m "$USERHOME/.ssh")
+
+					# any keyfile in the config dir will be copied over to live system
+					#
+					for KEYFILE in $1/config/ssh/* $1/ssh/* $1/.ssh/* ; do
+						([ -f "$KEYFILE" ] && [ -s "$KEYFILE" ]) || continue
+						egrep -q "BEGIN .*(PRIVATE|PUBLIC) KEY" "$KEYFILE" || continue
+						echo -n "\n$(date +'%F | %T | ')'$0' Keyfile '$KEYFILE' found, copying and adjusting ownership and permissions on destination." | tee -a /dev/tty8
+						KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
+						touch "$KEYDESTPATH"
+						chown   $TARGETUSERNAME: \
+							$KEYDESTPATH
+						chmod   600 $KEYDESTPATH
+						cat     $(readlink -m "$KEYFILE")>$KEYDESTPATH
+
+					done
+
+					# this is so the path name in the sessions file matches again
+					# (cannot use .ssh on FAT, for example)
+					#
+					ln -s $USERHOME/.ssh $USERHOME/ssh
+
+					return 0
+				else
+					return 1
+				fi
+			}
+
 			while ! [ -c /dev/tty8 ] ; do
 				echo -n "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
 				sleep 2
@@ -45,43 +82,6 @@ GetSSHClientKeysFromMedia ()
 
 			# block device list, removable first (we want USB media to be able to override keys on fixed disks)
 			BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "0" {print $2}')"
-
-			check_for_config (){
-			if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/.ssh ]; then
-				echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', or '$1/./ssh'." | tee -a /dev/tty8
-				# create .ssh-Directory in case it doesn't exist
-				#
-				mkdir -p $(readlink -m "$USERHOME/.ssh")
-				chown   $TARGETUSERNAME: \
-					$(readlink -m "$USERHOME/.ssh")
-				chmod   700 $KEYDESTPATH
-					$(readlink -m "$USERHOME/.ssh")
-
-				# any keyfile in the config dir will be copied over to live system
-				#
-				for KEYFILE in $1/config/ssh/* $1/ssh/* $1/.ssh/* ; do
-					([ -f "$KEYFILE" ] && [ -s "$KEYFILE" ]) || continue
-					egrep -q "BEGIN .*(PRIVATE|PUBLIC) KEY" "$KEYFILE" || continue
-					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile '$KEYFILE' found, copying and adjusting ownership and permissions on destination." | tee -a /dev/tty8
-					KEYDESTPATH="$USERHOME/.ssh/$(basename "$KEYFILE")"
-					touch "$KEYDESTPATH"
-					chown   $TARGETUSERNAME: \
-						$KEYDESTPATH
-					chmod   600 $KEYDESTPATH
-					cat     $(readlink -m "$KEYFILE")>$KEYDESTPATH
-
-				done
-
-				# this is so the path name in the sessions file matches again
-				# (cannot use .ssh on FAT, for example)
-				#
-				ln -s $USERHOME/.ssh $USERHOME/ssh
-
-				return 0
-			else
-				return 1
-			fi
-			}
 
 			for BLOCKDEV in $BLOCKDEVS; do 
 				NEXTDEVICE=$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | grep "$BLOCKDEV")
