@@ -7,114 +7,137 @@ GetSSHHostKeysFromMedia ()
         #
         echo -n " getsshhostkeysfrommedia"
 	(
+		check_for_config (){
+			if [ -d $1/config/sshdkeys ] ; then
+				echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/sshdkeys'." | tee -a /dev/tty8
+				# any keyfile in the config dir will be copied over to live system
+				for KEYFILE in $1/config/sshdkeys/ssh_host*key* ; do
+					[ -e "$KEYFILE" ] && cp $KEYFILE /etc/ssh/ && KEYFLAG=1
+					if echo $(basename $KEYFILE) | grep -q '\.pub$' ; then
+						chmod 644 /etc/ssh/$(basename $KEYFILE)
+					else
+						chmod 600 /etc/ssh/$(basename $KEYFILE)
+					fi
+				done
+				# no keys present (as detected by flag not being set), but directory is there? Store keys.
+				if [ -z "$KEYFLAG" ] ; then
+					echo -n "\n$(date +'%F | %T | ')'$0' No keyfiles were found in the keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
+					ssh-keygen -A # make sure we have keyfiles for every key the server expects
+					echo -n "\n$(date +'%F | %T | ')'$0' Attempting to copy current keyfiles to keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
+					if awk '$2=="'$1'" {print $4 }' /proc/mounts | tr ',' '\n' | grep -q '^ro$' ; then
+						echo -n "\n$(date +'%F | %T | ')'$0' Attempting to remount '$1' with flags rw and sync." | tee -a /dev/tty8
+						if mount -oremount,rw,sync $1 ; then
+							echo -n "\n$(date +'%F | %T | ')'$0' Successfully remounted '$1'." | tee -a /dev/tty8
+							REMOUNT="rws"
+						else
+							echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1'." | tee -a /dev/tty8
+						fi
+					fi
+					if ([ -z "$REMOUNT" ] || [ "$REMOUNT" = "rws" ]) && cp /etc/ssh/ssh_host*key* $1/config/sshdkeys/ ; then
+						echo -n "\n$(date +'%F | %T | ')'$0' Copying keyfiles succeeded." | tee -a /dev/tty8
+					else
+						echo -n "\n$(date +'%F | %T | ')'$0' Error copying keyfiles." | tee -a /dev/tty8
+					fi
+					if [ -n "$REMOUNT" ] && mount -oremount,ro $1 ; then
+						echo -n "\n$(date +'%F | %T | ')'$0' Remounted '$1' read-only." | tee -a /dev/tty8
+					else
+						echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1' read-only." | tee -a /dev/tty8
+					fi
+					
+				else
+					if ps -C sshd >/dev/null 2>&1 ; then
+						# reload sshd config
+						echo -n "\n$(date +'%F | %T | ')'$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
+						if service ssh reload ; then
+							echo -n "\n$(date +'%F | %T | ')'$0' New keyfiles activated." | tee -a /dev/tty8
+						else
+							echo -n "\n$(date +'%F | %T | ')'$0' Error activating new keyfiles." | tee -a /dev/tty8
+						fi
+					else
+						echo -n "\n$(date +'%F | %T | ')'$0' sshd not running (yet), so no reloading required." | tee -a /dev/tty8
+					fi
+				fi
+				return 0
+			else
+				return 1
+			fi
+		}
+
 		while ! [ -c /dev/tty8 ] ; do
 			echo -n "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
 			sleep 2
 		done
-
-		# nudge automounter, in case device was already plugged in at power-up
-		if udevadm trigger --action=add ; then
-			echo -n "\n$(date +'%F | %T | ')'$0' Successfully nudged udev-automounter." | tee -a /dev/tty8
-		else
-			echo -n "\n$(date +'%F | %T | ')'$0' Error while nudging udev-automounter." | tee -a /dev/tty8
-		fi
+                while ! service udev status >/dev/null; do
+                        echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to start ..." | tee -a /dev/tty8
+                        sleep 1;
+                done
+                while ! udevadm settle; do
+                        echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to process all events ..." | tee -a /dev/tty8
+                        sleep 1;
+                done
 
 		# list devices (and mountpoints, if present)
-		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT -l)
+		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,HOTPLUG -ln)
 
 		# search for our magic label
-		X2GOTCELIVELABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3}')
+		X2GOTCELIVELABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
 		# block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
-		BLOCKDEVS=$(grep -H '' /sys/block/*/removable | awk -F':' '{ print $2 ":" $1}' | sort | awk -F'/' '{print $4}')
+		BLOCKDEVS="$(echo $X2GOTCELIVELABELS | awk '$3 == "0" {print $2}')\n$(echo $X2GOTCELIVELABELS | awk '$3 == "1" {print $2}')"
 
-		check_for_config (){
-		if [ -d $1/config/sshdkeys ] ; then
-			echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/sshdkeys'." | tee -a /dev/tty8
-			# any keyfile in the config dir will be copied over to live system
-			for KEYFILE in $1/config/sshdkeys/ssh_host*key* ; do
-				[ -e "$KEYFILE" ] && cp $KEYFILE /etc/ssh/ && KEYFLAG=1
-				if echo $(basename $KEYFILE) | grep -q '\.pub$' ; then
-					chmod 644 /etc/ssh/$(basename $KEYFILE)
-				else
-					chmod 600 /etc/ssh/$(basename $KEYFILE)
-				fi
-			done
-			# no keys present (as detected by flag not being set), but directory is there? Store keys.
-			if [ -z "$KEYFLAG" ] ; then
-				echo -n "\n$(date +'%F | %T | ')'$0' No keyfiles were found in the keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
-				ssh-keygen -A # make sure we have keyfiles for every key the server expects
-				echo -n "\n$(date +'%F | %T | ')'$0' Attempting to copy current keyfiles to keyfile directory '$1/config/sshdkeys'." | tee -a /dev/tty8
-				if awk '$2=="'$1'" {print $4 }' /proc/mounts | tr ',' '\n' | grep -q '^ro$' ; then
-					echo -n "\n$(date +'%F | %T | ')'$0' Attempting to remount '$1' with flags rw and sync." | tee -a /dev/tty8
-					if mount -oremount,rw,sync $1 ; then
-						echo -n "\n$(date +'%F | %T | ')'$0' Successfully remounted '$1'." | tee -a /dev/tty8
-						REMOUNT="rws"
-					else
-						echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1'." | tee -a /dev/tty8
-					fi
-				fi
-				if ([ -z "$REMOUNT" ] || [ "$REMOUNT" = "rws" ]) && cp /etc/ssh/ssh_host*key* $1/config/sshdkeys/ ; then
-					echo -n "\n$(date +'%F | %T | ')'$0' Copying keyfiles succeeded." | tee -a /dev/tty8
-				else
-					echo -n "\n$(date +'%F | %T | ')'$0' Error copying keyfiles." | tee -a /dev/tty8
-				fi
-				if [ -n "$REMOUNT" ] && mount -oremount,ro $1 ; then
-					echo -n "\n$(date +'%F | %T | ')'$0' Remounted '$1' read-only." | tee -a /dev/tty8
-				else
-					echo -n "\n$(date +'%F | %T | ')'$0' Error remounting '$1' read-only." | tee -a /dev/tty8
-				fi
-				
-			else
-				if ps -C sshd >/dev/null 2>&1 ; then
-					# reload sshd config
-					echo -n "\n$(date +'%F | %T | ')'$0' Reloading sshd config to activate new keyfiles." | tee -a /dev/tty8
-					if service ssh reload ; then
-						echo -n "\n$(date +'%F | %T | ')'$0' New keyfiles activated." | tee -a /dev/tty8
-					else
-						echo -n "\n$(date +'%F | %T | ')'$0' Error activating new keyfiles." | tee -a /dev/tty8
-					fi
-				else
-					echo -n "\n$(date +'%F | %T | ')'$0' sshd not running (yet), so no reloading required." | tee -a /dev/tty8
-				fi
-			fi
-			return 0
-		else
-			return 1
-		fi
-		}
-
+		# for every block device in our list, do ...
 		for BLOCKDEV in $BLOCKDEVS; do 
+			# check if it also appears in the list of devices carrying our magic label
+			# this should always be the case since we changed how BLOCKDEVS is assembled
 			NEXTDEVICE=$(echo "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
 			if [ -n "$NEXTDEVICE" ] ; then
+				# now figure out the mountpoint
 				MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
+				# and the device name? Wait, this is the magic label instead.
 				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
 
 				if [ -n "$MNTPT" ] ; then
+					# If the mountpoint variable isn't empty, it means the device is already mounted.
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
+					# so let's check if we have a config directory at that mountpoint.
 					if check_for_config $MNTPT ; then
+						# if we managed to pull a config off of it (or save one on it), we make a note of this ...
 						echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
+						# and quit right here.
 						exit 0
 					fi
 				else
+					# So there's no active mount for the device with our magic label ...
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is not mounted." | tee -a /dev/tty8
+					# let's see if this is a fixed disk.
 					if grep -q "^0$" /sys/block/$BLOCKDEV/removable ; then
+						# yes, it is, so let's go ahead and try to mount it ...
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
+						# obviously, we need a mountpoint for it ...
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
+						# and now we can try to mount it. Let's do it in readonly mode, just to play it safe.
+						# a read-write remount is only attempted within check_for_config if it finds an empty
+						# sshd keys directory.
 						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
+						# If we managed to pull a config off of it (or save one on it), ...
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
+							# we umount, then make a note that we succeeded ...
 							umount /media/fixeddisks/$NEXTDEVICE
 							echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
+							# and quit right here.
 							exit 0
 						fi
+						# If we didn't succeed in pulling a config, we still need to umount what we mounted.
 						umount /media/fixeddisks/$NEXTDEVICE
 					else
+						# If a removable disk hasn't been mounted by the automounter, something's amiss and we shouldn't try to meddle with it.
+						# So let's make a note of this and move on.
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a removable disk, not mounted by automounter, skipping." | tee -a /dev/tty8
-						:
 					fi
 				fi
 			fi
 		done
+		# Now let's leave a mark saying that we're done, so the next script can pick up on it.
 		echo -e "$LABELMPLIST" >/var/lib/live/config/opensshkeys
 	) &
 }
