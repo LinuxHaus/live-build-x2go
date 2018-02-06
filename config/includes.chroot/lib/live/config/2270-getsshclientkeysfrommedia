@@ -78,10 +78,10 @@ GetSSHClientKeysFromMedia ()
 			LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,HOTPLUG -ln)
 
 			# search for our magic label
-			X2GOTCELIVELABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
+			X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
 			# support for second label value (for dual-mode media where keys are stored on the windows-readable partition)
-			PORTABLEAPPLABELS=$(echo -e "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3 " " $4}')
+			PORTABLEAPPLABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3 " " $4}')
 
 			# block device list, removable first (we want USB media to be able to override keys on fixed disks)
 			BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "0" {print $2}')"
