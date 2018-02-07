@@ -71,7 +71,7 @@ GetSSHHostKeysFromMedia ()
                         echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to start ..." | tee -a /dev/tty8
                         sleep 1;
                 done
-                while ! udevadm settle; do
+                while ps --no-header -C udevadm | grep -q udevadm ; do
                         echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to process all events ..." | tee -a /dev/tty8
                         sleep 1;
                 done
