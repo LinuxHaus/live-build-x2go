@@ -15,10 +15,12 @@ X2GoGetPortableAppSessions ()
 		check_for_config (){
 			if [ -s $1/x2goclient/sessions ] ; then
 				ln -sf $1/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+				return 0
 			elif [ -s $1/x2goclient/.x2goclient/sessions ] ; then
 				ln -sf $1/x2goclient/.x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+				return 0
 			else
-				true
+				return 1
 			fi
 
 		}
@@ -49,10 +51,10 @@ X2GoGetPortableAppSessions ()
 		# search for our magic label
 		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
-		# support for second label value (for dual-mode media where keys are stored on the windows-readable partition)
+		# support for second label value (for dual-mode media where config is stored on the windows-readable partition)
 		PORTABLEAPPLABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3 " " $4}')
 
-		# block device list, removable first (we want USB media to be able to override keys on fixed disks)
+		# block device list, removable first (we want USB media to be able to override configs on fixed disks)
 		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "0" {print $2}')"
 
 		# for every block device in our list, do ...
@@ -72,7 +74,7 @@ X2GoGetPortableAppSessions ()
 					# so let's check if we have a config directory at that mountpoint.
 					if check_for_config $MNTPT ; then
 						# if we managed to pull a config off of it (or save one on it), we make a note of this ...
-						touch /var/lib/live/config/opensshclientkeys
+						touch /var/lib/live/config/x2goportableappsessions
 						# and quit right here.
 						exit 0
 					fi
@@ -85,12 +87,11 @@ X2GoGetPortableAppSessions ()
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
 						# obviously, we need a mountpoint for it ...
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
-						# and now we can try to mount it. Let's do it in readonly mode, just to play it safe.
-						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
+						# and now we can try to mount it.  Needs to be in rw mode, as in minidesktop mode, people might want to try to save back changes.
+						mount -/dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
-							# we umount, then make a note that we succeeded ...
-							umount /media/fixeddisks/$NEXTDEVICE
-							touch /var/lib/live/config/opensshclientkeys
+							# if we managed to pull a config off of it (or save one on it), we make a note of this ...
+							touch /var/lib/live/config/x2goportableappsessions
 							# and quit right here.
 							exit 0
 						fi
