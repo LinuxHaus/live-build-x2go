@@ -77,7 +77,7 @@ GetSSHHostKeysFromMedia ()
                 done
 
 		# list devices (and mountpoints, if present)
-		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,HOTPLUG -ln)
+		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,RM -ln)
 
 		# search for our magic label
 		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
