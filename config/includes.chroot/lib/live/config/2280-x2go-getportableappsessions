@@ -15,10 +15,12 @@ X2GoGetPortableAppSessions ()
 		check_for_config (){
 			if [ -s $1/x2goclient/sessions ] ; then
 				ln -sf $1/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+				return 0
 			elif [ -s $1/x2goclient/.x2goclient/sessions ] ; then
 				ln -sf $1/x2goclient/.x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+				return 0
 			else
-				true
+				return 1
 			fi
 
 		}
