@@ -72,7 +72,7 @@ X2GoGetPortableAppSessions ()
 					# so let's check if we have a config directory at that mountpoint.
 					if check_for_config $MNTPT ; then
 						# if we managed to pull a config off of it (or save one on it), we make a note of this ...
-						touch /var/lib/live/config/opensshclientkeys
+						touch /var/lib/live/config/x2goportableappsessions
 						# and quit right here.
 						exit 0
 					fi
@@ -90,7 +90,7 @@ X2GoGetPortableAppSessions ()
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
 							# we umount, then make a note that we succeeded ...
 							umount /media/fixeddisks/$NEXTDEVICE
-							touch /var/lib/live/config/opensshclientkeys
+							touch /var/lib/live/config/x2goportableappsessions
 							# and quit right here.
 							exit 0
 						fi
