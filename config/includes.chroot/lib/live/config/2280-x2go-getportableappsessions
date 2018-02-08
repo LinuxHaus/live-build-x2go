@@ -85,11 +85,10 @@ X2GoGetPortableAppSessions ()
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
 						# obviously, we need a mountpoint for it ...
 						mkdir -p /media/fixeddisks/$NEXTDEVICE
-						# and now we can try to mount it. Let's do it in readonly mode, just to play it safe.
-						mount -o ro /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
+						# and now we can try to mount it.  Needs to be in rw mode, as in minidesktop mode, people might want to try to save back changes.
+						mount -/dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
-							# we umount, then make a note that we succeeded ...
-							umount /media/fixeddisks/$NEXTDEVICE
+							# if we managed to pull a config off of it (or save one on it), we make a note of this ...
 							touch /var/lib/live/config/x2goportableappsessions
 							# and quit right here.
 							exit 0
