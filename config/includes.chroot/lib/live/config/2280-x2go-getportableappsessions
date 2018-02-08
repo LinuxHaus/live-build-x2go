@@ -13,10 +13,10 @@ X2GoGetPortableAppSessions ()
 		# mode and the X2Go-ThinClientEnvironment on the same USB media using different partitions
 
 		check_for_config (){
-			if [ -s /media/PORTABLEAPP/x2goclient/sessions ] ; then
-				ln -sf /media/PORTABLEAPP/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
-			elif [ -s /media/PORTABLEAPP/x2goclient/.x2goclient/sessions ] ; then
-				ln -sf /media/PORTABLEAPP/x2goclient/.x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+			if [ -s $1/x2goclient/sessions ] ; then
+				ln -sf $1/x2goclient/sessions /etc/x2go/x2gothinclient_sessions
+			elif [ -s $1/x2goclient/.x2goclient/sessions ] ; then
+				ln -sf $1/x2goclient/.x2goclient/sessions /etc/x2go/x2gothinclient_sessions
 			else
 				true
 			fi
