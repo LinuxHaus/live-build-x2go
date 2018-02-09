@@ -46,16 +46,16 @@ X2GoGetPortableAppSessions ()
 		fi
 
 		# list devices (and mountpoints, if present)
-		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,RM -ln)
+		LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
 
 		# search for our magic label
-		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
+		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$1 == "X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
 		# support for second label value (for dual-mode media where config is stored on the windows-readable partition)
-		PORTABLEAPPLABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="PORTABLEAPP" { print $2 " " $3 " " $4}')
+		PORTABLEAPPLABELS=$(echo "$LABELMPLIST" | awk '$1 == "PORTABLEAPP" { print $2 " " $3 " " $4}')
 
 		# block device list, removable first (we want USB media to be able to override configs on fixed disks)
-		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$3 == "0" {print $2}')"
+		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$1 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$1 == "0" {print $2}')"
 
 		# for every block device in our list, do ...
 		for BLOCKDEV in $BLOCKDEVS; do 
