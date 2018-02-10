@@ -95,7 +95,7 @@ GetSSHHostKeysFromMedia ()
 				MNTPT=$(echo $NEXTDEVICE | awk '{print $3}')
 				# and the device name
 				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $2}')
-
+				echo -n "\n$(date +'%F | %T | ')'$0' Checking status of Device '$NEXTDEVICE' for BLOCKDEV '$BLOCKDEV'." | tee -a /dev/tty8
 				if [ -n "$MNTPT" ] ; then
 					# If the mountpoint variable isn't empty, it means the device is already mounted.
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
