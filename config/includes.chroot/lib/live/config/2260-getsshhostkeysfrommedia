@@ -92,9 +92,9 @@ GetSSHHostKeysFromMedia ()
 			NEXTDEVICE=$(echo "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
 			if [ -n "$NEXTDEVICE" ] ; then
 				# now figure out the mountpoint
-				MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
-				# and the device name? Wait, this is the magic label instead.
-				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
+				MNTPT=$(echo $NEXTDEVICE | awk '{print $3}')
+				# and the device name
+				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $2}')
 
 				if [ -n "$MNTPT" ] ; then
 					# If the mountpoint variable isn't empty, it means the device is already mounted.
