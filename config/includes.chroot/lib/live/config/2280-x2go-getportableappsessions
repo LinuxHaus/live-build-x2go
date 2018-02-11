@@ -28,6 +28,13 @@ X2GoGetPortableAppSessions ()
 
 		}
 
+		check_for_minidesktop {
+			if [ -L /etc/x2go/x2gothinclient_sessions ] && [ -d ~x2gothinclient ] ; then
+				mkdir -p ~x2gothinclient/.x2gothinclient
+				ln -sf /etc/x2go/x2gothinclient_sessions ~x2gothinclient/.x2gothinclient/sessions
+			fi
+		}
+
 		while ! [ -c /dev/tty8 ] ; do
 			echo -n "\n$(date +'%F | %T | ')'$0' is waiting for tty8 to become available."
 			sleep 2
@@ -76,7 +83,10 @@ X2GoGetPortableAppSessions ()
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
 					# so let's check if we have a config directory at that mountpoint.
 					if check_for_config $MNTPT ; then
-						# if we managed to pull a config off of it (or save one on it), we make a note of this ...
+						# if we managed to pull a config off of it (or save one on it), we 
+						# check if we need to make any changes due to us being a minidesktop-TCE ...
+						check_for_minidesktop
+						# then we make a note that we're done ...
 						touch /var/lib/live/config/x2goportableappsessions
 						# and quit right here.
 						exit 0
@@ -93,7 +103,10 @@ X2GoGetPortableAppSessions ()
 						# and now we can try to mount it.  Needs to be in rw mode, as in minidesktop mode, people might want to try to save back changes.
 						mount /dev/$NEXTDEVICE /media/fixeddisks/$NEXTDEVICE
 						if check_for_config /media/fixeddisks/$NEXTDEVICE ; then
-							# if we managed to pull a config off of it (or save one on it), we make a note of this ...
+							# if we managed to pull a config off of it (or save one on it), we 
+							# check if we need to make any changes due to us being a minidesktop-TCE ...
+							check_for_minidesktop
+							# then we make a note that we're done ...
 							touch /var/lib/live/config/x2goportableappsessions
 							# and quit right here.
 							exit 0
