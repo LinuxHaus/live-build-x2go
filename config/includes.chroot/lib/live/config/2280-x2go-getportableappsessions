@@ -31,7 +31,7 @@ X2GoGetPortableAppSessions ()
 		check_for_minidesktop () {
 			if [ -L /etc/x2go/x2gothinclient_sessions ] && [ -d ~x2gothinclient ] ; then
 				mkdir -p ~x2gothinclient/.x2gothinclient
-				ln -sf /etc/x2go/x2gothinclient_sessions ~x2gothinclient/.x2gothinclient/sessions
+				ln -sf /etc/x2go/x2gothinclient_sessions ~x2gothinclient/.x2goclient/sessions
 			fi
 		}
 
