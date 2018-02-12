@@ -65,7 +65,7 @@ X2GoGetPortableAppSessions ()
 		PORTABLEAPPLABELS=$(echo "$LABELMPLIST" | awk '$1 == "PORTABLEAPP" { print $2 " " $3 " " $4}')
 
 		# block device list, removable first (we want USB media to be able to override configs on fixed disks)
-		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$1 == "1" {print $2}') $(echo "$X2GOTCELIVELABELS\n$PORTABLEAPPLABELS" | awk '$1 == "0" {print $2}')"
+		BLOCKDEVS="$(echo "$PORTABLEAPPLABELS\n$X2GOTCELIVELABELS" | awk '$1 == "1" {print $2}') $(echo "$PORTABLEAPPLABELS\n$X2GOTCELIVELABELS" | awk '$1 == "0" {print $2}')"
 
 		# for every block device in our list, do ...
 		for BLOCKDEV in $BLOCKDEVS; do 
