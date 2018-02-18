@@ -18,14 +18,20 @@ GetSSHClientKeysFromMedia ()
 			check_for_config (){
 				if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/x2goclient/ssh ] || [ -d $1/.ssh ]; then
 					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', '$1/x2goclient/ssh', or '$1/.ssh'." | tee -a /dev/tty8
-					# create .ssh-Directory in case it doesn't exist
-					#
-					mkdir -p $(readlink -m "$USERHOME/.ssh")
-					chown   $TARGETUSERNAME: \
-						$(readlink -m "$USERHOME/.ssh")
-					chmod   700 \
-						$(readlink -m "$USERHOME/.ssh")
-
+					if [ "$TARGETUSERNAME" = "x2gothinclient" ] ; then
+						while ! [ -d $USERHOME/.ssh ] ; do
+							echo -n "\n$(date +'%F | %T | ')'$0' Waiting until minidesktop-init created '~/.ssh' ." | tee -a /dev/tty8
+							sleep 1
+						done
+					else
+						# create .ssh-Directory in case it doesn't exist
+						#
+						mkdir -p $(readlink -m "$USERHOME/.ssh")
+						chown   $TARGETUSERNAME: \
+							$(readlink -m "$USERHOME/.ssh")
+						chmod   700 \
+							$(readlink -m "$USERHOME/.ssh")
+					fi
 					# any keyfile in the config dir will be copied over to live system
 					#
 					for KEYFILE in $1/config/ssh/* $1/ssh/* $1/x2goclient/ssh/* $1/.ssh/* ; do
