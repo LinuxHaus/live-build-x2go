@@ -16,8 +16,8 @@ GetSSHClientKeysFromMedia ()
 			# It also allows you to use USB media with your key on it together with a net-booted Debian Live, for example.
 
 			check_for_config (){
-				if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/x2goclient/ssh ] || [ -d $1/.ssh ]; then
-					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', '$1/x2goclient/ssh', or '$1/.ssh'." | tee -a /dev/tty8
+				if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/x2goclient/.ssh ] || [ -d $1/x2goclient/sshkeys ] || [ -d $1/.ssh ]; then
+					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', '$1/x2goclient/.ssh', or '$1/.ssh'." | tee -a /dev/tty8
 					if [ "$TARGETUSERNAME" = "x2gothinclient" ] ; then
 						while ! [ -f $USERHOME/.x2goclient/settings ] ; do
 							echo -n "\n$(date +'%F | %T | ')'$0' Waiting until minidesktop-init script has finished before we populate '~/.ssh' ." | tee -a /dev/tty8
@@ -34,7 +34,7 @@ GetSSHClientKeysFromMedia ()
 					fi
 					# any keyfile in the config dir will be copied over to live system
 					#
-					for KEYFILE in $1/config/ssh/* $1/ssh/* $1/x2goclient/ssh/* $1/.ssh/* ; do
+					for KEYFILE in $1/config/ssh/* $1/ssh/* $1/x2goclient/.ssh/* $1/x2goclient/sshkeys/* $1/.ssh/* ; do
 						([ -f "$KEYFILE" ] && [ -s "$KEYFILE" ]) || continue
 						egrep -q "BEGIN .*(PRIVATE|PUBLIC) KEY" "$KEYFILE" || continue
 						echo -n "\n$(date +'%F | %T | ')'$0' Keyfile '$KEYFILE' found, copying and adjusting ownership and permissions on destination." | tee -a /dev/tty8
