@@ -48,9 +48,10 @@ GetSSHClientKeysFromMedia ()
 					done
 
 					# this is so the path name in the sessions file matches again
-					# (cannot use .ssh on FAT, for example)
+					# (cannot create .ssh on FAT using Windows Explorer, for example)
 					#
 					ln -s $USERHOME/.ssh $USERHOME/ssh
+					ln -s $USERHOME/.ssh $USERHOME/sshkeys # this is because x2goclient --portable currently deletes .ssh and ssh (which is dumb)
 
 					return 0
 				else
