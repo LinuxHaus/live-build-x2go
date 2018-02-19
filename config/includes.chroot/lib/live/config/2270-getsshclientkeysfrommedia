@@ -19,8 +19,8 @@ GetSSHClientKeysFromMedia ()
 				if [ -d $1/config/ssh ] || [ -d $1/ssh ] || [ -d $1/x2goclient/ssh ] || [ -d $1/.ssh ]; then
 					echo -n "\n$(date +'%F | %T | ')'$0' Keyfile directory found at '$1/config/ssh', '$1/ssh', '$1/x2goclient/ssh', or '$1/.ssh'." | tee -a /dev/tty8
 					if [ "$TARGETUSERNAME" = "x2gothinclient" ] ; then
-						while ! [ -d $USERHOME/.ssh ] ; do
-							echo -n "\n$(date +'%F | %T | ')'$0' Waiting until minidesktop-init created '~/.ssh' ." | tee -a /dev/tty8
+						while ! [ -f $USERHOME/.x2goclient/settings ] ; do
+							echo -n "\n$(date +'%F | %T | ')'$0' Waiting until minidesktop-init script has finished before we populate '~/.ssh' ." | tee -a /dev/tty8
 							sleep 1
 						done
 					else
