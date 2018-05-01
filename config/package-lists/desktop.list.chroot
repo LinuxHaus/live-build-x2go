@@ -3,6 +3,7 @@ libmtdev1
 x11vnc 
 x11vnc-data 
 xserver-xorg-input-all
+xserver-xorg-input-wacom
 xserver-xorg-video-all
 # for i386 only #xserver-xorg-video-geode
 xserver-xorg-video-qxl
