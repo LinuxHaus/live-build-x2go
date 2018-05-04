@@ -43,7 +43,7 @@ IP_OF_FQDN=`dig $FQDN +short`
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/bionic --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary true --backports false --win32-loader false --security true  --initsystem systemd  -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin boot=live
+lb config --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/bionic --archive-areas "main contrib non-free" --apt-recommends false --firmware-binary true --backports false --win32-loader false --security true  --initsystem systemd -d bionic -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin boot=live
 lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
