@@ -43,7 +43,7 @@ IP_OF_FQDN=`dig $FQDN +short`
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git --archive-areas "main contrib non-free" --apt-recommends true --firmware-binary true --updates true --backports true --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot -a i386 -k amd64 --linux-packages linux-image --bootappend-live aufs rd.luks=0 rd.lvm=0 rd.md=0 rd.dm=0 vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled rd.driver.pre=loop rd.debug rd.udev.debug rd.noverifyssl rd.skipfsck rd.live.overlay.check rd.live.overlay.reset rd.live.ram log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin
+lb config -d buster --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/buster-fvwm --archive-areas "main contrib non-free" --apt-recommends true --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot --bootappend-live aufs vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet keep_bootcon toram live-config live-config.timezone=Europe/Berlin
 lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
