@@ -1,5 +1,5 @@
 Only usable on systems with minimum 1G RAM
-Install Debian jessie on your server
+Install Debian stretch on your server
 become root on the server
 apt update
 apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
@@ -48,8 +48,8 @@ lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
 cd /var/www/html
-ln -s /srv/lb-x2go/tftpboot/live/initrd.img .
-ln -s /srv/lb-x2go/tftpboot/live/vmlinuz .
+ln -s /srv/lb-x2go/binary/live/initrd.img .
+ln -s /srv/lb-x2go/binary/live/vmlinuz .
 ln -s /srv/lb-x2go/binary/live/filesystem.squashfs .
 YOURHW=myhw
 cat <<EOF>$YOURHW
