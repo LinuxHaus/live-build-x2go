@@ -76,14 +76,14 @@ GetSSHHostKeysFromMedia ()
                         sleep 1;
                 done
 
-		# list devices (and mountpoints, if present)
-		LABELMPLIST=$(lsblk -oLABEL,NAME,MOUNTPOINT,HOTPLUG -ln)
+                # list devices (and mountpoints, if present)
+                LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
 
-		# search for our magic label
-		X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$3~/^[^\/]/ && $3="" ; $1=="X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
+                # search for our magic label
+                X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$1 == "X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
-		# block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
-		BLOCKDEVS="$(echo "$X2GOTCELIVELABELS" | awk '$3 == "0" {print $2}' ) $(echo "$X2GOTCELIVELABELS" | awk '$3 == "1" {print $2}' )"
+                # block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
+                BLOCKDEVS="$(echo "$X2GOTCELIVELABELS" | awk '$1 == "0" {print $2}' ) $(echo "$X2GOTCELIVELABELS" | awk '$1 == "1" {print $2}' )"
 
 		# for every block device in our list, do ...
 		for BLOCKDEV in $BLOCKDEVS; do 
@@ -92,10 +92,10 @@ GetSSHHostKeysFromMedia ()
 			NEXTDEVICE=$(echo "$X2GOTCELIVELABELS" | grep "$BLOCKDEV")
 			if [ -n "$NEXTDEVICE" ] ; then
 				# now figure out the mountpoint
-				MNTPT=$(echo $NEXTDEVICE | awk '{print $2}')
-				# and the device name? Wait, this is the magic label instead.
-				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $1}')
-
+				MNTPT=$(echo $NEXTDEVICE | awk '{print $3}')
+				# and the device name
+				NEXTDEVICE=$(echo $NEXTDEVICE | awk '{print $2}')
+				echo -n "\n$(date +'%F | %T | ')'$0' Checking status of Device '$NEXTDEVICE' for BLOCKDEV '$BLOCKDEV'." | tee -a /dev/tty8
 				if [ -n "$MNTPT" ] ; then
 					# If the mountpoint variable isn't empty, it means the device is already mounted.
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is mounted at: '$MNTPT'" | tee -a /dev/tty8
@@ -110,7 +110,7 @@ GetSSHHostKeysFromMedia ()
 					# So there's no active mount for the device with our magic label ...
 					echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is not mounted." | tee -a /dev/tty8
 					# let's see if this is a fixed disk.
-					if grep -q "^0$" /sys/block/$BLOCKDEV/removable ; then
+					if [ $(lsblk -oRM -nl /dev/$BLOCKDEV) -eq 0 ] ; then
 						# yes, it is, so let's go ahead and try to mount it ...
 						echo -n "\n$(date +'%F | %T | ')'$0' Device '$NEXTDEVICE' is a fixed disk, mounting ..." | tee -a /dev/tty8
 						# obviously, we need a mountpoint for it ...

@@ -230,7 +230,7 @@ if grep 'nomagicpixel=2' /proc/cmdline ; then
 			sleep 1
 		done ;
 		echo -en "\n\$(date +'%F | %T | ')'\$0' spawning window foreground monitor (magic-pixel-fix 2)." | tee -a /dev/tty8
-		xdotool search . behave %@ blur windowmap
+		xdotool search --class X2GoAgent behave %@ blur windowmap
 	done &
 elif grep 'nomagicpixel=1' /proc/cmdline ; then
 	echo -en "\n\$(date +'%F | %T | ')'\$0' spawning openbox monitor (magic-pixel-fix 1)." | tee -a /dev/tty8
@@ -304,6 +304,7 @@ if [ -n "\$AUDIOOUT" ] ; then
 		fi
 	) &
 fi
+
 eval \$THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export \$LDAPPARAMS \$SESSIONFROM \$BACKGROUND \$BRANDING \$STARTSESSION $DEBUGPARAMS # yes, no escape sign in front of DEBUGPARAMS, that is intentional
 XSESSION
 

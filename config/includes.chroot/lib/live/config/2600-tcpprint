@@ -34,7 +34,7 @@ if grep -q "\W*tcpprint\W*" /proc/cmdline ; then
 	[ -d /dev/usb ] && PRINTERDEVICES=$(find /dev/usb -type c -name "lp*" | sort)
 	PRINTERDEVICES="$PRINTERDEVICES $(find /dev/ -maxdepth 1 -type c -name "lp*" | sort)"
 
-	echo -en "\n\$(date +'%F | %T | ')'\$0' is waiting for a client IP." | tee -a /dev/tty8
+	echo -en "\n$(date +'%F | %T | ')'$0' is waiting for a client IP." | tee -a /dev/tty8
 
 	# Create a listening port for a TCP/9100-RAW-printer
 	#
@@ -58,21 +58,21 @@ service jetdirect${PRINTERCOUNT}
 	$TCPPRINTONLYFROM
 }
 JETDIRCONF
-		echo -en "\n\$(date +'%F | %T | ')Mapping $PRINTERDEV => $PORTNUMBER" | tee -a /dev/tty8
+		echo -en "\n$(date +'%F | %T | ')Mapping $PRINTERDEV => $PORTNUMBER" | tee -a /dev/tty8
 		PRINTERCOUNT=$((PRINTERCOUNT+1))
 	done
 
 	echo "#Local printer config: Done." >/etc/xinetd.d/jetdirect
 
 	if ps -C xinetd --no-header >/dev/null ; then
-		echo -en "\n\$(date +'%F | %T | ')xinetd needs to be restarted, trying to do that ..." | tee -a /dev/tty8
+		echo -en "\n$(date +'%F | %T | ')xinetd needs to be restarted, trying to do that ..." | tee -a /dev/tty8
 		if /etc/init.d/xinetd restart; then
 			echo -n " success. All done." | tee -a /dev/tty8
 		else
 			echo -n " error." | tee -a /dev/tty8
 		fi
 	else
-		echo -en "\n\$(date +'%F | %T | ')No xinetd restart necessary. All done." | tee -a /dev/tty8
+		echo -en "\n$(date +'%F | %T | ')No xinetd restart necessary. All done." | tee -a /dev/tty8
 	fi
 
 	) &
