@@ -23,15 +23,16 @@ GetSSHClientKeysFromMedia ()
 							echo -n "\n$(date +'%F | %T | ')'$0' Waiting until minidesktop-init script has finished before we populate '~/.ssh' ." | tee -a /dev/tty8
 							sleep 1
 						done
-					else
-						# create .ssh-Directory in case it doesn't exist
-						#
-						mkdir -p $(readlink -m "$USERHOME/.ssh")
-						chown   $TARGETUSERNAME: \
-							$(readlink -m "$USERHOME/.ssh")
-						chmod   700 \
-							$(readlink -m "$USERHOME/.ssh")
 					fi
+
+					# create .ssh-Directory in case it doesn't exist
+					#
+					mkdir -p $(readlink -m "$USERHOME/.ssh")
+					chown   $TARGETUSERNAME: \
+						$(readlink -m "$USERHOME/.ssh")
+					chmod   700 \
+						$(readlink -m "$USERHOME/.ssh")
+
 					# any keyfile in the config dir will be copied over to live system
 					#
 					for KEYFILE in $1/config/ssh/* $1/ssh/* $1/x2goclient/.ssh/* $1/x2goclient/sshkeys/* $1/.ssh/* ; do
