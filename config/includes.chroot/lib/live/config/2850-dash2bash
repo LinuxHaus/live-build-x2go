@@ -1,0 +1,15 @@
+#!/bin/sh
+
+# (temporary?) workaround to switch the default system shell from dash to bash
+Init ()
+{
+	echo -n " dash2bash"
+}
+
+Config ()
+{
+	dpkg-reconfigure --default-priority dash
+}
+
+Init
+Config
