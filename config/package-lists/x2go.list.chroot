@@ -14,8 +14,6 @@ libfreerdp-plugins-standard
 libfreerdp-primitives1.1
 libfreerdp-rail1.1
 libfreerdp-utils1.1
-libgstreamer0.10-0
-libgstreamer-plugins-base0.10-0
 libjpeg62-turbo
 libssl1.0.2
 libwinpr-crt0.1
@@ -53,9 +51,7 @@ rdesktop
 udev
 x2goclient
 x2gousbmount
-xfonts-100dpi
 xfonts-75dpi
-xfonts-base
 xfonts-scalable
 xnest
 xserver-xephyr
