@@ -51,7 +51,9 @@ rdesktop
 udev
 x2goclient
 x2gousbmount
+xfonts-100dpi
 xfonts-75dpi
+xfonts-base
 xfonts-scalable
 xnest
 xserver-xephyr
