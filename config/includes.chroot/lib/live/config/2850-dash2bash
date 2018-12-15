@@ -8,7 +8,7 @@ Init ()
 
 Config ()
 {
-	dpkg-reconfigure --default-priority dash
+	dpkg-reconfigure --default-priority dash >/dev/null 2>&1
 }
 
 Init
