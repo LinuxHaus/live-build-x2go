@@ -1,0 +1,4 @@
+# Spawn openbox
+openbox &
+echo -en "\n$(date +'%F | %T | ')'$0' spawned OpenBox." | tee -a /dev/tty8
+
