@@ -1,0 +1,25 @@
+# workaround for NX "magic pixel" being active in --thinclient mode
+if grep 'nomagicpixel=2' /proc/cmdline ; then
+	while ! ps -C xdotool >/dev/null ; do
+		while [ $(xdotool search --name . | wc -l) -lt 3 ] ; do
+			sleep 1
+		done ;
+		echo -en "\n$(date +'%F | %T | ')'$0' spawning window foreground monitor (magic-pixel-fix 2)." | tee -a /dev/tty8
+		xdotool search --class X2GoAgent behave %@ blur windowmap
+	done &
+elif grep 'nomagicpixel=1' /proc/cmdline ; then
+	echo -en "\n$(date +'%F | %T | ')'$0' spawning openbox monitor (magic-pixel-fix 1)." | tee -a /dev/tty8
+	while true ; do
+		while [ $(xdotool search --name . | wc -l) -ne 3 ] && ! ps -C openbox >/dev/null ; do
+			openbox &
+			echo -en "\n$(date +'%F | %T | ')'$0' spawned OpenBox." | tee -a /dev/tty8
+		done
+		while [ $(xdotool search --name . | wc -l) -eq 3 ] && ps -C openbox >/dev/null ; do
+			killall openbox
+			echo -en "\n$(date +'%F | %T | ')'$0' killed OpenBox." | tee -a /dev/tty8
+		done
+		sleep 1 # to save cpu cycles
+	done &
+else
+	: # NOP
+fi
