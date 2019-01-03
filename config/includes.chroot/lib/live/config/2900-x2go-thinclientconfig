@@ -19,6 +19,16 @@ sed -i -e '\#<applications>#a<application title="X2Go Client" type="normal">' -e
 #make sure OpenBox' ToggleMaximize is disabled, or else clicking the top row of pixels will un-maximize X2GoClient
 sed -i -e '/ToggleMaximize/d' /etc/xdg/openbox/rc.xml
 
+# this is so that xsession can log to tty8
+adduser user tty
+
+# this is for additional debug logging
+if grep -q ' tcedebug' /proc/cmdline; then
+	touch /var/log/x2goclient
+	chmod 666 /var/log/x2goclient
+	DEBUGPARAMS='--debug 2>&1 | tee /var/log/x2goclient >/dev/tty9'
+fi
+
 # This is needed for File Sharing support (USB media and the like)
 mkdir -p /home/user/{export,logins,mounts}
 chown user:user /home/user/{export,logins,mounts}
