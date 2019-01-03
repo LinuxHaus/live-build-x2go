@@ -1,0 +1,32 @@
+# Spawn PulseAudio
+if ! ps -C pulseaudio >/dev/null ; then
+	pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
+fi
+
+AUDIOOUT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline |              awk -F'=' ' /^audioout=/ { print $2 }' |              tr -dc 'a-zA-Z0-9.:_\-@|')
+
+if [ -n "$AUDIOOUT" ] ; then
+        (
+                while ! pacmd dump 2>&1| grep -q set-card-profile ; do
+                        echo -en "\n$(date +'%F | %T | ')'$0': Waiting for pulseaudio to start ..." | tee -a /dev/tty8
+                        sleep 1
+                done
+                if [ "$AUDIOOUT" = "list" ] ; then
+                        echo -en "\n$(date +'%F | %T | ')'$0': Available audio outputs:" | tee -a /dev/tty8
+                        AUDIOOUTPUTS=$( for CARD in $(pacmd list-cards | grep -A1 index | awk -F '[<> \t]' ' $2 == "name:" { print $4 }'); do
+                                                pacmd list-cards |                                              more +/"$CARD" |                                                grep -m 1 "$CARD" -A100000 |
+                more +/"profiles:" |                                            grep -m 1 -B10000 "active profile:" |                                           grep -A10000 "profiles" |                                               gre
+p "\W\Woutput:" |                                            grep -v "active profile:" |                                             awk -F'[+:]' '{gsub("\t","",$1) ; print "\"'$CARD'|" $1 ":" $2 "\""} ';
+                                        done |                                  sort -u )
+                        for AUDIOOUTPUT in $AUDIOOUTPUTS; do
+                                echo -en "\n$(date +'%F | %T | ')'$0': $AUDIOOUTPUT" | tee -a /dev/tty8
+                        done
+                        echo -en "\n$(date +'%F | %T | ')'$0': $(pacmd list | 'grep active profile')" | tee -a /dev/tty8
+                elif (echo "$AUDIOOUT" | grep -q '^[^|]*|[^|]*$') ; then
+                        $(echo "$AUDIOOUT" | sed -e 's/^/pacmd set-card-profile /' -e 's/|/ /')
+                else
+                        : # NOP
+                fi
+        ) &
+fi
+
