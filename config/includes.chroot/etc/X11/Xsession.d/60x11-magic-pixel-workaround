@@ -5,7 +5,7 @@ if grep 'nomagicpixel=2' /proc/cmdline ; then
 			sleep 1
 		done ;
 		echo -en "\n$(date +'%F | %T | ')'$0' spawning window foreground monitor (magic-pixel-fix 2)." | tee -a /dev/tty8
-		xdotool search --class X2GoAgent behave %@ blur windowmap
+		xdotool search --class X2GoAgent behave %@ blur windowmap || xdotool search --class NXAgent behave %@ blur windowmap
 	done &
 elif grep 'nomagicpixel=1' /proc/cmdline ; then
 	echo -en "\n$(date +'%F | %T | ')'$0' spawning openbox monitor (magic-pixel-fix 1)." | tee -a /dev/tty8
