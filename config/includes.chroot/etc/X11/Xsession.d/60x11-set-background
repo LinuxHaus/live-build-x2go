@@ -11,7 +11,7 @@ if [ -n "$XROOT" ] ; then
 	if echo "$XROOTSHORT" | grep -q '^0x' && [ 8 = ${#XROOTSHORT} ] ; then
 		# this should be a hex color string
 		HEXCOLOR=${XROOTSHORT#0x}
-		if [ 6 = ${HEXCOLOR} ] ; then
+		if [ 6 = ${#HEXCOLOR} ] ; then
 			xsetroot -solid "#$HEXCOLOR" # set requested color
 		else
 			xsetroot -grey # show that something's amiss
