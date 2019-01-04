@@ -30,7 +30,7 @@ if [ -n "$XROOT" ] ; then
 				*) POSITION=max ;;
 			esac
 			# POSITION: center fill max scale tile; default: max
-			feh --nofehbg --bg-$POSITION $IMAGEDIR/background/*
+			feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
 		else
 			xsetroot -grey # show that something's amiss
 		fi
