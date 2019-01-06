@@ -1,0 +1,43 @@
+# set screen background to X2Go default blue on all detected screens, unless color or image is specified
+XROOT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xroot" { print $2 }' | tr -dc '0-9a-zA-Z,$-_.+!*'"'"'();/?:@=&|')
+XROOTMODE=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"xrootmode"==$1 {print $2}')
+IMAGEDIR=/var/tmp/images/
+
+# TODO: mate-minidesktop: image is stored as /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg - needs to be svg
+
+if [ -n "$XROOT" ] ; then
+	XROOTSHORT=$(echo "$XROOT" | tr -dc '0-9a-fA-Fx')
+
+	if echo "$XROOTSHORT" | grep -q '^0x' && [ 8 = ${#XROOTSHORT} ] ; then
+		# this should be a hex color string
+		HEXCOLOR=${XROOTSHORT#0x}
+		if [ 6 = ${#HEXCOLOR} ] ; then
+			xsetroot -solid "#$HEXCOLOR" # set requested color
+		else
+			xsetroot -grey # show that something's amiss
+		fi
+	elif echo "$XROOT" | grep -q "://" ; then
+		# this could be an URI
+		# TODO move this download part to an earlier script
+		wget -P $IMAGEDIR/background/ ${XROOT/|/ }
+		if [ $(ls $IMAGEDIR 2>/dev/null| wc -l) -gt 0 ] ; then
+			#input validation
+			case "${XROOTMODE,,}" in # force lowercase
+				"center") POSITION=center ;;
+				"fill") POSITION=fill ;;
+				"scale") POSITION=scale ;;
+				"tile") POSITION=tile ;;
+				*) POSITION=max ;;
+			esac
+			# POSITION: center fill max scale tile; default: max
+			feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
+		else
+			xsetroot -grey # show that something's amiss
+		fi
+	fi
+
+else
+	# set our default color
+	xsetroot -solid "#246ed8"
+fi
+
