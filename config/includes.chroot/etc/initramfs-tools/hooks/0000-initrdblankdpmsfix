@@ -1,0 +1,26 @@
+#!/bin/sh
+# inject screen blanking/unblanking script into initrd
+
+PREREQ=""
+prereqs()
+{
+        echo "$PREREQ"
+}
+
+case $1 in
+prereqs)
+        prereqs
+        exit 0
+        ;;
+esac
+
+. /usr/share/initramfs-tools/hook-functions
+# Begin real processing below this line
+
+if [ ! -x "../../lib/live/config/0000-earlyblankdpmsfix" ]; then
+        exit 0
+fi
+
+sed -e 's/early/initrd/g' -e 's/Early/Initrd/g' ../../lib/live/config/0000-earlyblankdpmsfix >"${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
+chmod 755 "${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
+exit 0
