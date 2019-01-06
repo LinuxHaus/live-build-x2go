@@ -1,0 +1,58 @@
+# inspired by 
+# http://code.x2go.org/gitweb?p=x2gothinclient.git;a=blob_plain;f=displaymanager/sbin/x2gothinclientd;h=6897d42d17bd6778e7de5e62ec3f51727d4e8800;hb=HEAD
+# check the above file for ideas before reinventing the wheel
+
+# additional variable instead of "case $(...) in", as we need the value again later on
+XRANDRCMDTAINTED=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xinerama" { print $2 }')
+
+# sanitize input
+case $XRANDRCMDTAINTED in
+"above")
+	XRANDRCMD="above"
+	;;
+"below")
+	XRANDRCMD="below"
+	;;
+"same-as")
+	XRANDRCMD="same-as"
+	;;
+"right-of")
+	XRANDRCMD="right-of"
+	;;
+*)
+	XRANDRCMD="left-of" # default
+	;;
+esac
+
+# find out how many touch devices we have
+TOUCHDEVICESCOUNT=$(LANG=C xsetwacom --list devices | wc -l)
+
+# find out how many mouse devices we have
+MICECOUNT=$(find /dev/input -maxdepth 1 -name "mouse*" | wc -l)
+
+# loop through the following code block for all connected display devices
+for NEXT_DISPLAY in $(LANG=C xrandr 2>/dev/null | grep ' connected ' | cut -d ' ' -f1); do
+
+	#remove trailing newline from NEXT_DISPLAY
+	NEXT_DISPLAY=${NEXT_DISPLAY%$'\n'}
+
+	# THIS_DISPLAY won't be defined until the second time the loop is executed, which is a
+	# neat way of running xrandr only if there are at least two connected display devices
+	if [ -n "${THIS_DISPLAY+x}" ] ; then
+
+		if [ $TOUCHDEVICESCOUNT -gt 0 ] &&  [ $MICECOUNT -lt 1 ] && [ -z $XRANDRCMDTAINTED ]; then
+			# we have a touch device and no mice, and no xinerama parameter was set,
+			# so switch to clone view to make the touch device usable
+			/usr/bin/xrandr --output $NEXT_DISPLAY --same-as $THIS_DISPLAY
+
+		else
+			# else use whatever is in XRANDRCMD (which is either our default of "left-of",
+			# or a valid xinerama kernel parameter value)
+			/usr/bin/xrandr --output $NEXT_DISPLAY --$XRANDRCMD $THIS_DISPLAY
+		fi
+
+	fi
+	# now set THIS_DISPLAY -> every subsequent iteration of the loop will now enter the code block
+	# above where [ -n ${THIS_DISPLAY+x} ] is the conditional
+	THIS_DISPLAY=$NEXT_DISPLAY
+done
