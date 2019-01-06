@@ -1,0 +1,52 @@
+# enable a non-locking local slideshow screensaver
+XSAVERIMAGES=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xsaverimages" { print $2 }' | tr -dc '0-9a-zA-Z,$-_.+!*'"'"'();/?:@=&|')
+
+XSAVERIDLETIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"xsaveridletime"==$1 {print $2}' | tr -dc '0-9')
+
+XSAVERIMGTIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"xsaverimgtime"==$1 {print $2}' | tr -dc '0-9')
+
+IMAGEDIR="/var/tmp/images/"
+
+SLIDESDIR="${IMAGEDIR}/slides/"
+
+if [ -z "$XSAVERIMAGES" ] && [ -z "$XSAVERIDLETIME" ] && [ -z "$XSAVERIMGTIME" ] ; then
+	exit 0
+else
+
+	if echo "$XSAVERIMAGES" | grep -q "://" ; then
+			# this could be an URI
+			# TODO move this download part to an earlier script
+			mkdir -p $IMAGEDIR/slides/
+			wget -P $IMAGEDIR/slides/ ${XSAVERIMAGES/|/ }
+	fi
+
+	IDLE_TIME=$(($XSAVERIDLETIME*1000))
+
+	BLACK=false
+	while sleep 1; do
+		idle=$(xprintidle)
+		[ -z "$idle" ] && exit 1
+		if [ $idle -ge $IDLE_TIME ] && ! $BLACK ; then
+			# hide all things nxproxy
+			ps -C nxproxy -opid= | xargs -n 1 --no-run-if-empty -I XXX xdotool search --pid XXX . | xargs --no-run-if-empty -n 1 xdotool windowunmap
+			if [ $(ls $SLIDESDIR 2>/dev/null| wc -l) -gt 0 ] ; then
+				if ! ps -C feh >/dev/null ; then
+					feh -Y -x -F -D $XSAVERIMGTIME -Z -B black -q "$SLIDESDIR" &
+				fi
+			else
+				xsetroot -solid "#000000"
+			fi
+			BLACK=true
+
+		else
+			if [ $idle -lt $IDLE_TIME ] && $BLACK ; then
+				if ps -C feh >/dev/null; then
+					killall feh
+				fi
+				# show all things nxproxy
+				ps -C nxproxy -opid= | xargs -n 1 --no-run-if-empty -I XXX xdotool search --pid XXX . | xargs --no-run-if-empty -n 1 xdotool windowmap
+				BLACK=false
+			fi
+		fi
+	done &
+fi
