@@ -17,7 +17,7 @@ else
 			# this could be an URI
 			# TODO move this download part to an earlier script
 			mkdir -p $IMAGEDIR/slides/
-			wget -P $IMAGEDIR/slides/ ${XSAVERIMAGES/|/ }
+			wget -P $IMAGEDIR/slides/ ${XSAVERIMAGES//|/ }
 	fi
 
 	IDLE_TIME=$(($XSAVERIDLETIME*1000))
