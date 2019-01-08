@@ -10,7 +10,7 @@ echo -n " earlyblankdpmsfix"
 # code to fix blank screen happening with DisplayPort and some buggy TFTs (even xset q reports "Monitor is on" even though it is pitch black)
 if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 	SLEEPTIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"earlyblankdpmsfix"==$1 {print $2}' | tr -dc '0-9')
-	[ -z "$SLEEPTIME" ] && SLEEPTIME=1
+	[ -z "$SLEEPTIME" ] && SLEEPTIME=1000
 	if [ -x /bin/usleep ] ; then
 		SLEEPCOMMAND="/bin/usleep $SLEEPTIME"
 	else
