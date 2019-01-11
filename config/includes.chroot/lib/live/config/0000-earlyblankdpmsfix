@@ -18,7 +18,7 @@ if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 		SLEEPCOMMAND="/bin/sleep $SLEEPTIME"
 	fi
 	(
-		while ! ( [ -d /sys/class/graphics ] && [ -c /dev/tty1 ] && [ -c /dev/vcs1 ] ) ; do
+		while ! ( [ -d /sys/class/graphics ] && [ -n "$(find /sys/class/graphics/ -maxdepth 1 -type l -name "fb[0-9]*")" ] && [ -c /dev/tty1 ] && [ -c /dev/vcs1 ] ) ; do
 			sleep 1
 		done
 		for FBDEVICE in /sys/class/graphics/fb[0-9]*; do
