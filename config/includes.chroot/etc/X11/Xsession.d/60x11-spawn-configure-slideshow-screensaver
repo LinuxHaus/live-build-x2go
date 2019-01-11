@@ -45,6 +45,8 @@ else
 				fi
 				# show all things nxproxy
 				ps -C nxproxy -opid= | xargs -n 1 --no-run-if-empty -I XXX xdotool search --pid XXX . | xargs --no-run-if-empty -n 1 xdotool windowmap
+				# wiggle mouse by 1 px to trigger remote screensaver password prompt
+				xdotool mousemove_relative -- 1 0 ; xdotool mousemove_relative -- -1 0
 				BLACK=false
 			fi
 		fi
