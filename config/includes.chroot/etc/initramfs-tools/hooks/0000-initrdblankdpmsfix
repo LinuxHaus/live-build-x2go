@@ -22,6 +22,11 @@ if [ ! -x "../../lib/live/config/0000-earlyblankdpmsfix" ]; then
 fi
 
 # for some silly reason, this file is needed in two places
-sed -e 's/early/initrd/g' -e 's/Early/Initrd/g' ../../lib/live/config/0000-earlyblankdpmsfix | tee "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" >"${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
+sed \
+	-e 's#/bin/bash#/bin/sh#' \
+	-e '/^echo -n/d' \
+	-e 's/early/initrd/g' \
+	-e 's/Early/Initrd/g' \
+../../lib/live/config/0000-earlyblankdpmsfix | tee "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" >"${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
 chmod 755 "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" "${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
 exit 0
