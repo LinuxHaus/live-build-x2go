@@ -1,0 +1,31 @@
+#!/bin/sh
+
+X5250Config ()
+{
+	# Output startup message
+	#
+	echo -n " x5250config"
+
+	X5250SERVERS=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
+		      awk -F'=' ' /^x5250servers=/ { print $2 } ' | tr -dc 'a-zAZ0-9:.|' | tr '|' ' ')
+	if [ -n "$X5250SERVERS" ] && [ -n "$(which x5250)" ] ; then
+		HOSTCOUNT=0
+		for HOST in $X5250SERVERS; do
+			HOSTNAME=${HOST%%:*}
+	        cat >>/usr/share/applications/x5250-$HOSTCOUNT.desktop <<X5250CONFIG
+[Desktop Entry]
+Name=X5250 $HOSTNAME
+Comment=Connect to Host '$HOSTNAME' via Telnet 5250
+Exec=x5250 $HOST
+Icon=computer
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=Network;RemoteAccess;
+X5250CONFIG
+		HOSTCOUNT=$((HOSTCOUNT+1))
+		done
+	fi
+}
+
+X5250Config
