@@ -22,5 +22,5 @@
 
 if [ -z "$X2GO_HANDLE_DAEMON" ] ; then
 	mkdir -p ~x2gothinclient/Desktop
-	cp /usr/share/applications/x3270*.desktop ~x2gothinclient/Desktop
+	[ -f /usr/share/applications/x3270-0.desktop ] && cp /usr/share/applications/x3270*.desktop ~x2gothinclient/Desktop
 fi
