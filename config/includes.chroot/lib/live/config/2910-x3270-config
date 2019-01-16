@@ -1,0 +1,31 @@
+#!/bin/sh
+
+X3270Config ()
+{
+	# Output startup message
+	#
+	echo -n " x3270config"
+
+	X3270SERVERS=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
+		      awk -F'=' ' /^x3270servers=/ { print $2 } ' | tr -dc 'a-zAZ0-9:.|' | tr '|' ' ')
+	if [ -n "$X3270SERVERS" ] && [ -n "$(which x3270)" ] ; then
+		HOSTCOUNT=0
+		for HOST in $X3270SERVERS; do
+			HOSTNAME=${HOST%%:*}
+	        cat >>/usr/share/applications/x3270-$HOSTCOUNT.desktop <<X3270CONFIG
+[Desktop Entry]
+Name=X3270 $HOSTNAME
+Comment=Connect to Host '$HOSTNAME' via Telnet 3270
+Exec=x3270 $HOST
+Icon=computer
+Terminal=false
+Type=Application
+StartupNotify=false
+Categories=Network;RemoteAccess;
+X3270CONFIG
+		HOSTCOUNT=$((HOSTCOUNT+1))
+		done
+	fi
+}
+
+X3270Config
