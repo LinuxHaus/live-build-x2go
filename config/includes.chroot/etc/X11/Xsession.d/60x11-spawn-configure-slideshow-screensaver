@@ -10,7 +10,7 @@ IMAGEDIR="/var/tmp/images/"
 SLIDESDIR="${IMAGEDIR}/slides/"
 
 if [ -z "$XSAVERIMAGES" ] && [ -z "$XSAVERIDLETIME" ] && [ -z "$XSAVERIMGTIME" ] ; then
-	exit 0
+	: # "exit 0" is a bad idea here, so we "NOP" instead
 else
 
 	if echo "$XSAVERIMAGES" | grep -q "://" ; then
@@ -19,6 +19,9 @@ else
 			mkdir -p $IMAGEDIR/slides/
 			wget -q -P $IMAGEDIR/slides/ -N ${XSAVERIMAGES//|/ }
 	fi
+
+	[ -z "$XSAVERIDLETIME" ] && XSAVERIDLETIME=300 # default to 5 minutes if parameter wasn't set
+	[ -z "$XSAVERIMGTIME" ] && XSAVERIMGTIME=30 # default to 30 seconds if parameter wasn't set
 
 	IDLE_TIME=$(($XSAVERIDLETIME*1000))
 
