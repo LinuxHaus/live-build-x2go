@@ -8,6 +8,8 @@ X5250Config ()
 
 	X5250SERVERS=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
 		      awk -F'=' ' /^x5250servers=/ { print $2 } ' | tr -dc 'a-zAZ0-9:.|' | tr '|' ' ')
+	OLDPATH=$PATH
+	PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 	if [ -n "$X5250SERVERS" ] && [ -n "$(which x5250)" ] ; then
 		HOSTCOUNT=0
 		for HOST in $X5250SERVERS; do
@@ -26,6 +28,7 @@ X5250CONFIG
 		HOSTCOUNT=$((HOSTCOUNT+1))
 		done
 	fi
+	PATH=$OLDPATH
 }
 
 X5250Config
