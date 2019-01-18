@@ -16,8 +16,6 @@ if [ -n "$XROOT" ] ; then
 		fi
 	elif echo "$XROOT" | grep -q "://" ; then
 		# this could be an URI
-		# TODO move this download part to an earlier script
-		wget -q -P $IMAGEDIR/background/ -N ${XROOT//|/ }
 		if [ $(ls $IMAGEDIR 2>/dev/null| wc -l) -gt 0 ] ; then
 			#input validation
 			case "${XROOTMODE,,}" in # force lowercase
