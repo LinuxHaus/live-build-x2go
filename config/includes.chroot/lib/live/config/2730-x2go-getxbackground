@@ -9,7 +9,7 @@ X2GoGetXROOT ()
 
 	XROOT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xroot" { print $2 }' | tr -dc '0-9a-zA-Z,$-_.+!*'"'"'();/?:@=&|')
 	IMAGEDIR=/var/tmp/images/
-	mkdir $IMAGEDIR/background
+	mkdir -p $IMAGEDIR/background
 
 	if [ -n "$XROOT" ] ; then
 		cat >/etc/network/if-up.d/0430-getxroot <<GETXROOT
@@ -36,7 +36,7 @@ fi
 			XROOTSERVER=$(echo "$SINGLEROOT" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
 			XROOTPATH=$(echo "$SINGLEROOT" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 			if [ -n "\$XROOTSERVER" ] && [ -n "\$XROOTPATH" ] ; then
-				while ! (cd ${IMAGEDIR}/background/ && atftp "\$XROOTSERVER" -g -r "\$XROOTPATH" ; do
+				while ! (cd ${IMAGEDIR}/background/ && atftp "\$XROOTSERVER" -g -r "\$XROOTPATH") ; do
 					echo -en "\n\$(date +'%F | %T | ')still waiting for X background download (tftp) ..." | tee -a /dev/tty8
 					sleep 5
 				done
