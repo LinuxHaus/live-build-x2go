@@ -42,5 +42,20 @@ if [ -n "$XROOT" ] ; then
 		fi
 
 		echo -en "\n$(date +'%F | %T | ')'$0': X background download complete." | tee -a /dev/tty8
+
+		if [ -f "/etc/x2go/x2gothinclient-minidesktop_start" ] ; then
+			echo -n "\n$(date +'%F | %T | ')'$0' MiniDesktop mode detected." | tee -a /dev/tty8
+			# We're running in X2Go-TCE-MATE-MiniDesktop
+			# only 1 image supported (so far)
+			# no background colors supported (so far)
+			# but, in TCE-MMD, we can use SVG images in addition to PNG, JPG, etc.
+
+			cat $(ls -1 $IMAGEDIR/background/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
+			# update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
+			# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
+
+			echo -n "\n$(date +'%F | %T | ')'$0' New MiniDesktop background has been set." | tee -a /dev/tty8
+		fi
+
 	) &
 fi
