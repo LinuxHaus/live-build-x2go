@@ -4,9 +4,43 @@ XROOTMODE=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"xrootmode"==$1 {print 
 IMAGEDIR=/var/tmp/images/
 
 if [ -n "$XROOT" ] ; then
+
+	#input validation
+	# allowed values for POSITION: center fill max scale tile; default: max
+	case "${XROOTMODE,,}" in # force lowercase
+		"center") POSITION=center ;;
+		"fill") POSITION=fill ;;
+		"scale") POSITION=scale ;;
+		"tile") POSITION=tile ;;
+		*) POSITION=max ;;
+	esac
+
 	XROOTSHORT=$(echo "$XROOT" | tr -dc '0-9a-fA-Fx')
 
-	if echo "$XROOTSHORT" | grep -q '^0x' && [ 8 = ${#XROOTSHORT} ] ; then
+	if echo "$XROOT" | grep -q "://" ; then
+		# this could be an URI
+		if [ -f "/etc/x2go/x2gothinclient-minidesktop_start" ] ; then
+			# We're running in X2Go-TCE-MATE-MiniDesktop
+			# only 1 image supported (so far)
+			# no background colors supported (so far)
+			# but, in TCE-MMD, we can use SVG images in addition to PNG, JPG, etc.
+			while ! [ $(ls -1 $IMAGEDIR/background/* 2>/dev/null | wc -l) -gt 0 ] ; do
+				sleep 1
+			done
+			cat $(ls -1 $IMAGEDIR/background/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
+			# update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
+			# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
+		else
+			(
+				while ! [ $(ls -1 $IMAGEDIR/background/* 2>/dev/null | wc -l) -gt 0 ] ; do
+					xsetroot -grey # show that something's amiss
+					sleep 1
+				done
+				feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
+			) &
+		fi
+
+	elif echo "$XROOTSHORT" | grep -q '^0x' && [ 8 = ${#XROOTSHORT} ] ; then
 		# this should be a hex color string
 		HEXCOLOR=${XROOTSHORT#0x}
 		if [ 6 = ${#HEXCOLOR} ] ; then
@@ -14,32 +48,8 @@ if [ -n "$XROOT" ] ; then
 		else
 			xsetroot -grey # show that something's amiss
 		fi
-	elif echo "$XROOT" | grep -q "://" ; then
-		# this could be an URI
-		if [ $(ls $IMAGEDIR 2>/dev/null| wc -l) -gt 0 ] ; then
-			#input validation
-			case "${XROOTMODE,,}" in # force lowercase
-				"center") POSITION=center ;;
-				"fill") POSITION=fill ;;
-				"scale") POSITION=scale ;;
-				"tile") POSITION=tile ;;
-				*) POSITION=max ;;
-			esac
-			# POSITION: center fill max scale tile; default: max
-			if [ -f "/etc/x2go/x2gothinclient-minidesktop_start" ] ; then
-				# We're running in X2Go-TCE-MATE-MiniDesktop
-				# only 1 image supported (so far)
-				# no background colors supported (so far)
-				# but, in TCE-MMD, we can use SVG images in addition to PNG, JPG, etc.
-				cat $(ls -1 $IMAGEDIR/background/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
-				# update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
-				# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
-			else
-				feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
-			fi
-		else
-			xsetroot -grey # show that something's amiss
-		fi
+	else 
+		: # NOP
 	fi
 
 else
