@@ -31,8 +31,9 @@ if [ -n "$XROOT" ] ; then
 				# only 1 image supported (so far)
 				# no background colors supported (so far)
 				# but, in TCE-MMD, we can use SVG images in addition to PNG, JPG, etc.
-				update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
-				update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
+				cat $(ls -1 $IMAGEDIR/background/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
+				# update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
+				# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
 			else
 				feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
 			fi
