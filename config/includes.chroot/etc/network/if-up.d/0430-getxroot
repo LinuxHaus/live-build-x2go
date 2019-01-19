@@ -32,7 +32,7 @@ if [ -n "$XROOT" ] ; then
 					done
 				fi
 			done
-		elif echo "$XROOT" | grep -q "^://" ; then
+		elif echo "$XROOT" | grep -q "://" ; then
 			while ! wget -q -N -P $IMAGEDIR/background ${XROOT//|/ } ; do
 				echo -en "\n$(date +'%F | %T | ')still waiting for X background download (wget) ..." | tee -a /dev/tty8
 				sleep 5 
