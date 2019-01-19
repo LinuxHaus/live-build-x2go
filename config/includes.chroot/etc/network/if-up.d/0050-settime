@@ -1,0 +1,49 @@
+#!/bin/bash
+export TERM=linux;
+
+if [ "$METHOD" = "loopback" ] || [ "$METHOD" = "none" ]; then
+        exit 0
+fi
+
+NTPSERVERS=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' /proc/cmdline | \
+		   awk -F'=' ' /^ntp=/ { print $2 }' | \
+		   tr -dc 'a-zA-Z0-9.\- ' | \
+		   tr '[:upper:]' '[:lower:]' )
+
+if [ "$NTPSERVERS" = "false" ] || [ "$NTPSERVERS" = "off" ] || [ "$NTPSERVERS" = "0" ] ; then
+	NTPCOMMAND="false"
+elif [ -n "$NTPSERVERS" ] ; then
+	echo -en "\n$(date +'%F | %T | ')'$0': Using ntp server(s) '$NTPSERVERS'. First working one in list will be used." | tee -a /dev/tty8
+	NTPCOMMAND="ntpdate -s -b $NTPSERVERS"
+else
+	echo -en "\n$(date +'%F | %T | ')'$0': Using Debian's default ntp servers." | tee -a /dev/tty8
+	NTPCOMMAND="ntpdate-debian -s -b"
+fi
+
+
+(	
+	while ! [ -c /dev/tty8 ] ; do
+		echo -en "\n'$0' is waiting for tty8 to become available."
+		sleep 2
+	done
+
+	while [ -z "$(hostname -I)" ] ; do
+		echo -en "\n'$0' is waiting for a client IP." | tee -a /dev/tty8
+		sleep 2
+	done
+	while [ -f /var/lock/ntpdate ] ; do
+		echo -en "\n'$0' is waiting for a previous ntpdate call to finish." | tee -a /dev/tty8
+		sleep 2
+	done
+	echo -en "\n$(date +'%F | %T | ')'$0': Interface '$IFACE' is up - attempting to set time via ntp in 20 seconds ..." | tee -a /dev/tty8
+
+	sleep 20 # make sure IP, Route, DNS are all up
+
+	if [ "$NTPCOMMAND" = "false" ] ; then
+		echo -en "\n$(date +'%F | %T | ')'$0' - NTP disabled via boot parameter. Timestamps will be based on CMOS Clock." | tee -a /dev/tty8
+	elif $NTPCOMMAND && hwclock --systohc ; then
+		echo -en "\n$(date +'%F | %T | ')'$0' - time has been set." | tee -a /dev/tty8
+	else
+		echo -en "\n$(date +'%F | %T | ')'$0' - error setting time. Timestamps will be based on CMOS Clock." | tee -a /dev/tty8
+	fi
+) &
