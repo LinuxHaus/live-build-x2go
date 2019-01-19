@@ -7,7 +7,11 @@ SESSIONSURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 
 if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then 
 	# only mv this file if SESSIONSURL was set. If not, leave it in place - as
 	# it might have been customized at image creation time
-	mv /etc/x2go/x2gothinclient_sessions /etc/x2go/x2gothinclient_sessions_old
+	if [ -e /etc/x2go/x2gothinclient_sessions ]; then
+		mv /etc/x2go/x2gothinclient_sessions /etc/x2go/x2gothinclient_sessions_old
+	else
+		touch /etc/x2go/x2gothinclient_sessions_old
+	fi
 	SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
 
 	if [ "$METHOD" = "loopback" ] || [ "$METHOD" = "none" ]; then
