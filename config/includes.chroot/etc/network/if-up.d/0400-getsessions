@@ -1,6 +1,10 @@
 #!/bin/bash
 export TERM=linux;
 
+if [ "$METHOD" = "loopback" ] || [ "$METHOD" = "none" ]; then
+	exit 0
+fi
+
 SESSIONSURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
 	      awk -F'=' ' /^sessionsurl=/ { print $2 }' | \
 	      tr -dc 'a-zA-Z0-9.:/?%_\-')
@@ -13,10 +17,6 @@ if [ -n "$SESSIONSURL" ] && [ -d /etc/x2go ] ; then
 		touch /etc/x2go/x2gothinclient_sessions_old
 	fi
 	SESSIONSDESTINATION=/etc/x2go/x2gothinclient_sessions_new
-
-	if [ "$METHOD" = "loopback" ] || [ "$METHOD" = "none" ]; then
-		exit 0
-	fi
 
 	(
 		while ! [ -c /dev/tty8 ] ; do
