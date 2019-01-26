@@ -6,6 +6,8 @@ xserver-xorg-input-all
 xserver-xorg-input-wacom
 xserver-xorg-video-all
 # for i386 only #xserver-xorg-video-geode
+# for i386 only #xserver-xorg-video-r128
+libgl1-mesa-dri
 xserver-xorg-video-qxl
 xserver-xorg 
 nodm 
