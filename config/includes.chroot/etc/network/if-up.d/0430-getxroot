@@ -2,7 +2,9 @@
 export TERM=linux;
 XROOT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xroot" { print $2 }' | tr -dc '0-9a-zA-Z,$-_.+!*'"'"'();/?:@=&|')
 IMAGEDIR=/var/tmp/images/
-mkdir -p $IMAGEDIR/background
+BACKGROUNDDIR=${IMAGEDIR}/background/
+
+mkdir -p $BACKGROUNDDIR
 
 if [ -n "$XROOT" ] ; then
 
@@ -22,18 +24,18 @@ if [ -n "$XROOT" ] ; then
 
 		echo -en "\n$(date +'%F | %T | ')'$0': Attempting X background download ..." | tee -a /dev/tty8
 		if echo "$XROOT" | grep -q "^tftp://" ; then
-			for SINGLEURL in ${XROOT//|/ }; do
-				XROOTSERVER=$(echo "$SINGLEROOT" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
-				XROOTPATH=$(echo "$SINGLEROOT" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
+			for SINGLEROOTURL in ${XROOT//|/ }; do
+				XROOTSERVER=$(echo "$SINGLEROOTURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
+				XROOTPATH=$(echo "$SINGLEROOTURL" | sed 's#^tftp://[^/;]*/\([^;]*\)$#\1#' )
 				if [ -n "$XROOTSERVER" ] && [ -n "$XROOTPATH" ] ; then
-					while ! (cd ${IMAGEDIR}/background/ && atftp "$XROOTSERVER" -g -r "$XROOTPATH") ; do
+					while ! (cd $BACKGROUNDDIR && atftp "$XROOTSERVER" -g -r "$XROOTPATH") ; do
 						echo -en "\n$(date +'%F | %T | ')still waiting for X background download (tftp) ..." | tee -a /dev/tty8
 						sleep 5
 					done
 				fi
 			done
 		elif echo "$XROOT" | grep -q "://" ; then
-			while ! wget -q -N -P $IMAGEDIR/background ${XROOT//|/ } ; do
+			while ! wget -q -N -P $BACKGROUNDDIR ${XROOT//|/ } ; do
 				echo -en "\n$(date +'%F | %T | ')still waiting for X background download (wget) ..." | tee -a /dev/tty8
 				sleep 5 
 			done
@@ -50,9 +52,9 @@ if [ -n "$XROOT" ] ; then
 			# no background colors supported (so far)
 			# but, in TCE-MMD, we can use SVG images in addition to PNG, JPG, etc.
 
-			cat $(ls -1 $IMAGEDIR/background/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
+			cat $(ls -1 ${BACKGROUNDDIR}/*| head -1) >/etc/x2go/x2gothinclient-minidesktop_background.svg # nasty hack, but seems to work, even for non-svg images
 			# update-alternatives --remove desktop-background /usr/share/backgrounds/x2go/x2gothinclient-minidesktop_background.svg
-			# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 $IMAGEDIR/background/*| head -1) 10
+			# update-alternatives --install /usr/share/images/desktop-base/desktop-background desktop-background $(ls -1 ${BACKGROUNDDIR}/*| head -1) 10
 
 			echo -n "\n$(date +'%F | %T | ')'$0' New MiniDesktop background has been set." | tee -a /dev/tty8
 		fi
