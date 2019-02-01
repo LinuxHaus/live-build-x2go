@@ -35,7 +35,7 @@ if [ -n "$XSAVERIMAGES" ] ; then
 					done
 				fi
 			done
-		elif echo "$XROOT" | grep -q "://" ; then
+		elif echo "$XSAVERIMAGES" | grep -q "://" ; then
 			while ! wget -q -N -P $SLIDESDIR ${XSAVERIMAGES//|/ } ; do
 				echo -en "\n$(date +'%F | %T | ')still waiting for screensaver download (wget) ..." | tee -a /dev/tty8
 				sleep 5 
