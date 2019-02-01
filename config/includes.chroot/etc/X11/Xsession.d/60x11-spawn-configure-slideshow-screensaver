@@ -16,8 +16,8 @@ else
 	if echo "$XSAVERIMAGES" | grep -q "://" ; then
 			# this could be an URI
 			# TODO move this download part to an earlier script
-			mkdir -p $IMAGEDIR/slides/
-			wget -q -P $IMAGEDIR/slides/ -N ${XSAVERIMAGES//|/ }
+			mkdir -p $SLIDESDIR
+			wget -q -P $SLIDESDIR -N ${XSAVERIMAGES//|/ }
 	fi
 
 	[ -z "$XSAVERIDLETIME" ] && XSAVERIDLETIME=300 # default to 5 minutes if parameter wasn't set
