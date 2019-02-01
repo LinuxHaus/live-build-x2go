@@ -13,13 +13,6 @@ if [ -z "$XSAVERIMAGES" ] && [ -z "$XSAVERIDLETIME" ] && [ -z "$XSAVERIMGTIME" ]
 	: # "exit 0" is a bad idea here, so we "NOP" instead
 else
 
-	if echo "$XSAVERIMAGES" | grep -q "://" ; then
-			# this could be an URI
-			# TODO move this download part to an earlier script
-			mkdir -p $SLIDESDIR
-			wget -q -P $SLIDESDIR -N ${XSAVERIMAGES//|/ }
-	fi
-
 	[ -z "$XSAVERIDLETIME" ] && XSAVERIDLETIME=300 # default to 5 minutes if parameter wasn't set
 	[ -z "$XSAVERIMGTIME" ] && XSAVERIMGTIME=30 # default to 30 seconds if parameter wasn't set
 
