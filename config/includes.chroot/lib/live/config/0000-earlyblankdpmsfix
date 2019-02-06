@@ -12,7 +12,7 @@ if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 	SLEEPTIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"earlyblankdpmsfix"==$1 {print $2}' | tr -dc '0-9')
 	[ -z "$SLEEPTIME" ] && SLEEPTIME=1000
 	if [ -x /bin/usleep ] ; then
-		SLEEPCOMMAND="/bin/usleep $SLEEPTIME"
+		SLEEPCOMMAND="/bin/usleep $((SLEEPTIME*1000))" # usleep uses microseconds, not milliseconds
 	else
 		SLEEPTIME=$(echo $SLEEPTIME | awk '{ printf "%s", $1/1000 }') # awk works for fractions so we don't need bc
 		SLEEPCOMMAND="/bin/sleep $SLEEPTIME"
