@@ -10,17 +10,23 @@ echo -n " earlyblankdpmsfix"
 # code to fix blank screen happening with DisplayPort and some buggy TFTs (even xset q reports "Monitor is on" even though it is pitch black)
 if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 	SLEEPTIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"earlyblankdpmsfix"==$1 {print $2}' | tr -dc '0-9')
-	[ -z "$SLEEPTIME" ] && SLEEPTIME=1000
-	if [ -x /bin/usleep ] ; then
-		SLEEPCOMMAND="/bin/usleep $SLEEPTIME"
-	else
-		SLEEPTIME=$(echo $SLEEPTIME | awk '{ printf "%s", $1/1000 }') # awk works for fractions so we don't need bc
-		SLEEPCOMMAND="/bin/sleep $SLEEPTIME"
-	fi
+
+	# SLEEPTIME is a value set in milliseconds -- not microseconds and not seconds either
+
+	[ -z "$SLEEPTIME" ] && SLEEPTIME=1000 # so we default to 1000 milliseconds = 1 second
+
 	(
 		while ! ( [ -d /sys/class/graphics ] && [ -n "$(find /sys/class/graphics/ -maxdepth 1 -type l -name "fb[0-9]*")" ] && [ -c /dev/tty1 ] && [ -c /dev/vcs1 ] ) ; do
-			sleep 1
+			sleep 1 # here, it doesn't matter which sleep is used, as we are only using an integer number
 		done
+
+		if [ -x /bin/usleep ] ; then
+			SLEEPCOMMAND="/bin/usleep $((SLEEPTIME*1000))" # usleep uses microseconds, not milliseconds
+		else
+			SLEEPTIME=$(echo $SLEEPTIME | awk '{ printf "%s", $1/1000 }') # awk works for fractions so we don't need bc
+			SLEEPCOMMAND="/bin/sleep $SLEEPTIME"
+		fi
+
 		for FBDEVICE in /sys/class/graphics/fb[0-9]*; do
 			echo 1 > $FBDEVICE/blank
 			$SLEEPCOMMAND
