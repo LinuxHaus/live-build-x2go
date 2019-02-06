@@ -15,7 +15,7 @@ else
 fi
 
 # Spawn Powerbutton-Monitor
-/bin/bash -c '(while ! [ -f /home/user/.halt ] ; do sleep 1 ; done ; $POWEROFFCOMMAND ; chvt 7) &'
+/bin/bash -c '(while ! [ -f /home/user/.halt ] ; do sleep 1 ; done ; '$POWEROFFCOMMAND' ; chvt 7) &'
 }
 
 X2GoPowerbuttonMonitor
