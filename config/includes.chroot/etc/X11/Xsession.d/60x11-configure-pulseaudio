@@ -1,11 +1,4 @@
-# Spawn PulseAudio
-if ! ps -C pulseaudio >/dev/null && [ -x /usr/bin/pulseaudio ] ; then
-	pulseaudio -D -n -L 'module-native-protocol-tcp port=4713' -L 'module-udev-detect' --exit-idle-time=65535 &
-	echo -en "\n$(date +'%F | %T | ')'$0' spawned PulseAudio." | tee -a /dev/tty8
-else
-	echo -en "\n$(date +'%F | %T | ')'$0' Not spawning Pulseaudio - already running (MiniDesktop active?) or executable not found." | tee -a /dev/tty8
-fi
-
+# Configure pulseaudio
 AUDIOOUT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F'=' ' /^audioout=/ { print $2 }' | tr -dc 'a-zA-Z0-9.:_\-@|')
 
 if [ -n "$AUDIOOUT" ] ; then
