@@ -1,0 +1,25 @@
+# Force pulseaudio volume
+
+PAVOL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '/^pavol=/ { print $2 }' | tr -dc '0-9%:|')
+
+if [ -n "$PAVOL" ] ; then
+        (
+                while ! pacmd dump 2>&1| grep -q set-card-profile ; do
+                        echo -en "\n$(date +'%F | %T | ')'$0': Waiting for pulseaudio to start ..." | tee -a /dev/tty8
+                        sleep 1
+                done
+                for DEVVOLPAIR in $(echo -e "$PAVOL" | tr '|' '\n'); do
+			if echo -e "$DEVVOLPAIR" | grep -q ':' ; then
+				PADEV=$(echo -e "$DEVVOLPAIR" | awk -F ':' '{ print $1 ')
+				VOLUME=$(echo -e "$DEVVOLPAIR" | awk -F ':' '{ print $2 ')
+			else
+				PADEV="0"
+				VOLUME=$DEVVOLPAIR
+			fi
+			pactl set-sink-mute $PADEV 0
+			pactl set-sink-volume $PADEV $VOLUME
+                        echo -en "\n$(date +'%F | %T | ')'$0': Set volume level '$VOLUME' for audio sink '#$PADEV'" | tee -a /dev/tty8 
+                done
+        ) &
+fi
+
