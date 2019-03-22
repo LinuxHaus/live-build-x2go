@@ -2,10 +2,12 @@ libevdev2
 libmtdev1 
 x11vnc 
 x11vnc-data 
-xserver-xorg-input-evdev
+xserver-xorg-input-all
 xserver-xorg-input-wacom
 xserver-xorg-video-all
 # for i386 only #xserver-xorg-video-geode
+xserver-xorg-video-r128
+libgl1-mesa-dri
 xserver-xorg-video-qxl
 xserver-xorg 
 nodm 

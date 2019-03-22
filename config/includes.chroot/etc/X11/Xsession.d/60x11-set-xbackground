@@ -1,0 +1,55 @@
+# set screen background to X2Go default blue on all detected screens, unless color or image is specified
+XROOT=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "xroot" { print $2 }' | tr -dc '0-9a-zA-Z,$-_.+!*'"'"'();/?:@=&|')
+XROOTMODE=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"xrootmode"==$1 {print $2}')
+IMAGEDIR=/var/tmp/images/
+
+if [ -n "$XROOT" ] ; then
+
+	#input validation
+	# allowed values for POSITION: center fill max scale tile; default: max
+	case "${XROOTMODE,,}" in # force lowercase
+		"center") POSITION=center ;;
+		"fill") POSITION=fill ;;
+		"scale") POSITION=scale ;;
+		"tile") POSITION=tile ;;
+		*) POSITION=max ;;
+	esac
+
+	XROOTSHORT=$(echo "$XROOT" | tr -dc '0-9a-fA-Fx')
+
+	if echo "$XROOT" | grep -q "://" ; then
+		# this could be an URI
+		echo -n "\n$(date +'%F | %T | ')'$0' URL detected." | tee -a /dev/tty8
+		if ! [ -f "/etc/x2go/x2gothinclient-minidesktop_start" ] ; then
+			(
+				while ! [ $(ls -1 $IMAGEDIR/background/* 2>/dev/null | wc -l) -gt 0 ] ; do
+					echo -n "\n$(date +'%F | %T | ')'$0' Waiting for image directory to populate ..." | tee -a /dev/tty8
+					xsetroot -grey # show that something's amiss
+					sleep 1
+				done
+				feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
+				echo -n "\n$(date +'%F | %T | ')'$0' New X background image(s) has/have been set." | tee -a /dev/tty8
+			) &
+		fi
+
+	elif echo "$XROOTSHORT" | grep -q '^0x' && [ 8 = ${#XROOTSHORT} ] ; then
+		# this should be a hex color string
+		HEXCOLOR=${XROOTSHORT#0x}
+		if [ 6 = ${#HEXCOLOR} ] ; then
+			xsetroot -solid "#$HEXCOLOR" # set requested color
+			echo -n "\n$(date +'%F | %T | ')'$0' New X background color has been set." | tee -a /dev/tty8
+		else
+			xsetroot -grey # show that something's amiss
+			echo -n "\n$(date +'%F | %T | ')'$0' Error: X background color has been set to grey grid." | tee -a /dev/tty8
+		fi
+	else 
+		: # NOP
+	fi
+
+else
+	# set our default color
+	xsetroot -solid "#246ed8"
+	echo -n "\n$(date +'%F | %T | ')'$0' Default X background color has been set." | tee -a /dev/tty8
+fi
+
+echo -n "\n$(date +'%F | %T | ')'$0' Done." | tee -a /dev/tty8
