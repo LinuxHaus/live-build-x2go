@@ -2,6 +2,7 @@ cifs-utils
 console-setup
 console-setup-linux
 fuse
+gpg
 initramfs-tools
 kbd
 keyboard-configuration
