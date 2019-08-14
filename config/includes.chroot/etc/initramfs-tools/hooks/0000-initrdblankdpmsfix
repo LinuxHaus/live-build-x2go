@@ -27,8 +27,8 @@ sed \
 	-e '/^echo -n/d' \
 	-e 's/early/initrd/g' \
 	-e 's/Early/Initrd/g' \
-../../lib/live/config/0000-earlyblankdpmsfix >"${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
-cp "${DESTDIR}/bin/boot/0000-initrdblankdpmsfix" "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix"
+../../lib/live/config/0000-earlyblankdpmsfix >"${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix"
+cp "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" "${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
 chmod 755 "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" "${DESTDIR}/bin/boot/0000-initrdblankdpmsfix"
 echo "HEREHEREHERE"
 ls -lah "${DESTDIR}"
