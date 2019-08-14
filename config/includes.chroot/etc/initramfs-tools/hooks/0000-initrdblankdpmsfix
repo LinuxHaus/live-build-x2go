@@ -33,7 +33,7 @@ chmod 755 "${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix" "${DESTDIR}/bin/boo
 echo "HEREHEREHERE"
 ls -lah "${DESTDIR}"
 echo "XXXXXX"
-ls -lah ${DESTDIR}/lib/"
+ls -lah "${DESTDIR}/lib/"
 echo "XXXXXX"
 ls -lah "${DESTDIR}/lib/live/"
 echo "XXXXXX"
