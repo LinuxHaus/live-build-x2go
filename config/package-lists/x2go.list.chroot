@@ -1,4 +1,6 @@
-cryptsetup
+cryptsetup-bin
+cryptsetup-initramfs
+cryptsetup-run
 iso-codes
 libfile-path-expand-perl
 libjpeg62-turbo
