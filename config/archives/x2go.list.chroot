@@ -1,2 +1,1 @@
-#deb http://packages.x2go.org/debian stretch main
-deb http://packages.x2go.org/debian stretch heuler
+deb http://packages.x2go.org/debian stretch main
