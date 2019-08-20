@@ -1,6 +1,9 @@
 caja
+consolekit
 firefox-esr
+gvfs
 gvfs-backends
+gvfs-daemons
 lightdm
 mate-control-center
 mate-desktop-environment-core
@@ -8,5 +11,6 @@ mate-media
 mate-panel
 mate-polkit
 mate-settings-daemon
+policykit-1
 x2gothinclient-minidesktop
 x2gothinclient-usbmount
