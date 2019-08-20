@@ -1,9 +1,9 @@
 caja
-consolekit
 firefox-esr
 gvfs
 gvfs-backends
 gvfs-daemons
+libpam-systemd
 lightdm
 mate-control-center
 mate-desktop-environment-core
