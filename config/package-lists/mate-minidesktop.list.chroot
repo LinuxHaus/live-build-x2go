@@ -1,5 +1,11 @@
+caja
 firefox-esr
+gvfs-backends
+mate-control-center
 mate-desktop-environment-core
 mate-media
+mate-panel
+mate-polkit
+mate-settings-daemon
 x2gothinclient-minidesktop
 x2gothinclient-usbmount
