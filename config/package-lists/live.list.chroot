@@ -16,6 +16,5 @@ mount
 nfs-common
 passwd
 sudo
-sysvinit-core
 sysv-rc
 user-setup
