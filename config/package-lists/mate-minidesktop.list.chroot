@@ -3,6 +3,7 @@ firefox-esr
 gvfs
 gvfs-backends
 gvfs-daemons
+libpam-systemd
 mate-control-center
 mate-desktop-environment-core
 mate-media
@@ -10,5 +11,6 @@ mate-panel
 mate-polkit
 mate-settings-daemon
 policykit-1
+udisks2
 x2gothinclient-minidesktop
 x2gothinclient-usbmount
