@@ -3,7 +3,11 @@ firefox-esr
 gvfs
 gvfs-backends
 gvfs-daemons
+libindicator3-7
+liblightdm-gobject-1-0
 libpam-systemd
+lightdm
+lightdm-gtk-greeter
 mate-control-center
 mate-desktop-environment-core
 mate-media
