@@ -8,7 +8,7 @@ keyboard-configuration
 libfuse2
 live-boot
 live-config
-live-config-sysvinit
+live-config-systemd
 live-tools
 locales
 login
