@@ -1,5 +1,4 @@
 cryptsetup-bin
-cryptsetup-initramfs
 cryptsetup-run
 freerdp2-x11
 iso-codes
