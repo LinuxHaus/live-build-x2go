@@ -11,6 +11,7 @@ mate-panel
 mate-polkit
 mate-settings-daemon
 policykit-1
+systemd-sysv
 udisks2
 x2gothinclient-minidesktop
 x2gothinclient-usbmount
