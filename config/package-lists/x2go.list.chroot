@@ -1,4 +1,6 @@
+cryptsetup
 cryptsetup-bin
+cryptsetup-initramfs
 cryptsetup-run
 freerdp2-x11
 iso-codes
@@ -24,6 +26,7 @@ pulseaudio-utils
 rdesktop
 udev
 x2goclient
+x2gothinclient-usbmount
 xfonts-100dpi
 xfonts-75dpi
 xfonts-base
