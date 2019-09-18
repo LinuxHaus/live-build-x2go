@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# Installs the Raspberry PI firmware (bootloader, kernel etc)
+
+if [ -f chroot/boot/firmware/bootcode.bin ]; then
+	# This is a Raspi Build
+	cp -a chroot/boot binary/
+
+	cat >binary/cmdline.txt <<EOF
+boot=live components noswap lang=de vconsole.keymap=de keyboard-layouts=de locales=de_DE.UTF-8 live-media=/dev/sda1
+EOF
+
+	cat >binary/config.txt <<EOF
+kernel $(realpath ./live/vmlinuz*)
+initramfs $(realpath ./live/initrd.img*) 0x00800000
+EOF
+
+fi
