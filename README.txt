@@ -1,5 +1,5 @@
 Only usable on systems with minimum 1G RAM
-Install Debian stretch on your server
+Install Debian buster on your server
 become root on the server
 apt update
 apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
@@ -38,7 +38,7 @@ group {
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config --debootstrap-options "--exclude=nano,iptables,dmidecode,info" --apt-source-archives false --cache false --apt-http-proxy http://approx:3142 --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::master --archive-areas "main contrib" --apt-recommends false --firmware-chroot false --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin 
+lb config --debootstrap-options "--exclude=nano,iptables,dmidecode,info" --apt-source-archives false --cache false --apt-http-proxy http://approx:3142 --chroot-filesystem squashfs --apt-indices none --cache-packages false --config git://code.x2go.org/live-build-x2go.git::master --archive-areas "main contrib" --apt-recommends false --firmware-chroot false --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot -a amd64 -k amd64 --linux-packages linux-image --bootappend-live vconsole.keymap=de-latin1-nodeadkeys log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet kernel.sysrq=1 keep_bootcon sysrq_always_enabled toram live-config live-config.timezone=Europe/Berlin 
 lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
