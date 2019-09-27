@@ -1,1 +1,1 @@
-xserver-xorg-video-all xserver-xorg fvwm nodm xterm synergy aptitude xdmx-tools xdmx
+xserver-xorg-core xserver-xorg-input-evdev fvwm nodm xterm live-tools console-setup user-setup xinit
