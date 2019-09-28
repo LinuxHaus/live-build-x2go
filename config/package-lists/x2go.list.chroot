@@ -1,1 +1,1 @@
-x2goclient freerdp2-x11 pulseaudio openssh-server dbus libdrm-intel1 libgl1-mesa-dri vbetool acpi-support
+x2goclient freerdp2-x11 pulseaudio openssh-server dbus libdrm-intel1 libgl1-mesa-dri vbetool acpi-support ca-certificates
