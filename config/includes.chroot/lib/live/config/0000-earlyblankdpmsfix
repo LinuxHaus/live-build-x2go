@@ -28,8 +28,14 @@ if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 		fi
 
 		for FBDEVICE in /sys/class/graphics/fb[0-9]*; do
+			while ! [ -d $FBDEVICE ] ; do
+			       	$SLEEPCOMMAND
+			done
 			echo 1 > $FBDEVICE/blank
 			$SLEEPCOMMAND
+			while ! [ -d $FBDEVICE ] ; do
+			       	$SLEEPCOMMAND
+			done
 			echo 0 > $FBDEVICE/blank
 		done
 	) &
