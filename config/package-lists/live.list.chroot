@@ -16,6 +16,8 @@ login
 mount
 nfs-common
 passwd
+rdnssd
+resolvconf
 sudo
 sysvinit-core
 sysv-rc
