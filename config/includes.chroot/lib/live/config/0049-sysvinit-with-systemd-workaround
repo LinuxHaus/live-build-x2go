@@ -2,6 +2,6 @@
 # this file is a workaround for https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=963146
 # it may safely be removed once this bug has been dealt with.
 SYSTEMCTL_PATH=$(which systemctl)
-if ! [-d  /run/systemd/system ] && [ -n "$SYSTEMCTL_PATH" ]; then
+if ! [ -d /run/systemd/system ] && [ -n "$SYSTEMCTL_PATH" ]; then
 	chmod -x $SYSTEMCTL_PATH
 fi
