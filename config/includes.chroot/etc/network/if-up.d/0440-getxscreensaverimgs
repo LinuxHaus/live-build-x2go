@@ -5,6 +5,10 @@ XSAVERIMAGES=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e
 IMAGEDIR=/var/tmp/images/
 SLIDESDIR="${IMAGEDIR}/slides/"
 
+function urldecode() { 
+	: "${*//+/ }"; echo -e "${_//%/\\x}"; 
+}
+
 mkdir -p $SLIDESDIR
 
 if [ -n "$XSAVERIMAGES" ] ; then
@@ -24,6 +28,7 @@ if [ -n "$XSAVERIMAGES" ] ; then
 		done
 
 		echo -en "\n$(date +'%F | %T | ')'$0': Attempting screensaver image/images download ..." | tee -a /dev/tty8
+		XSAVERIMAGES=$(urldecode "$XSAVERIMAGES")
 		if echo "$XSAVERIMAGES" | grep -q "^tftp://" ; then
 			for SINGLEXSAVERIMAGEURL in ${XSAVERIMAGES//|/ }; do
 				XSAVERIMAGESERVER=$(echo "$SINGLEXSAVERIMAGEURL" | sed 's#^tftp://\([^/;]*\)/.*$#\1#' )
