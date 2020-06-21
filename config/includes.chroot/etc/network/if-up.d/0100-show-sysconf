@@ -48,5 +48,5 @@ fi
 	[ -n "$TIMESTAMP" ] && echo "- Build Version: $TIMESTAMP ($HUMANTIMESTAMP)" | tee -a /etc/motd >> /etc/issue
 
 	# make sure all unused VTs show the new /etc/issue
-	ps -C getty --no-header | awk '{ print $1 }' | xargs -n 1 kill -1
+	ps -C getty --no-header | awk '{ print $1 }' | xargs -n 1 --no-run-if-empty kill -1
 ) &
