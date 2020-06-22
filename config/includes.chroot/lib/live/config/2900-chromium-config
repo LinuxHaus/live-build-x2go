@@ -1,0 +1,55 @@
+#!/bin/sh
+
+function urldecode() {
+	        : "${*//+/ }"; echo -e "${_//%/\\x}";
+	}
+
+ChromiumConfig ()
+{
+	# Output startup message
+	#
+	echo -n " chromiumconfig"
+
+	HOMEPAGEURL=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | \
+		      awk -F'=' ' /^homepageurl=/ { print $2 } ')
+	if [ -z "$HOMEPAGEURL" ] ; then 
+		HOMEPAGEURL='http://www.x2go.org/'
+	else
+		HOMEPAGEURL=$(echo -e "$(urldecode "$HOMEPAGEURL")")
+	fi
+	cat >/etc/chromium/policies/managed/chromium.json <<CHROMIUMCONFIG
+
+// Policy template for Linux.
+// Documentation for this file can be found at
+// https://www.chromium.org/administrators/policy-list-3
+// and/or
+// https://cloud.google.com/docs/chrome-enterprise/policies/
+
+{
+ "AllowFileSelectionDialogs": false,
+ "DownloadDirectory": "/home/\${user_name}/Downloads",
+ "EditBookmarksEnabled": false,
+ "HomepageIsNewTabPage": false,
+ "HomepageLocation": "$HOMEPAGEURL",
+ "ImportBookmarks": false,
+ "ImportHistory": false,
+ "ImportHomepage": false,
+ "ImportSavedPasswords": false,
+ "ImportSearchEngine": false,
+ //"ProxyBypassList": "http://www.example1.com,http://www.example2.com,http://internalsite/",
+ //"ProxyMode": "direct",
+ //"ProxyPacUrl": "http://internal.site/example.pac",
+ //"ProxyServer": "123.123.123.123:8080",
+ "RestoreOnStartup": 4,
+ //   5 = Open New Tab Page
+ //   1 = Restore the last session
+ //   4 = Open a list of URLs
+ "RestoreOnStartupURLs": ["$HOMEPAGEURL"],
+ "ShowHomeButton": true,
+ "SyncDisabled": true,
+ "TranslateEnabled": false,
+}
+CHROMIUMCONFIG
+}
+
+( which chromium >/dev/null || which chromium-browser >/dev/null || which chrome >/dev/null || which chrome-broser >/dev/null ) && ChromiumConfig
