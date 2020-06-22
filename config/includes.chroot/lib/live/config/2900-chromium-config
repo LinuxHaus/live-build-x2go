@@ -17,6 +17,7 @@ ChromiumConfig ()
 	else
 		HOMEPAGEURL=$(echo -e "$(urldecode "$HOMEPAGEURL")")
 	fi
+	mkdir -p /etc/chromium/policies/managed
 	cat >/etc/chromium/policies/managed/chromium.json <<CHROMIUMCONFIG
 
 // Policy template for Linux.
