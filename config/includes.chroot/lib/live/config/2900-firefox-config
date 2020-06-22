@@ -1,5 +1,9 @@
 #!/bin/sh
 
+function urldecode() {
+	        : "${*//+/ }"; echo -e "${_//%/\\x}";
+	}
+
 FirefoxConfig ()
 {
 	# Output startup message
@@ -10,6 +14,8 @@ FirefoxConfig ()
 		      awk -F'=' ' /^homepageurl=/ { print $2 } ')
 	if [ -z "$HOMEPAGEURL" ] ; then 
 		HOMEPAGEURL='http://www.x2go.org/'
+	else
+		HOMEPAGEURL=$(echo -e "$(urldecode "$HOMEPAGEURL")")
 	fi
 	sed -i	-e '/"browser.rights.3.shown"/d' \
 		-e '/"browser.startup.homepage_override.mstone"/d' \
