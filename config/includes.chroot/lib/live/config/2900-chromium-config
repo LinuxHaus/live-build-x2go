@@ -15,7 +15,7 @@ ChromiumConfig ()
 	if [ -z "$HOMEPAGEURL" ] ; then 
 		HOMEPAGEURL='http://www.x2go.org/'
 	else
-		HOMEPAGEURL=$(echo -e "$(urldecode "$HOMEPAGEURL")")
+		HOMEPAGEURL=$(echo -e '"'"$(urldecode "$HOMEPAGEURL")"'"' | sed -e 's#|#","#g')
 	fi
 	mkdir -p /etc/chromium/policies/managed
 	cat >/etc/chromium/policies/managed/chromium.json <<CHROMIUMCONFIG
@@ -31,7 +31,7 @@ ChromiumConfig ()
  "DownloadDirectory": "/home/\${user_name}/Downloads",
  "EditBookmarksEnabled": false,
  "HomepageIsNewTabPage": false,
- "HomepageLocation": "$HOMEPAGEURL",
+ "HomepageLocation": $HOMEPAGEURL,
  "ImportBookmarks": false,
  "ImportHistory": false,
  "ImportHomepage": false,
@@ -45,7 +45,7 @@ ChromiumConfig ()
  //   5 = Open New Tab Page
  //   1 = Restore the last session
  //   4 = Open a list of URLs
- "RestoreOnStartupURLs": ["$HOMEPAGEURL"],
+ "RestoreOnStartupURLs": [$HOMEPAGEURL],
  "ShowHomeButton": true,
  "SyncDisabled": true,
  "TranslateEnabled": false,
