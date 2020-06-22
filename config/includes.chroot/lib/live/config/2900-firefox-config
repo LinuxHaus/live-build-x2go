@@ -33,4 +33,6 @@ lockPref("browser.startup.homepage", "$HOMEPAGEURL");
 FIREFOXCONFIG
 }
 
-FirefoxConfig
+if which firefox-esr >/dev/null || which firefox >/dev/null; then
+	FirefoxConfig
+fi
