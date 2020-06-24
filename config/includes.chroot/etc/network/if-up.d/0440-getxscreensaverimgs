@@ -5,6 +5,18 @@ XSAVERIMAGES=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e
 IMAGEDIR=/var/tmp/images/
 SLIDESDIR="${IMAGEDIR}/slides/"
 
+# if we're a MATE-MiniDesktop, let this be our homedirectory
+USERHOME=$(getent passwd x2gothinclient | awk -F':' '{ print $6 }')
+# No Match? Then we're a regular TCE-Live.
+if [ -z "$USERHOME" ] ; then
+	USERHOME=$(getent passwd 1000 | awk -F':' '{ print $6 }')
+else
+		# if this is MMD, create a directory for MATE's
+		# braindead slideshow screensaver that doesn't allow you to
+		# specify an image directory
+		mkdir -p ${USERHOME}/Pictures
+fi
+
 function urldecode() { 
 	: "${*//+/ }"; echo -e "${_//%/\\x}"; 
 }
@@ -48,6 +60,9 @@ if [ -n "$XSAVERIMAGES" ] ; then
 		else
 			: # NOP
 		fi
+
+		# If this directory exists, then we're a MMD and images need to go there.  Hardlinking them to save space.
+		[ -d ${USERHOME}/Pictures ] && cp -al ${SLIDESDIR} ${USERHOME}/Pictures
 
 		echo -en "\n$(date +'%F | %T | ')'$0': Screensaver download complete." | tee -a /dev/tty8
 
