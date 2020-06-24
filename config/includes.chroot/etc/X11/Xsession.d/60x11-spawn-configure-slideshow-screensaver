@@ -9,7 +9,8 @@ IMAGEDIR="/var/tmp/images/"
 
 SLIDESDIR="${IMAGEDIR}/slides/"
 
-if [ -z "$XSAVERIMAGES" ] && [ -z "$XSAVERIDLETIME" ] && [ -z "$XSAVERIMGTIME" ] ; then
+if [ -z "$XSAVERIMAGES" ] && [ -z "$XSAVERIDLETIME" ] && [ -z "$XSAVERIMGTIME" ] || [ -s /etc/lightdm/lightdm.conf ] ; then
+	# don't run when lightdm is present -> most likely MMD with MATE-Screensaver
 	: # "exit 0" is a bad idea here, so we "NOP" instead
 else
 
