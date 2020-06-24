@@ -49,6 +49,9 @@ if [ -n "$XSAVERIMAGES" ] ; then
 			: # NOP
 		fi
 
+		# If this directory exists, then we're a MMD and images need to go there.  Hardlinking them to save space.
+		[ -d ${USERHOME}/Pictures ] && cp -al ${SLIDESDIR}/* ${USERHOME}/Pictures
+
 		echo -en "\n$(date +'%F | %T | ')'$0': Screensaver download complete." | tee -a /dev/tty8
 
 	) &
