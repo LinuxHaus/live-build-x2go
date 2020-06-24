@@ -24,6 +24,10 @@ if [ -z "$X2GO_HANDLE_DAEMON" ] ; then
 	mkdir -p ~x2gothinclient/.x2goclient
 	echo '[trayicon]' >>~x2gothinclient/.x2goclient/settings
 	echo 'enabled=true' >>~x2gothinclient/.x2goclient/settings
+	echo 'mintotray=true' >>~x2gothinclient/.x2goclient/settings
+	echo 'noclose=true' >>~x2gothinclient/.x2goclient/settings
+	echo 'mincon=true' >>~x2gothinclient/.x2goclient/settings
+	echo 'maxdiscon=true' >>~x2gothinclient/.x2goclient/settings
 	chown x2gothinclient:x2gothinclient ~x2gothinclient -Rf
 	chmod go-rwx ~x2gothinclient -Rf
 fi
