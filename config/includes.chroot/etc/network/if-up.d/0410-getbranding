@@ -41,7 +41,7 @@ if [ -n "$BRANDINGURL" ] ; then
 		echo -en "\n$(date +'%F | %T | ')'$0': branding SVG download complete." | tee -a /dev/tty8
 		if [ -s ${BRANDINGDESTINATION}.tmp ] ; then
 			mv ${BRANDINGDESTINATION}.tmp $BRANDINGDESTINATION
-			ln $BRANDINGDESTINATION /etc/x2go/x2gothinclient_branding.svg
+			ln -f $BRANDINGDESTINATION /etc/x2go/x2gothinclient_branding.svg
 			if [ -s /etc/x2go/x2gothinclient-minidesktop_start ] ; then
 				if ! grep -q -- "--branding" /etc/x2go/x2gothinclient-minidesktop_start ; then
 					sed -e '\#^/usr/lib/x2go/x2goclient#a \\t\t\t --branding="/etc/x2go/x2gothinclient_branding.svg" \\' -i /etc/x2go/x2gothinclient-minidesktop_start
