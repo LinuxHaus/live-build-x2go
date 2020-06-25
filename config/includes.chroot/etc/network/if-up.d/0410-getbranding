@@ -48,5 +48,8 @@ if [ -n "$BRANDINGURL" ] ; then
 				fi
 			fi
 		fi
+		touch /var/lib/live/config/getbranding
 	) &
+else
+	touch /var/lib/live/config/getbranding
 fi
