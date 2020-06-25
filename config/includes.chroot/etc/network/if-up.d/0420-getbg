@@ -44,7 +44,7 @@ if [ -n "$BGURL" ] ; then
 			ln $BGDESTINATION /etc/x2go/x2gothinclient_bg.svg
 			if [ -s /etc/x2go/x2gothinclient-minidesktop_start ] ; then
 				if ! grep -q -- "--background" /etc/x2go/x2gothinclient-minidesktop_start ; then
-					sed -e '\#^/usr/lib/x2goclient#a \\t\t\t --background="/etc/x2go/x2gothinclient_bg.svg" \\' -i /etc/x2go/x2gothinclient-minidesktop_start
+					sed -e '\#^/usr/lib/x2go/x2goclient#a \\t\t\t --background="/etc/x2go/x2gothinclient_bg.svg" \\' -i /etc/x2go/x2gothinclient-minidesktop_start
 				fi
 			fi
 		fi
