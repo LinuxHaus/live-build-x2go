@@ -20,6 +20,10 @@ if [ -n "$BGURL" ] ; then
 			echo -en "\n$(date +'%F | %T | ')'$0' is waiting for a client IP." | tee -a /dev/tty8
 			sleep 2
 		done
+		while ! [ -f /var/lib/live/config/getbranding ] ; do
+			echo -en "\n$(date +'%F | %T | ')'$0' is waiting for getbranding to finish."
+			sleep 2
+		done
 
 		echo -en "\n$(date +'%F | %T | ')'$0': Attempting background SVG download ..." | tee -a /dev/tty8
 		if echo "$BGURL" | grep -q "^tftp://" ; then
