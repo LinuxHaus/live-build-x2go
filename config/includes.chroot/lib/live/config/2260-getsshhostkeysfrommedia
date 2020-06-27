@@ -82,6 +82,8 @@ GetSSHHostKeysFromMedia ()
                 # search for our magic label
                 X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$1 == "X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
+		[ -z "$X2GOTCELIVELABELS" ] && echo -n "\n$(date +'%F | %T | ')'$0' No matching 'magic' label(s) found." | tee -a /dev/tty8
+
                 # block device list, non-removable first (for security - we don't want USB media to be able to override keys on fixed disks)
                 BLOCKDEVS="$(echo "$X2GOTCELIVELABELS" | awk '$1 == "0" {print $2}' ) $(echo "$X2GOTCELIVELABELS" | awk '$1 == "1" {print $2}' )"
 
