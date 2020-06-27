@@ -79,6 +79,8 @@ GetSSHHostKeysFromMedia ()
                 # list devices (and mountpoints, if present)
                 LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
 
+		echo -n "\n$(date +'%F | %T | ')'$0' Status of lsblk: '$(echo "$LABELMPLIST" | tr '\n' '|')'." | tee -a /dev/tty
+
                 # search for our magic label
                 X2GOTCELIVELABELS=$(echo "$LABELMPLIST" | awk '$1 == "X2GO-TCE-LIVE" { print $2 " " $3 " " $4}')
 
