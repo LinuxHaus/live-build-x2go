@@ -19,16 +19,16 @@ if [ -n "$XROOT" ] ; then
 
 	if echo "$XROOT" | grep -q "://" ; then
 		# this could be an URI
-		echo -n "\n$(date +'%F | %T | ')'$0' URL detected." | tee -a /dev/tty8
+		echo -en "\n$(date +'%F | %T | ')'$0' URL detected." | tee -a /dev/tty8
 		if ! [ -f "/etc/x2go/x2gothinclient-minidesktop_start" ] ; then
 			(
 				while ! [ $(ls -1 $IMAGEDIR/background/* 2>/dev/null | wc -l) -gt 0 ] ; do
-					echo -n "\n$(date +'%F | %T | ')'$0' Waiting for image directory to populate ..." | tee -a /dev/tty8
+					echo -en "\n$(date +'%F | %T | ')'$0' Waiting for image directory to populate ..." | tee -a /dev/tty8
 					xsetroot -grey # show that something's amiss
 					sleep 1
 				done
 				feh --no-fehbg --bg-$POSITION $IMAGEDIR/background/*
-				echo -n "\n$(date +'%F | %T | ')'$0' New X background image(s) has/have been set." | tee -a /dev/tty8
+				echo -en "\n$(date +'%F | %T | ')'$0' New X background image(s) has/have been set." | tee -a /dev/tty8
 			) &
 		fi
 
@@ -37,10 +37,10 @@ if [ -n "$XROOT" ] ; then
 		HEXCOLOR=${XROOTSHORT#0x}
 		if [ 6 = ${#HEXCOLOR} ] ; then
 			xsetroot -solid "#$HEXCOLOR" # set requested color
-			echo -n "\n$(date +'%F | %T | ')'$0' New X background color has been set." | tee -a /dev/tty8
+			echo -en "\n$(date +'%F | %T | ')'$0' New X background color has been set." | tee -a /dev/tty8
 		else
 			xsetroot -grey # show that something's amiss
-			echo -n "\n$(date +'%F | %T | ')'$0' Error: X background color has been set to grey grid." | tee -a /dev/tty8
+			echo -en "\n$(date +'%F | %T | ')'$0' Error: X background color has been set to grey grid." | tee -a /dev/tty8
 		fi
 	else 
 		: # NOP
@@ -49,7 +49,7 @@ if [ -n "$XROOT" ] ; then
 else
 	# set our default color
 	xsetroot -solid "#246ed8"
-	echo -n "\n$(date +'%F | %T | ')'$0' Default X background color has been set." | tee -a /dev/tty8
+	echo -en "\n$(date +'%F | %T | ')'$0' Default X background color has been set." | tee -a /dev/tty8
 fi
 
-echo -n "\n$(date +'%F | %T | ')'$0' Done." | tee -a /dev/tty8
+echo -en "\n$(date +'%F | %T | ')'$0' Done." | tee -a /dev/tty8
