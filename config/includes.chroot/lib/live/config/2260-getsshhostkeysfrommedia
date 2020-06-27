@@ -71,10 +71,9 @@ GetSSHHostKeysFromMedia ()
                         echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to start ..." | tee -a /dev/tty8
                         sleep 1;
                 done
-                while ps --no-header -C udevadm | grep -q udevadm ; do
-                        echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to process all events ..." | tee -a /dev/tty8
-                        sleep 1;
-                done
+		echo -n "\n$(date +'%F | %T | ')'$0' Waiting for udev to process all events ..." | tee -a /dev/tty8
+		udevadm settle
+		echo -n "\n$(date +'%F | %T | ')'$0' ... all events have been processed." | tee -a /dev/tty8
 
                 # list devices (and mountpoints, if present)
                 LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
