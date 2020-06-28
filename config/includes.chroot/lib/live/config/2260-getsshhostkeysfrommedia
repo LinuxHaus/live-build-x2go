@@ -85,6 +85,7 @@ GetSSHHostKeysFromMedia ()
 			LSBLKLIST=$(echo "$LABELMPLIST" | grep -v "^ " | awk '{print $1}' | sort -u | tr '\n' '|') # generated from lsblk
 			echo -n "\n$(date +'%F | %T | ')'$0' Status of lsblk: '$LSBLKLIST'." | tee -a /dev/tty8
 			[ "$LABELLIST" = "$LSBLKLIST" ] && break
+			sleep 1
 		done
 
                 # search for our magic label
