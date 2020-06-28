@@ -29,20 +29,20 @@ if grep -q '\W*earlyblankdpmsfix[=\W]*' /proc/cmdline; then
 
 		echo "EarlyBlankDPMSFix: attempting to force-enable displays."
 		for FBDEVICE in /sys/class/graphics/fb[0-9]*; do
-			echo "Attempting to blank '$FBDEVICE'."
+			echo "EarlyBlankDPMSFix: Attempting to blank '$FBDEVICE'."
 			while ! [ -d $FBDEVICE ] ; do
-				echo "Device '$FBDEVICE' does not (yet) exist!"
+				echo "EarlyBlankDPMSFix: Device '$FBDEVICE' does not (yet) exist!"
 			       	: # NOP
 			done
-			echo 1 > $FBDEVICE/blank && echo "Blanked '$FBDEVICE'."
-			echo "Sleeping using command '$SLEEPCOMMAND'."
+			echo 1 > $FBDEVICE/blank && echo "EarlyBlankDPMSFix: Blanked '$FBDEVICE'."
+			echo "EarlyBlankDPMSFix: Sleeping using command '$SLEEPCOMMAND'."
 			$SLEEPCOMMAND
-			echo "Attempting to unblank '$FBDEVICE'."
+			echo "EarlyBlankDPMSFix: Attempting to unblank '$FBDEVICE'."
 			while ! [ -d $FBDEVICE ] ; do
-				echo "Device '$FBDEVICE' does not (yet) exist!"
+				echo "EarlyBlankDPMSFix: Device '$FBDEVICE' does not (yet) exist!"
 			       	: # NOP
 			done
-			echo 0 > $FBDEVICE/blank && echo "Unblanked '$FBDEVICE'."
+			echo 0 > $FBDEVICE/blank && echo "EarlyBlankDPMSFix: Unblanked '$FBDEVICE'."
 		done
 		echo "EarlyBlankDPMSFix: Done."
 	) &
