@@ -62,6 +62,15 @@ else
 					xdotool sleep 0.1 mousemove_relative -- 11 0 sleep 0.1 mousemove_relative -- -11 0
 					## Option: toggle NumLock instead
 					# xdotool sleep 0.1 key Num_Lock sleep 0.1 key Num_Lock
+				elif ps -C x2gokdriveclient >/dev/null ; then # do we have an x2gokdriveclient task running?
+					# if so, keep kicking it into the foreground until it has focus
+					while [ "$(xdotool getwindowfocus)" != "$(xdotool search --classname "x2gokdriveclient")" ] ; do
+						xdotool search --classname "x2gokdriveclient" windowmap --sync windowfocus --sync
+					done
+					# wiggle mouse by 11 px to trigger remote screensaver password prompt (10 px is xscreensaver's default hysteresis)
+					xdotool sleep 0.1 mousemove_relative -- 11 0 sleep 0.1 mousemove_relative -- -11 0
+					## Option: toggle NumLock instead
+					# xdotool sleep 0.1 key Num_Lock sleep 0.1 key Num_Lock
 				elif ps -C Xephyr >/dev/null ; then # do we have a Xephyr task running?
 					# if so, keep kicking it into the foreground until it has focus
 					while [ "$(xdotool getwindowfocus)" != "$(xdotool search --classname "Xephyr")" ] ; do
