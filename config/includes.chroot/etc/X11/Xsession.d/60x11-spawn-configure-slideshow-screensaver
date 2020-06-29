@@ -111,6 +111,10 @@ else
 					PRIMARYSCREEN=$(xrandr -d :0 | awk '$3 == "primary" { print $4 }')
 					PRIMARYSCREENCOORD=$(echo $PRIMARYSCREEN | awk -F'+' '{ print $2 " " $3}' | tr -dc '[0-9] ')
 					PRIMARYSCREENSIZE=$(echo $PRIMARYSCREEN | awk -F'[x|+]' '{ print $1 " " $2}' | tr -dc '[0-9] ')
+					# keep kicking X2GoClient into the foreground until it has focus
+					while [ "$(xdotool getwindowfocus)" != "$(xdotool search --classname "X2GoClient")" ] ; do
+						xdotool search --classname "X2GoClient" windowmap --sync windowfocus --sync;
+					done
 					xdotool search --onlyvisible --classname "X2GoClient" windowmove --sync $PRIMARYSCREENCOORD || echo $?
 					xdotool search --onlyvisible --classname "X2GoClient" windowsize --sync $PRIMARYSCREENSIZE || echo $?
 				fi
