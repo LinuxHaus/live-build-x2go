@@ -31,7 +31,10 @@ else
 			# if we have local images to show, spawn feh, if it isn't already running
                         if [ $(ls $SLIDESDIR 2>/dev/null| wc -l) -gt 0 ] ; then
                                 if ! ps -C feh >/dev/null ; then
-                                        feh -Y -x -F -D $XSAVERIMGTIME -Z -B black -q "$SLIDESDIR" &
+					SCREENPOSITIONS=$(xrandr | awk '$2 == "connected" { print $3 $4 }' | tr -dc '[0-9]x+\n')
+					for SINGLESCREENPOS in $SCREENPOSITIONS; do
+	                                        feh -Y -x -g $SINGLESCREENPOS -D $XSAVERIMGTIME -Z -B black -q "$SLIDESDIR" &
+					done
                                 fi
                         fi
 
