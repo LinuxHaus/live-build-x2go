@@ -1,7 +1,4 @@
 # code to fix blank screen happening with DisplayPort and some buggy TFTs (xset q reports "Monitor is on" even though it is pitch black)
-if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
-        xset dpms force suspend
-fi
 
 BLANKINGTIME=$(sed -e 's/ \([^ ]*\)=/\n\1=/g' -e 's/\([^=]["'"'"']\) /\1\n/g' -e 's/ \([^ "'"'"']\)/\n\1/g' /proc/cmdline | awk -F '=' '$1 == "blank" { print $2 }' | tr -dc '0-9:')
 if [ -n "$BLANKINGTIME" ]; then
@@ -23,6 +20,15 @@ if [ -n "$BLANKINGTIME" ]; then
 fi
 
 if grep -q '\W*blankdpmsfix\W*' /proc/cmdline; then
+	SLEEPTIME=$(cat /proc/cmdline | tr ' ' '\n' | awk -F'=' '"blankdpmsfix"==$1 {print $2}' | tr -dc '0-9')
+	# SLEEPTIME is a value set in milliseconds -- not microseconds and not seconds either
+	[ -z "$SLEEPTIME" ] && SLEEPTIME=1000 # so we default to 1000 milliseconds = 1 second
+	SLEEPTIME=$(echo $SLEEPTIME | awk '{ printf "%s", $1/1000 }') # awk works for fractions so we don't need bc
+	SLEEPCOMMAND="/bin/sleep $SLEEPTIME"
+
+        #xset dpms force suspend
+        xset dpms force off
+	$SLEEPCOMMAND
 	xset dpms force on 
 	xset dpms 0 0 0 
 	xset -dpms
