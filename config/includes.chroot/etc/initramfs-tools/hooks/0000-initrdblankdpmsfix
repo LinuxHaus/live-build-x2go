@@ -25,6 +25,7 @@ fi
 sed \
 	-e 's#/bin/bash#/bin/sh#' \
 	-e '/^echo -n/d' \
+	-e 's/ &$//' \
 	-e 's/early/initrd/g' \
 	-e 's/Early/Initrd/g' \
 ../../lib/live/config/0000-earlyblankdpmsfix >"${DESTDIR}/lib/live/boot/0000-initrdblankdpmsfix"
