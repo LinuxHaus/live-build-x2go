@@ -9,9 +9,9 @@ echo -n " x2go-powerbuttonmonitor"
 # determine poweroff-command
 if grep -q "\W*fastpo\W*" /proc/cmdline && ! [ -d ~x2gothinclient ] ; then 
 	# this does not make sense for the minidesktop
-	POWEROFFCOMMAND='while ! (grep "^/dev/" /etc/mtab | grep -q rw ) ; do echo s >/proc/sysrq-trigger ; echo u >/proc/sysrq-trigger ; done ; echo o >/proc/sysrq-trigger'
+	POWEROFFCOMMAND='rm -f /home/user/.halt ; sync ; while ! (grep "^/dev/" /etc/mtab | grep -q rw ) ; do echo s >/proc/sysrq-trigger ; echo u >/proc/sysrq-trigger ; done ; echo o >/proc/sysrq-trigger'
 else
-	POWEROFFCOMMAND='poweroff'
+	POWEROFFCOMMAND='rm -f /home/user/.halt ; sync ; poweroff'
 fi
 
 # Spawn Powerbutton-Monitor
