@@ -81,7 +81,7 @@ GetSSHHostKeysFromMedia ()
 			LABELLIST=$(ls -1 /dev/disk/by-label/ | sort -u | tr '\n' '|') # generated from /dev/disk/by-label/
 			echo -n "\n$(date +'%F | %T | ')'$0' Status of /dev/disk/by-label: '$LABELLIST'." | tee -a /dev/tty8
 
-	                LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
+	                LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -rn)
 			LSBLKLIST=$(echo "$LABELMPLIST" | grep -v "^ " | awk '{print $1}' | sort -u | tr '\n' '|') # generated from lsblk
 			echo -n "\n$(date +'%F | %T | ')'$0' Status of lsblk: '$LSBLKLIST'." | tee -a /dev/tty8
 			[ "$LABELLIST" = "$LSBLKLIST" ] && break
