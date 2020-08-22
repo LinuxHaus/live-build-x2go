@@ -84,7 +84,7 @@ GetSSHHostKeysFromMedia ()
 	                LABELMPLIST=$(lsblk -oLABEL,RM,NAME,MOUNTPOINT -ln)
 			LSBLKLIST=$(echo "$LABELMPLIST" | grep -v "^ " | awk '{print $1}' | sort -u | tr '\n' '|') # generated from lsblk
 			echo -n "\n$(date +'%F | %T | ')'$0' Status of lsblk: '$LSBLKLIST'." | tee -a /dev/tty8
-			[ "$(echo -e "$LABELLIST")" = "$LSBLKLIST" ] && break
+			[ "$LABELLIST" = "$LSBLKLIST" ] && break
 			sleep 1
 		done
 
