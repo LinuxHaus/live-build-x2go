@@ -2,7 +2,7 @@ Only usable on systems with minimum 1G RAM
 Install Debian stretch on your server
 become root on the server
 apt update
-apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc
+apt install ipxe atftpd atftp git-core xinetd apache2 dnsutils live-build live-config-doc live-manual-html live-boot-doc debian-archive-keyring debian-keyring
 
 # tftp/pxe config
 cat <<EOF>/etc/default/atftpd 
@@ -43,7 +43,7 @@ IP_OF_FQDN=`dig $FQDN +short`
 DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
 mkdir $DIR
 cd $DIR
-lb config -d buster --chroot-filesystem squashfs --apt-indices none --cache-packages false --config https://github.com/LinuxHaus/live-build-x2go.git::feature/buster-fvwm --archive-areas "main contrib non-free" --apt-recommends true --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security true  --initsystem systemd  -b netboot --bootappend-live aufs vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet keep_bootcon toram live-config live-config.timezone=Europe/Berlin
+lb config -d bullseye --chroot-filesystem squashfs --apt-indices false --cache-packages false --config git://code.x2go.org/live-build-x2go.git::feature/bullseye-fvwm --archive-areas "main contrib non-free" --apt-recommends true --firmware-binary false --updates true --backports false --win32-loader false --loadlin false --security false  --initsystem systemd  -b netboot --bootappend-live aufs vconsole.keymap=de-latin1-nodeadkeys kernel.sysrq=1 sysrq_always_enabled log_buf_len=1M quickreboot silent splash lang=de locales=de_DE.UTF-8 keyboard-layouts=de consoleblank=0 quiet keep_bootcon toram live-config live-config.timezone=Europe/Berlin
 lb build
 cd `dirname $DIR`
 ln -s `basename $DIR` lb-x2go
