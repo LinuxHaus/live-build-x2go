@@ -12,6 +12,7 @@ EOF
 mkdir -p /srv/tftp/{bios,uefi}
 ln -nfs /usr/lib/ipxe/undionly.kpxe /srv/tftp/bios/
 ln -nfs /boot/ipxe.efi /srv/tftp/uefi/
+ln -snf /srv/tftp/* /var/www/html/
 FQDN=demo.x2go.org
 IP_OF_FQDN=`dig $FQDN +short`
 
@@ -21,6 +22,11 @@ IP_OF_FQDN=`dig $FQDN +short`
    }
    else if substring ( option vendor-class-identifier , 19,1 ) = "7" {
            filename "uefi/ipxe.efi";
+   }
+   else if substring ( option vendor-class-identifier , 0,10 ) = "HTTPClient" {
+           option vendor-class-identifier "HTTPClient";
+           log (info, "Vendor class Arch: UEFI HTTP BOOT");
+           filename "http://$FQDN/uefi/ipxe.efi";
    }
    else {  
            log (info, concat ( "Unhandled vendor class Arch: ", substring ( option vendor-class-identifier , 19,1 )));
