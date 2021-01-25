@@ -9,9 +9,9 @@ before_install:
 addons:
   artifacts: true
     paths:
-      - /var/www/html/initrd.img
-      - /var/www/html/vmlinuz
-      - /var/www/html/filesystem.squashfs
+    - /var/www/html/initrd.img
+    - /var/www/html/vmlinuz
+    - /var/www/html/filesystem.squashfs
 
 branches:
   only:
