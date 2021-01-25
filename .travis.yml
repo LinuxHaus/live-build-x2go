@@ -19,7 +19,7 @@ branches:
 
 script:
   - export DIR=/srv/live-build-x2go-`date +"%Y%m%d%H%M%S"`
-  - sudo mkdir $DIR /var/www/html
+  - sudo mkdir -p $DIR /var/www/html
   - echo $DIR
   - cd $DIR
   - pwd
