@@ -100,4 +100,4 @@ if [ -n "$THROTTLEVALUES" ]; then
 	fi
 fi
 
-eval $THROTTLINGCOMMAND x2goclient --thinclient --maximize --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export $LDAPPARAMS $SESSIONFROM $BACKGROUND $BRANDING $STARTSESSION
+eval $THROTTLINGCOMMAND x2goclient --thinclient --no-session-edit --no-menu --maximize --add-to-known-hosts --haltbt --read-exports-from=/home/user/export $LDAPPARAMS $SESSIONFROM $BACKGROUND $BRANDING $STARTSESSION
