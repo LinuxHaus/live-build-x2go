@@ -1,7 +1,6 @@
 libevdev2 
 libmtdev1 
 x11vnc 
-x11vnc-data 
 xserver-xorg-input-all
 xserver-xorg-input-wacom
 xserver-xorg-video-all
