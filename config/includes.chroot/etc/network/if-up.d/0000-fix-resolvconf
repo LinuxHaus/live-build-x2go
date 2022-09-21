@@ -1,6 +1,6 @@
 #!/bin/bash
 # for some silly reason, we end up with a 0-byte-sized actual resolv.conf file in /etc, which keeps resolvconf from working
 if ! [ -s /etc/resolv.conf ]; then
-	ln -sf /etc/resolvconf/run/resolv.conf /etc/resolv.conf
+	ln -sf /run/resolvconf/resolv.conf /etc/resolv.conf
 	resolvconf -u
 fi
